@@ -16,10 +16,11 @@ import path from 'path';
 const createDoctor = asyncHandler(async (req, res) => {
   // Handle file upload
   let imageUrl = '';
+  console.log(req.file);
   if (req.file) {
     try {
-      const result = await uploadToCloudinary(req.file.path);
-      imageUrl = result.secure_url;
+      const result = await uploadToCloudinary(req.file.path, 'royale-hayat/doctors');
+      imageUrl = result.url;
       
       // Clean up temp file
       await fs.remove(req.file.path);
@@ -32,8 +33,33 @@ const createDoctor = asyncHandler(async (req, res) => {
     }
   }
 
-  // Validate input (merge image URL with form data)
-  const { error, value } = createDoctorSchema.validate({ ...req.body, image: imageUrl }, { abortEarly: false });
+  // Convert form data arrays to actual arrays
+  const formData = { ...req.body, image: imageUrl };
+  
+  // Convert string arrays from form data
+  if (formData.qualifications && typeof formData.qualifications === 'string') {
+    formData.qualifications = [formData.qualifications];
+  }
+  if (formData.expertise && typeof formData.expertise === 'string') {
+    formData.expertise = [formData.expertise];
+  }
+  if (formData.languages && typeof formData.languages === 'string') {
+    formData.languages = [formData.languages];
+  }
+  if (formData.symptoms && typeof formData.symptoms === 'string') {
+    formData.symptoms = [formData.symptoms];
+  }
+  
+  // Convert boolean strings to actual booleans
+  if (formData.availableOnline !== undefined) {
+    formData.availableOnline = formData.availableOnline === 'true' || formData.availableOnline === true;
+  }
+  if (formData.isActive !== undefined) {
+    formData.isActive = formData.isActive === 'true' || formData.isActive === true;
+  }
+
+  // Validate input
+  const { error, value } = createDoctorSchema.validate(formData, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
   }
@@ -107,12 +133,13 @@ const updateDoctor = asyncHandler(async (req, res) => {
   let imageUrl = req.body.image; // Keep existing image if no new file
   if (req.file) {
     try {
-      const result = await uploadToCloudinary(req.file.path);
-      imageUrl = result.secure_url;
+      const result = await uploadToCloudinary(req.file.path, 'royale-hayat/doctors');
+      imageUrl = result.url;
       
       // Clean up temp file
       await fs.remove(req.file.path);
     } catch (error) {
+      console.log(error);
       // Clean up temp file on error
       if (req.file && req.file.path) {
         await fs.remove(req.file.path);
@@ -121,8 +148,33 @@ const updateDoctor = asyncHandler(async (req, res) => {
     }
   }
 
-  // Validate update data (merge image URL with form data)
-  const { error: dataError, value: dataValue } = updateDoctorSchema.validate({ ...req.body, image: imageUrl }, { abortEarly: false });
+  // Convert form data arrays to actual arrays
+  const formData = { ...req.body, image: imageUrl };
+  
+  // Convert string arrays from form data
+  if (formData.qualifications && typeof formData.qualifications === 'string') {
+    formData.qualifications = [formData.qualifications];
+  }
+  if (formData.expertise && typeof formData.expertise === 'string') {
+    formData.expertise = [formData.expertise];
+  }
+  if (formData.languages && typeof formData.languages === 'string') {
+    formData.languages = [formData.languages];
+  }
+  if (formData.symptoms && typeof formData.symptoms === 'string') {
+    formData.symptoms = [formData.symptoms];
+  }
+  
+  // Convert boolean strings to actual booleans
+  if (formData.availableOnline !== undefined) {
+    formData.availableOnline = formData.availableOnline === 'true' || formData.availableOnline === true;
+  }
+  if (formData.isActive !== undefined) {
+    formData.isActive = formData.isActive === 'true' || formData.isActive === true;
+  }
+
+  // Validate update data
+  const { error: dataError, value: dataValue } = updateDoctorSchema.validate(formData, { abortEarly: false });
   if (dataError) {
     throw new ApiError(httpStatus.BAD_REQUEST, dataError.details.map(d => d.message).join(", "));
   }

@@ -1,0 +1,45 @@
+import Joi from 'joi';
+
+const createDepartmentSchema = Joi.object({
+  name: Joi.string().trim().min(2).max(100).required(),
+  description: Joi.string().min(10).max(1000).required(),
+  image: Joi.string().uri().allow('').optional(),
+  slug: Joi.string().trim().min(2).max(100).optional(),
+  subSpecialties: Joi.array().items(Joi.string().trim().max(100)).optional(),
+  isActive: Joi.boolean().default(true),
+  order: Joi.number().integer().min(0).default(0)
+});
+
+const updateDepartmentSchema = Joi.object({
+  name: Joi.string().trim().min(2).max(100).optional(),
+  description: Joi.string().min(10).max(1000).optional(),
+  image: Joi.string().uri().allow('').optional(),
+  slug: Joi.string().trim().min(2).max(100).optional(),
+  subSpecialties: Joi.array().items(Joi.string().trim().max(100)).optional(),
+  isActive: Joi.boolean().optional(),
+  order: Joi.number().integer().min(0).optional()
+}).min(1);
+
+const getDepartmentsSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
+  isActive: Joi.boolean().optional(),
+  sortBy: Joi.string().valid('name', 'order', 'createdAt').default('order'),
+  sortOrder: Joi.string().valid('asc', 'desc').default('asc')
+});
+
+const departmentIdSchema = Joi.object({
+  id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required()
+});
+
+const departmentSlugSchema = Joi.object({
+  slug: Joi.string().trim().min(2).max(100).required()
+});
+
+export {
+  createDepartmentSchema,
+  updateDepartmentSchema,
+  getDepartmentsSchema,
+  departmentIdSchema,
+  departmentSlugSchema
+};

@@ -5,9 +5,8 @@ This document defines the coding standards, architecture rules, and API conventi
 ## 1. Module-Based Architecture Rules
 
 - **Single Database:** The application uses a single MongoDB database with different collections for each module.
-- **No Cross-Module Model Imports:** No module may import another module's Mongoose models directly.
-- **No Cross-Module DB Access:** No module may directly access or query another module's database collections.
-- **Communication:** Modules must communicate with each other exclusively through service layers or shared utilities.
+-
+
 - **Generic Shared Utilities:** Shared utilities must remain strictly generic and framework-agnostic where possible.
 
 ## 2. Shared Layer Rules

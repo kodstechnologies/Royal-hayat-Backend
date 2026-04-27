@@ -31,6 +31,18 @@ export const uploadToCloudinary = async (
             throw new Error("Local file path is required");
         }
 
+        // Check if file exists
+        if (!await fs.pathExists(localFilePath)) {
+            throw new Error(`File does not exist: ${localFilePath}`);
+        }
+
+        // Check Cloudinary configuration
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+            throw new Error("Cloudinary configuration is missing. Please check environment variables.");
+        }
+
+        console.log(`Uploading file: ${localFilePath} to folder: ${folder}`);
+
         const result = await cloudinary.uploader.upload(localFilePath, {
             folder,
             resource_type: resourceType,
@@ -39,15 +51,21 @@ export const uploadToCloudinary = async (
             overwrite: false,
         });
 
+        console.log("Cloudinary upload successful:", result.public_id);
+
         return {
             url: result.secure_url,
             publicId: result.public_id,
         };
+    } catch (error) {
+        console.error("Cloudinary upload error:", error.message);
+        throw error;
     } finally {
         // Always remove temp file (success or failure)
         if (localFilePath) {
             try {
                 await fs.remove(localFilePath);
+                console.log("Temp file removed:", localFilePath);
             } catch (error) {
                 console.error("Error removing temp file:", error);
             }
