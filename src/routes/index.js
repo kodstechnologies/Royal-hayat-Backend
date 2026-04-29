@@ -5,6 +5,8 @@ import enquiryRoutes from '../modules/enquiry/routes/enquiry.routes.js';
 import departmentRoutes from '../modules/departments/routes/department.routes.js';
 import jobRoutes from '../modules/jobs/routes/job.routes.js';
 import jobApplicationRoutes from '../modules/jobs/routes/jobApplication.routes.js';
+import identityRoutes from '../modules/identity/routes/identity.routes.js';
+import { identityCallback } from '../modules/identity/controllers/identity.controller.js';
 
 const router = Router();
 
@@ -14,5 +16,7 @@ router.use('/api/v1/enquiries', enquiryRoutes);
 router.use('/api/v1/departments', departmentRoutes);
 router.use('/api/v1/jobs', jobRoutes);
 router.use('/api/v1/job-applications', jobApplicationRoutes);
+router.use('/api/v1/identity', identityRoutes);
+router.post('/api/callback', identityCallback);
 
 export default router;

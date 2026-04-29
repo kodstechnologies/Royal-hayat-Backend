@@ -10,8 +10,26 @@ dotenv.config();
 const app = express();
 
 // -------------------- CORS --------------------
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Allow server-to-server tools and non-browser requests without Origin.
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    const message = `CORS blocked origin: ${origin}. Allowed origins: ${allowedOrigins.join(', ')}`;
+    console.error(message);
+    return callback(new Error(message));
+  },
   credentials: true,
 }));
 
@@ -29,6 +47,14 @@ app.get('/health', (req, res) => {
 
 // -------------------- Global Error Handler --------------------
 app.use((err, req, res, next) => {
+  if (err?.message?.startsWith('CORS blocked origin:')) {
+    return res.status(403).json({
+      success: false,
+      message: err.message,
+      data: null
+    });
+  }
+
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json(err.toJSON());
   }
