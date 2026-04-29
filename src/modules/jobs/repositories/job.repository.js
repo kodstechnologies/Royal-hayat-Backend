@@ -86,6 +86,10 @@ class JobRepository {
     return await Job.exists({ title });
   }
 
+  async existsByJobId(jobId) {
+    return await Job.exists({ jobId });
+  }
+
   async incrementApplicationsCount(id) {
     return await Job.findByIdAndUpdate(
       id,

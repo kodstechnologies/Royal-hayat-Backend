@@ -16,7 +16,17 @@ export const register = asyncHandler(async (req, res) => {
 });
 
 export const login = asyncHandler(async (req, res) => {
-  const { user, accessToken, refreshToken } = await authService.login(req.body);
+  const payload = await authService.login(req.body);
+  res.json(ApiResponse.success(payload, 'OTP sent to your email'));
+});
+
+export const sendOtp = asyncHandler(async (req, res) => {
+  const payload = await authService.sendOtp(req.body);
+  res.json(ApiResponse.success(payload, 'OTP sent to your email'));
+});
+
+export const verifyOtp = asyncHandler(async (req, res) => {
+  const { user, accessToken, refreshToken } = await authService.verifyOtp(req.body);
   res
     .cookie('accessToken', accessToken, cookieOptions)
     .cookie('refreshToken', refreshToken, cookieOptions)

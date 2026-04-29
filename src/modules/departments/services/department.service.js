@@ -5,19 +5,16 @@ import httpStatus from 'http-status';
 
 class DepartmentService {
   async createDepartment(departmentData) {
-    // Check if department name already exists
-    const existingDepartment = await departmentRepository.existsByName(departmentData.name);
-    if (existingDepartment) {
-      throw new ApiError(httpStatus.CONFLICT, 'Department with this name already exists');
-    }
+    const existingDepartmentId = await departmentRepository.existsByDepartmentId(departmentData.departmentId);
+    // if (existingDepartmentId) {
+    //   throw new ApiError(httpStatus.CONFLICT, 'Department with this departmentId already exists');
+    // }
 
-    // Check if slug already exists (if provided)
-    if (departmentData.slug) {
-      const existingSlug = await departmentRepository.existsBySlug(departmentData.slug);
-      if (existingSlug) {
-        throw new ApiError(httpStatus.CONFLICT, 'Department with this slug already exists');
-      }
-    }
+    // Check if department name already exists
+    // const existingDepartment = await departmentRepository.existsByName(departmentData.name);
+    // if (existingDepartment) {
+    //   throw new ApiError(httpStatus.CONFLICT, 'Department with this name already exists');
+    // }
 
     return await departmentRepository.create(departmentData);
   }
@@ -28,14 +25,6 @@ class DepartmentService {
 
   async getDepartmentById(id) {
     const department = await departmentRepository.findById(id);
-    if (!department) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Department not found');
-    }
-    return department;
-  }
-
-  async getDepartmentBySlug(slug) {
-    const department = await departmentRepository.findBySlug(slug);
     if (!department) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Department not found');
     }
@@ -60,14 +49,13 @@ class DepartmentService {
       }
     }
 
-    // Check if slug is being updated and if it already exists
-    if (updateData.slug) {
-      const slugExists = await Department.findOne({ 
-        slug: updateData.slug, 
-        _id: { $ne: id } 
+    if (updateData.departmentId) {
+      const departmentIdExists = await Department.findOne({
+        departmentId: updateData.departmentId,
+        _id: { $ne: id }
       });
-      if (slugExists) {
-        throw new ApiError(httpStatus.CONFLICT, 'Department with this slug already exists');
+      if (departmentIdExists) {
+        throw new ApiError(httpStatus.CONFLICT, 'Department with this departmentId already exists');
       }
     }
 

@@ -11,9 +11,9 @@ class DoctorService {
         specialty: doctorData.specialty
       });
 
-      if (existingDoctor) {
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Doctor with this name and specialty already exists');
-      }
+      // if (existingDoctor) {
+      //   throw new ApiError(httpStatus.BAD_REQUEST, 'Doctor with this name and specialty already exists');
+      // }
 
       const doctor = await doctorRepository.create(doctorData);
       return doctor;

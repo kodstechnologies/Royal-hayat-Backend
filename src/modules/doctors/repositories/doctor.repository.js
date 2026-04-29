@@ -7,7 +7,9 @@ class DoctorRepository {
   }
 
   async findById(id) {
-    return await Doctor.findById(id);
+    return await Doctor.findById(id)
+      .populate('department', 'name departmentId')
+      .lean();
   }
 
   async findOne(query) {
@@ -23,6 +25,7 @@ class DoctorRepository {
     const skip = (page - 1) * limit;
     
     return await Doctor.find(query)
+      .populate('department', 'name departmentId')
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
@@ -83,6 +86,7 @@ class DoctorRepository {
     const skip = (page - 1) * limit;
     
     const doctors = await Doctor.find(query)
+      .populate('department', 'name departmentId')
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)

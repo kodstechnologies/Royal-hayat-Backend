@@ -1,6 +1,7 @@
 import Joi from 'joi';
 
 const createJobSchema = Joi.object({
+  jobId: Joi.string().trim().pattern(/^JA-\d{3,}$/).optional(),
   title: Joi.string().trim().min(2).max(200).required(),
   description: Joi.string().min(10).max(2000).required(),
   department: Joi.string().trim().min(2).max(100).required(),
@@ -21,6 +22,7 @@ const createJobSchema = Joi.object({
 });
 
 const updateJobSchema = Joi.object({
+  jobId: Joi.string().trim().pattern(/^JA-\d{3,}$/).optional(),
   title: Joi.string().trim().min(2).max(200).optional(),
   description: Joi.string().min(10).max(2000).optional(),
   department: Joi.string().trim().min(2).max(100).optional(),

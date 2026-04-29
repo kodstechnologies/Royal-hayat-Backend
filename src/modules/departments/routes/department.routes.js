@@ -3,17 +3,15 @@ import {
   createDepartment,
   getAllDepartments,
   getDepartmentById,
-  getDepartmentBySlug,
   updateDepartment,
   deleteDepartment
 } from '../controllers/department.controller.js';
 import upload from "../../../utils/multer.js";
 
 const router = Router();
-
+  
 // Public routes
 router.get('/', getAllDepartments);
-router.get('/slug/:slug', getDepartmentBySlug);
 router.get('/:id', getDepartmentById);
 
 // Admin routes (add middleware later for authentication)

@@ -23,7 +23,7 @@ router.get('/:id', getJobById);
 
 // Admin routes (add middleware later for authentication)
 router.post('/', createJob);
-router.put('/:id', updateJob);
+router.put('/:id', updateJob);  
 router.delete('/:id', deleteJob);
 
 export default router;

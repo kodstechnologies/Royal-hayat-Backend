@@ -47,17 +47,16 @@ app.get('/health', (req, res) => {
 
 // -------------------- Global Error Handler --------------------
 app.use((err, req, res, next) => {
-  if (err?.message?.startsWith('CORS blocked origin:')) {
-    return res.status(403).json({
+  if (err instanceof ApiError || err?.statusCode) {
+    const statusCode = err.statusCode || 500;
+    return res.status(statusCode).json({
       success: false,
-      message: err.message,
-      data: null
+      message: err.message || 'Something went wrong',
+      data: null,
+      meta: err.meta || null,
     });
   }
-
-  if (err instanceof ApiError) {
-    return res.status(err.statusCode).json(err.toJSON());
-  }
+  console.error('Unhandled error:', err);
   res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
 });
 

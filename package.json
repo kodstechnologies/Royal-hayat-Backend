@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon src/server.js",
-    "dev": "nodemon src/server.js"
-    
+    "dev": "nodemon src/server.js",
+    "seed:admins": "node src/scripts/seedAdmins.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -21,7 +21,8 @@
     "joi": "^18.1.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.1",
-    "multer": "^2.1.1"
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
