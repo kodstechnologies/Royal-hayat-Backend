@@ -1,4 +1,4 @@
-name: Deploy Royal-Hayat-Backend
+name: Deploy Royal-Hayat Backend
 
 on:
   push:
@@ -11,38 +11,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚀 Deploy to EC2 via SSH
+      - name: 🚀 Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
-            echo "🔗 Connected to EC2"
+
+            echo "=============================="
+            echo "🚀 STARTING DEPLOYMENT"
+            echo "=============================="
 
             cd /home/ubuntu/Royal-hayat-Backend
 
-            echo "🧹 Resetting local changes..."
-            git reset --hard
+            echo "🔄 Resetting repository..."
+            git fetch origin main
+            git reset --hard origin/main
             git clean -fd
 
-            echo "📥 Pulling latest code..."
-            git pull origin main
-
-            echo "⚙️ Updating environment..."
-            echo "${{ secrets.ENV_FILE }}" > .env
-
             echo "📦 Installing dependencies..."
-            npm install
+            npm install --production
 
-            echo "🔄 Restarting PM2..."
+            echo "🔄 Restarting backend safely..."
             pm2 delete backend || true
             pm2 start src/server.js --name backend --cwd /home/ubuntu/Royal-hayat-Backend
 
-            echo "💾 Saving PM2..."
+            echo "💾 Saving PM2 process..."
             pm2 save
 
             echo "🌐 Restarting Nginx..."
             sudo systemctl restart nginx
 
-            echo "✅ Deployment completed"
+            echo "=============================="
+            echo "✅ DEPLOYMENT SUCCESSFUL"
+            echo "=============================="
