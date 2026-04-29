@@ -5,6 +5,6 @@ const PORT = process.env.PORT || 5000;
 
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`Royal Hayat server running on http://localhost:${PORT}`);
+    console.log(`Royal Hayatt server running on http://localhost:${PORT}`);
   });
 });
