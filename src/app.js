@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use('/', routes);
 
 app.get('/health', (req, res) => {
-  res.json({ success: true, message: 'Royaal Hayat API is running' });
+  res.json({ success: true, message: 'Royal Hayat API is running' });
 });
 
 // -------------------- Global Error Handler --------------------
