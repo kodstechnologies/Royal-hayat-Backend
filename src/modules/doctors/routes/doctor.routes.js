@@ -23,5 +23,5 @@ router.get('/department/:department', getDoctorsByDepartment);
 router.post('/', upload.single("image"), createDoctor);
 router.put('/:id', upload.single("image"), updateDoctor);
 router.delete('/:id', deleteDoctor);
-
+router.get('/:id', getDoctorById);
 export default router;

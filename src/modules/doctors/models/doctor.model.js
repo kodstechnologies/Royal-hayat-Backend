@@ -13,7 +13,6 @@ const doctorSchema = new mongoose.Schema({
   },
   specialty: {
     type: String,
-    required: true,
     trim: true
   },
   department: {
@@ -24,12 +23,10 @@ const doctorSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: true,
     trim: true
   },
   bio: {
-    type: String,
-    required: true
+    type: String
   },
   qualifications: [{
     type: String,

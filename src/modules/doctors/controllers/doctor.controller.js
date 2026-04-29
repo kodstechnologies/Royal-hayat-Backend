@@ -38,6 +38,22 @@ const createDoctor = asyncHandler(async (req, res) => {
   if (typeof formData.doctorId === 'string') {
     formData.doctorId = formData.doctorId.trim();
   }
+  if (typeof formData.title === 'string') {
+    formData.title = formData.title.trim();
+    if (!formData.title) delete formData.title;
+  }
+  if (typeof formData.bio === 'string') {
+    formData.bio = formData.bio.trim();
+    if (!formData.bio) delete formData.bio;
+  }
+  if (typeof formData.specialty === 'string') {
+    formData.specialty = formData.specialty.trim();
+    if (!formData.specialty) delete formData.specialty;
+  }
+  if (typeof formData.initials === 'string') {
+    formData.initials = formData.initials.trim().toUpperCase();
+    if (!formData.initials) delete formData.initials;
+  }
   
   // Convert string arrays from form data
   if (formData.qualifications && typeof formData.qualifications === 'string') {
