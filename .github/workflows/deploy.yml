@@ -20,25 +20,29 @@ jobs:
           script: |
             echo "🔗 Connected to EC2"
 
-            # Go to project folder
             cd /home/ubuntu/Royal-hayat-Backend
+
+            echo "🧹 Resetting local changes..."
+            git reset --hard
+            git clean -fd
 
             echo "📥 Pulling latest code..."
             git pull origin main
 
-            echo "⚙️ Creating .env file..."
+            echo "⚙️ Updating environment..."
             echo "${{ secrets.ENV_FILE }}" > .env
 
             echo "📦 Installing dependencies..."
             npm install
 
-            echo "🔄 Restarting PM2 app..."
-            pm2 restart backend || pm2 start src/server.js --name backend
+            echo "🔄 Restarting PM2..."
+            pm2 delete backend || true
+            pm2 start src/server.js --name backend --cwd /home/ubuntu/Royal-hayat-Backend
 
-            echo "💾 Saving PM2 process..."
+            echo "💾 Saving PM2..."
             pm2 save
 
             echo "🌐 Restarting Nginx..."
             sudo systemctl restart nginx
 
-            echo "✅ Deployment successful!"
+            echo "✅ Deployment completed"
