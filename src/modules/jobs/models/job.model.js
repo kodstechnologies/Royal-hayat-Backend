@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 
 const jobSchema = new mongoose.Schema({
+  jobId: {
+    type: String,
+    unique: true,
+    trim: true,
+    match: /^JA-\d{3,}$/
+  },
   title: {
     type: String,
     required: true,
@@ -29,7 +35,7 @@ const jobSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['Full-time', 'Part-time', 'Contract']
+    // enum: ['Full-time', 'Part-time', 'Contract']
   },
   classification: {
     type: String,
@@ -98,12 +104,34 @@ const jobSchema = new mongoose.Schema({
 
 // Indexes for better performance
 jobSchema.index({ department: 1 });
+jobSchema.index({ jobId: 1 }, { unique: true });
 jobSchema.index({ location: 1 });
 jobSchema.index({ type: 1 });
 jobSchema.index({ classification: 1 });
 jobSchema.index({ isActive: 1 });
 jobSchema.index({ postedDate: -1 });
 jobSchema.index({ urgency: 1 });
+
+jobSchema.pre('validate', async function (next) {
+  if (this.jobId) return next();
+
+  const latest = await this.constructor.aggregate([
+    { $match: { jobId: { $regex: /^JA-\d+$/ } } },
+    {
+      $project: {
+        seq: {
+          $toInt: { $arrayElemAt: [{ $split: ['$jobId', '-'] }, 1] }
+        }
+      }
+    },
+    { $sort: { seq: -1 } },
+    { $limit: 1 }
+  ]);
+
+  const nextSeq = (latest[0]?.seq || 0) + 1;
+  this.jobId = `JA-${String(nextSeq).padStart(3, '0')}`;
+  next();
+});
 
 const Job = mongoose.model('Job', jobSchema);
 

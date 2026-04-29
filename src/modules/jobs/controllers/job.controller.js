@@ -18,12 +18,12 @@ const createJob = asyncHandler(async (req, res) => {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
   }
 
-  await jobService.createJob(value);
+  const job = await jobService.createJob(value);
   
   res.status(201).json({
     success: true,
     message: 'Job created successfully',
-    data: null
+    data: job
   });
 });
 

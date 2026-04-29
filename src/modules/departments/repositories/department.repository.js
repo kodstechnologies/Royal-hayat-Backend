@@ -10,10 +10,6 @@ class DepartmentRepository {
     return await Department.findById(id);
   }
 
-  async findBySlug(slug) {
-    return await Department.findOne({ slug });
-  }
-
   async findAll(filters = {}) {
     const {
       page = 1,
@@ -57,32 +53,22 @@ class DepartmentRepository {
     );
   }
 
-  async updateBySlug(slug, updateData) {
-    return await Department.findOneAndUpdate(
-      { slug },
-      updateData,
-      { new: true, runValidators: true }
-    );
-  }
 
   async deleteById(id) {
     return await Department.findByIdAndDelete(id);
   }
 
-  async deleteBySlug(slug) {
-    return await Department.findOneAndDelete({ slug });
-  }
 
   async exists(id) {
     return await Department.exists({ _id: id });
   }
 
-  async existsBySlug(slug) {
-    return await Department.exists({ slug });
-  }
-
   async existsByName(name) {
     return await Department.exists({ name });
+  }
+
+  async existsByDepartmentId(departmentId) {
+    return await Department.exists({ departmentId });
   }
 }
 

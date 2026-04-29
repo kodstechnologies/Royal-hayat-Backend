@@ -4,8 +4,7 @@ import {
   createDepartmentSchema,
   updateDepartmentSchema,
   getDepartmentsSchema,
-  departmentIdSchema,
-  departmentSlugSchema
+  departmentIdSchema
 } from '../validators/department.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
@@ -53,12 +52,12 @@ const createDepartment = asyncHandler(async (req, res) => {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
   }
 
-  await departmentService.createDepartment(value);
+  const department = await departmentService.createDepartment(value);
   
   res.status(201).json({
     success: true,
     message: 'Department created successfully',
-    data: null
+    data: department
   });
 });
 
@@ -69,7 +68,11 @@ const getAllDepartments = asyncHandler(async (req, res) => {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
   }
 
-  const result = await departmentService.getAllDepartments(value);
+  const result = await departmentService.getAllDepartments({
+    ...value,
+    sortBy: 'createdAt',
+    sortOrder: 'asc'
+  });
   
   res.status(200).json({
     success: true,
@@ -87,22 +90,6 @@ const getDepartmentById = asyncHandler(async (req, res) => {
   }
 
   const department = await departmentService.getDepartmentById(value.id);
-  
-  res.status(200).json({
-    success: true,
-    message: 'Department fetched successfully',
-    data: department
-  });
-});
-
-const getDepartmentBySlug = asyncHandler(async (req, res) => {
-  // Validate department slug
-  const { error, value } = departmentSlugSchema.validate(req.params, { abortEarly: false });
-  if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
-  }
-
-  const department = await departmentService.getDepartmentBySlug(value.slug);
   
   res.status(200).json({
     success: true,
@@ -187,7 +174,6 @@ export {
   createDepartment,
   getAllDepartments,
   getDepartmentById,
-  getDepartmentBySlug,
   updateDepartment,
   deleteDepartment
 };

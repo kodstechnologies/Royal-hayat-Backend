@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const doctorSchema = new mongoose.Schema({
+  doctorId: {
+    type: String,
+    required: true,
+    trim: true
+  },
   name: {
     type: String,
     required: true,
@@ -13,8 +18,9 @@ const doctorSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    required: true,
-    trim: true
+    // required: true,
+   type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department'
   },
   title: {
     type: String,
@@ -39,13 +45,13 @@ const doctorSchema = new mongoose.Schema({
   }],
   initials: {
     type: String,
-    required: true,
+    // required: true,
     trim: true,
     uppercase: true
   },
   color: {
     type: String,
-    required: true,
+    // required: true,
     trim: true
   },
   symptoms: [{
@@ -71,6 +77,7 @@ const doctorSchema = new mongoose.Schema({
 });
 
 // Indexes for better performance
+doctorSchema.index({ doctorId: 1 });
 doctorSchema.index({ name: 1 });
 doctorSchema.index({ department: 1 });
 doctorSchema.index({ specialty: 1 });

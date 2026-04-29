@@ -10,6 +10,13 @@ class JobService {
       throw new ApiError(httpStatus.CONFLICT, 'Job with this title already exists');
     }
 
+    if (jobData.jobId) {
+      const existingJobId = await jobRepository.existsByJobId(jobData.jobId);
+      if (existingJobId) {
+        throw new ApiError(httpStatus.CONFLICT, 'Job with this Job ID already exists');
+      }
+    }
+
     return await jobRepository.create(jobData);
   }
 
@@ -37,6 +44,16 @@ class JobService {
       const titleExists = await jobRepository.existsByTitle(updateData.title);
       if (titleExists) {
         throw new ApiError(httpStatus.CONFLICT, 'Job with this title already exists');
+      }
+    }
+
+    if (updateData.jobId) {
+      const existing = await jobRepository.findById(id);
+      if (existing?.jobId !== updateData.jobId) {
+        const jobIdExists = await jobRepository.existsByJobId(updateData.jobId);
+        if (jobIdExists) {
+          throw new ApiError(httpStatus.CONFLICT, 'Job with this Job ID already exists');
+        }
       }
     }
 

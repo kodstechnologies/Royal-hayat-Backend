@@ -18,7 +18,6 @@ router.get('/', getAllDoctors);
 router.get('/departments', getDepartments);
 router.get('/specialties', getSpecialties);
 router.get('/department/:department', getDoctorsByDepartment);
-router.get('/:id', getDoctorById);
 
 // Admin routes (add middleware later for authentication)
 router.post('/', upload.single("image"), createDoctor);

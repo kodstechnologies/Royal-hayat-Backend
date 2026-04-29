@@ -10,6 +10,15 @@ export const registerSchema = Joi.object({
 });
 
 export const loginSchema = Joi.object({
-  email: Joi.string().email().lowercase().required(),
+  email: Joi.string().email().required(),
   password: Joi.string().required(),
+});
+
+export const sendOtpSchema = Joi.object({
+  email: Joi.string().email().lowercase().required(),
+});
+
+export const verifyOtpSchema = Joi.object({
+  email: Joi.string().email().lowercase().required(),
+  otp: Joi.string().length(6).required(),
 });

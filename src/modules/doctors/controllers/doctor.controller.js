@@ -35,6 +35,9 @@ const createDoctor = asyncHandler(async (req, res) => {
 
   // Convert form data arrays to actual arrays
   const formData = { ...req.body, image: imageUrl };
+  if (typeof formData.doctorId === 'string') {
+    formData.doctorId = formData.doctorId.trim();
+  }
   
   // Convert string arrays from form data
   if (formData.qualifications && typeof formData.qualifications === 'string') {

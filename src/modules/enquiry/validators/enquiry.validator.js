@@ -5,7 +5,7 @@ const createEnquirySchema = Joi.object({
   email: Joi.string().trim().email().required(),
   phone: Joi.number().integer().min(1000000000).max(999999999999999).optional(),
   department: Joi.string().trim().min(1).max(100).required(),
-  message: Joi.string().trim().min(5).max(2000).required(),
+  message: Joi.string().trim().min(1).max(2000).required(),
   isActive: Joi.boolean().default(true)
 });
 
@@ -14,7 +14,7 @@ const updateEnquirySchema = Joi.object({
   email: Joi.string().trim().email().optional(),
   phone: Joi.number().integer().min(1000000000).max(999999999999999).optional(),
   department: Joi.string().trim().min(1).max(100).optional(),
-  message: Joi.string().trim().min(5).max(2000).optional(),
+  message: Joi.string().trim().min(1).max(2000).optional(),
   isActive: Joi.boolean().optional()
 }).min(1);
 

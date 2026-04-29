@@ -1,6 +1,7 @@
 import Joi from 'joi';
 
 const createDoctorSchema = Joi.object({
+  doctorId: Joi.string().trim().min(1).max(50).required(),
   name: Joi.string().trim().min(2).max(100).required(),
   specialty: Joi.string().trim().min(2).max(100).required(),
   department: Joi.string().trim().min(2).max(100).required(),
@@ -10,7 +11,7 @@ const createDoctorSchema = Joi.object({
   expertise: Joi.array().items(Joi.string().trim()).min(1).required(),
   languages: Joi.array().items(Joi.string().trim()).min(1).required(),
   initials: Joi.string().trim().min(2).max(10).uppercase().required(),
-  color: Joi.string().pattern(/^#[0-9A-F]{6}$/i).required(),
+  color: Joi.string().pattern(/^#[0-9A-F]{6}$/i),
   symptoms: Joi.array().items(Joi.string().trim()).default([]),
   availableOnline: Joi.boolean().default(false),
   image: Joi.string().uri().allow('').optional(),
@@ -18,6 +19,7 @@ const createDoctorSchema = Joi.object({
 });
 
 const updateDoctorSchema = Joi.object({
+  doctorId: Joi.string().trim().min(1).max(50).optional(),
   name: Joi.string().trim().min(2).max(100).optional(),
   specialty: Joi.string().trim().min(2).max(100).optional(),
   department: Joi.string().trim().min(2).max(100).optional(),
