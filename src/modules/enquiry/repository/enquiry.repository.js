@@ -34,6 +34,36 @@ class EnquiryRepository {
       .lean();
   }
 
+  async search(baseQuery, searchTerm, options = {}) {
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = options;
+
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    const skip = (page - 1) * limit;
+
+    const query = {
+      ...baseQuery,
+      $or: [
+        { name: { $regex: searchTerm, $options: 'i' } },
+        { email: { $regex: searchTerm, $options: 'i' } },
+        { department: { $regex: searchTerm, $options: 'i' } },
+        { message: { $regex: searchTerm, $options: 'i' } }
+      ]
+    };
+
+    const [enquiries, total] = await Promise.all([
+      Enquiry.find(query).sort(sortOptions).skip(skip).limit(limit).lean(),
+      Enquiry.countDocuments(query)
+    ]);
+
+    return { enquiries, total };
+  }
+
   async countDocuments(query) {
     return await Enquiry.countDocuments(query);
   }

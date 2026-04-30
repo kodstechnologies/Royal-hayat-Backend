@@ -10,26 +10,18 @@ dotenv.config();
 const app = express();
 
 // -------------------- CORS --------------------
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow server-to-server tools and non-browser requests without Origin.
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    const message = `CORS blocked origin: ${origin}. Allowed origins: ${allowedOrigins.join(', ')}`;
-    console.error(message);
-    return callback(new Error(message));
-  },
+  origin: corsOrigins,
   credentials: true,
 }));
 

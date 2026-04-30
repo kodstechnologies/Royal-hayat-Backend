@@ -36,23 +36,27 @@ class EnquiryService {
       query.email = email;
     }
 
+    let enquiries = [];
+    let total = 0;
+
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { department: { $regex: search, $options: 'i' } },
-        { message: { $regex: search, $options: 'i' } }
-      ];
+      const searchResult = await enquiryRepository.search(query, search, {
+        page,
+        limit,
+        sortBy,
+        sortOrder
+      });
+      enquiries = searchResult.enquiries;
+      total = searchResult.total;
+    } else {
+      enquiries = await enquiryRepository.findMany(query, {
+        page,
+        limit,
+        sortBy,
+        sortOrder
+      });
+      total = await enquiryRepository.countDocuments(query);
     }
-
-    const enquiries = await enquiryRepository.findMany(query, {
-      page,
-      limit,
-      sortBy,
-      sortOrder
-    });
-
-    const total = await enquiryRepository.countDocuments(query);
 
     return {
       enquiries,

@@ -18,12 +18,12 @@ const createEnquiry = asyncHandler(async (req, res) => {
     );
   }
 
-  await enquiryService.createEnquiry(value);
+  const enquiry = await enquiryService.createEnquiry(value);
 
   res.status(httpStatus.CREATED).json({
     success: true,
     message: 'Enquiry created successfully',
-    data: null
+    data: enquiry
   });
 });
 
