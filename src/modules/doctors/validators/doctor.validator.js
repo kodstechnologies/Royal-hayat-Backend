@@ -55,10 +55,23 @@ const departmentSchema = Joi.object({
   department: Joi.string().trim().min(2).max(100).required()
 });
 
+const subspecialityIdParamSchema = Joi.object({
+  subspecialityId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
+});
+
+const getDoctorsBySubspecialityQuerySchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
+  sortBy: Joi.string().valid('name', 'specialty', 'department', 'createdAt').default('name'),
+  sortOrder: Joi.string().valid('asc', 'desc').default('asc'),
+});
+
 export {
   createDoctorSchema,
   updateDoctorSchema,
   getDoctorsSchema,
   doctorIdSchema,
-  departmentSchema
+  departmentSchema,
+  subspecialityIdParamSchema,
+  getDoctorsBySubspecialityQuerySchema,
 };

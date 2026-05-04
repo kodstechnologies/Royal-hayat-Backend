@@ -1,10 +1,24 @@
 import departmentRepository from '../repositories/department.repository.js';
 import Department from '../models/department.model.js';
+import Catagory from '../../catagory/model/catagory.model.js';
+import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 
 class DepartmentService {
   async createDepartment(departmentData) {
+    const catagoryExists = await Catagory.exists({ _id: departmentData.catagory });
+    if (!catagoryExists) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Category not found');
+    }
+
+    if (departmentData.subspeciality) {
+      const subspecialityExists = await Subspeciality.exists({ _id: departmentData.subspeciality });
+      if (!subspecialityExists) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Subspeciality not found');
+      }
+    }
+
     const existingDepartmentId = await departmentRepository.existsByDepartmentId(departmentData.departmentId);
     // if (existingDepartmentId) {
     //   throw new ApiError(httpStatus.CONFLICT, 'Department with this departmentId already exists');
@@ -56,6 +70,20 @@ class DepartmentService {
       });
       if (departmentIdExists) {
         throw new ApiError(httpStatus.CONFLICT, 'Department with this departmentId already exists');
+      }
+    }
+
+    if (updateData.catagory) {
+      const catagoryExists = await Catagory.exists({ _id: updateData.catagory });
+      if (!catagoryExists) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Category not found');
+      }
+    }
+
+    if (updateData.subspeciality) {
+      const subspecialityExists = await Subspeciality.exists({ _id: updateData.subspeciality });
+      if (!subspecialityExists) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Subspeciality not found');
       }
     }
 

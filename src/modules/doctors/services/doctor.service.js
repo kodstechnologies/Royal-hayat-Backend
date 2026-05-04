@@ -1,4 +1,6 @@
 import doctorRepository from '../repositories/doctor.repository.js';
+import Department from '../../departments/models/department.model.js';
+import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 
@@ -99,6 +101,67 @@ class DoctorService {
     });
 
     return doctors.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  /**
+   * Active doctors whose linked department has the given subspeciality.
+   */
+  async getAllDoctorsBySubspeciality(subspecialityId, filters = {}) {
+    const subsExists = await Subspeciality.exists({ _id: subspecialityId });
+    if (!subsExists) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Subspeciality not found');
+    }
+
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = filters;
+
+    const departments = await Department.find({
+      subspeciality: subspecialityId,
+      isActive: true,
+    })
+      .select('_id')
+      .lean();
+
+    const departmentIds = departments.map((d) => d._id);
+
+    if (departmentIds.length === 0) {
+      return {
+        doctors: [],
+        meta: {
+          page,
+          limit,
+          totalRecords: 0,
+          totalPages: 0,
+        },
+      };
+    }
+
+    const query = {
+      isActive: true,
+      department: { $in: departmentIds },
+    };
+
+    const doctors = await doctorRepository.findMany(query, {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    });
+    const total = await doctorRepository.countDocuments(query);
+
+    return {
+      doctors,
+      meta: {
+        page,
+        limit,
+        totalRecords: total,
+        totalPages: Math.ceil(total / limit) || 0,
+      },
+    };
   }
 
   async updateDoctor(id, updateData) {

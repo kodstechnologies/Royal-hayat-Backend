@@ -7,7 +7,9 @@ class DepartmentRepository {
   }
 
   async findById(id) {
-    return await Department.findById(id);
+    return await Department.findById(id)
+      .populate('catagory', 'name')
+      .populate('subspeciality', 'name description');
   }
 
   async findAll(filters = {}) {
@@ -28,6 +30,8 @@ class DepartmentRepository {
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
     const departments = await Department.find(query)
+      .populate('catagory', 'name')
+      .populate('subspeciality', 'name description')
       .sort(sort)
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -50,7 +54,9 @@ class DepartmentRepository {
       id,
       updateData,
       { new: true, runValidators: true }
-    );
+    )
+      .populate('catagory', 'name')
+      .populate('subspeciality', 'name description');
   }
 
 

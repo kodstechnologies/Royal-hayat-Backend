@@ -21,6 +21,15 @@ const departmentSchema = new mongoose.Schema({
     minlength: 10,
     maxlength: 1000
   },
+  catagory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Catagory',
+    required: true,
+  },
+  subspeciality: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Subspeciality',
+  },
   image: {
     type: String,
     trim: true
@@ -49,6 +58,8 @@ departmentSchema.index({ name: 1 });
 departmentSchema.index({ departmentId: 1 });
 departmentSchema.index({ isActive: 1 });
 departmentSchema.index({ order: 1 });
+departmentSchema.index({ catagory: 1 });
+departmentSchema.index({ subspeciality: 1 });
 
 const Department = mongoose.model('Department', departmentSchema);
 

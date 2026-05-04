@@ -5,7 +5,9 @@ import {
   updateDoctorSchema,
   getDoctorsSchema,
   doctorIdSchema,
-  departmentSchema
+  departmentSchema,
+  subspecialityIdParamSchema,
+  getDoctorsBySubspecialityQuerySchema,
 } from '../validators/doctor.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
@@ -141,6 +143,34 @@ const getDoctorsByDepartment = asyncHandler(async (req, res) => {
   });
 });
 
+const getDoctorsBySubspeciality = asyncHandler(async (req, res) => {
+  const { error: paramsError, value: paramsValue } = subspecialityIdParamSchema.validate(req.params, {
+    abortEarly: false,
+  });
+  if (paramsError) {
+    throw new ApiError(httpStatus.BAD_REQUEST, paramsError.details.map((d) => d.message).join(', '));
+  }
+
+  const { error: queryError, value: queryValue } = getDoctorsBySubspecialityQuerySchema.validate(req.query, {
+    abortEarly: false,
+  });
+  if (queryError) {
+    throw new ApiError(httpStatus.BAD_REQUEST, queryError.details.map((d) => d.message).join(', '));
+  }
+
+  const result = await doctorService.getAllDoctorsBySubspeciality(
+    paramsValue.subspecialityId,
+    queryValue,
+  );
+
+  res.status(200).json({
+    success: true,
+    message: 'Doctors fetched successfully',
+    data: result.doctors,
+    meta: result.meta,
+  });
+});
+
 const updateDoctor = asyncHandler(async (req, res) => {
   // Validate doctor ID
   const { error: idError, value: idValue } = doctorIdSchema.validate(req.params, { abortEarly: false });
@@ -248,6 +278,7 @@ export {
   getAllDoctors,
   getDoctorById,
   getDoctorsByDepartment,
+  getDoctorsBySubspeciality,
   updateDoctor,
   deleteDoctor,
   getDepartments,
