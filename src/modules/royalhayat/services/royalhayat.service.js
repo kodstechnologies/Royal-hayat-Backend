@@ -31,6 +31,7 @@ const getAuthToken = async () => {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Royal Hayat credentials not configured. Please set ROYAL_HAYAT_USERNAME and ROYAL_HAYAT_PASSWORD environment variables.');
   }
 
+  console.log('[RoyalHayat] Requesting new auth token...');
   const response = await fetch(`${ROYAL_HAYAT_BASE_URL}/WEBAPP/getToken`, {
     method: 'POST',
     headers: {
@@ -45,6 +46,8 @@ const getAuthToken = async () => {
 
   const responseBody = await parseResponseJson(response);
   if (!response.ok) {
+    console.error('[RoyalHayat] Auth Token Error Status:', response.status);
+    console.error('[RoyalHayat] Auth Token Error Body:', responseBody);
     throw new ApiError(
       response.status || httpStatus.BAD_GATEWAY,
       responseBody?.message || 'Failed to authenticate with Royal Hayat',
@@ -77,8 +80,14 @@ const makeAuthenticatedRequest = async (endpoint, options = {}) => {
     }
   };
 
+  console.log(`[RoyalHayat] Request: ${options.method || 'GET'} ${url}`);
+  if (options.body) console.log(`[RoyalHayat] Request Body: ${options.body}`);
+
   const response = await fetch(url, requestOptions);
   const responseBody = await parseResponseJson(response);
+
+  console.log(`[RoyalHayat] Response Status: ${response.status}`);
+  console.log(`[RoyalHayat] Response Body:`, JSON.stringify(responseBody, null, 2));
 
   if (!response.ok) {
     throw new ApiError(
@@ -92,7 +101,8 @@ const makeAuthenticatedRequest = async (endpoint, options = {}) => {
 };
 
 const getAvailability = async (params) => {
-  const {
+  try {
+    const {
     specialitycode,
     providercode,
     servicecode,
@@ -119,18 +129,24 @@ const getAvailability = async (params) => {
   if (timeto) queryParams.append('timeto', timeto);
   if (dow) queryParams.append('dow', dow);
 
-  const endpoint = `/WEBAPP/appointment/availability?${queryParams.toString()}`;
-  const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
+    const endpoint = `/WEBAPP/appointment/availability?${queryParams.toString()}`;
+    const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
 
-  if (response.status !== 'Success') {
-    throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch availability', response);
+    if (response.status !== 'Success') {
+      console.error('[RoyalHayat] Availability Error Status:', response.status);
+      throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch availability', response);
+    }
+
+    return {
+      slot_list: response.slot_list || [],
+      truncated: response.truncated || false,
+      raw: response
+    };
+  } catch (error) {
+    console.error('[RoyalHayat] getAvailability Exception:', error.message);
+    if (error.stack) console.error(error.stack);
+    throw error;
   }
-
-  return {
-    slot_list: response.slot_list || [],
-    truncated: response.truncated || false,
-    raw: response
-  };
 };
 
 const bookAppointment = async (patientId, slotBookingId) => {
