@@ -1,13 +1,25 @@
 import Joi from 'joi';
 
+const optionalTrimmedString = Joi.string().trim().allow('').optional();
+
+const customExplainantionItemSchema = Joi.object({
+  subHeading: optionalTrimmedString,
+  explaination: Joi.array().items(Joi.string().trim()).optional().default([]),
+});
+
 const createDepartmentSchema = Joi.object({
   departmentId: Joi.string().trim().required(),
   name: Joi.string().trim().required(),
   description: Joi.string().required(),
   catagory: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-  subspeciality: Joi.string().trim().empty('').optional().pattern(/^[0-9a-fA-F]{24}$/),
+  subspecialities: Joi.array()
+    .items(Joi.string().trim().pattern(/^[0-9a-fA-F]{24}$/))
+    .unique()
+    .optional()
+    .default([]),
   image: Joi.string().uri().allow('').optional(),
   subSpecialties: Joi.array().items(Joi.string().trim().max(100)).optional(),
+  customExplainantions: Joi.array().items(customExplainantionItemSchema).optional().default([]),
   isActive: Joi.boolean().default(true),
   order: Joi.number().integer().min(0).default(0)
 });
@@ -17,9 +29,13 @@ const updateDepartmentSchema = Joi.object({
   name: Joi.string().trim().optional(),
   description: Joi.string().optional(),
   catagory: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).optional(),
-  subspeciality: Joi.string().trim().empty('').optional().pattern(/^[0-9a-fA-F]{24}$/),
+  subspecialities: Joi.array()
+    .items(Joi.string().trim().pattern(/^[0-9a-fA-F]{24}$/))
+    .unique()
+    .optional(),
   image: Joi.string().uri().allow('').optional(),
   subSpecialties: Joi.array().items(Joi.string().trim().max(100)).optional(),
+  customExplainantions: Joi.array().items(customExplainantionItemSchema).optional(),
   isActive: Joi.boolean().optional(),
   order: Joi.number().integer().min(0).optional()
 }).min(1);

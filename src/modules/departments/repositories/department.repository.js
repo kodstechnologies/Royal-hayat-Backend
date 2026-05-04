@@ -1,5 +1,19 @@
 import Department from '../models/department.model.js';
 
+const populateSubspecialities = {
+  path: 'subspecialities',
+  select: 'name description customSubspecialities',
+  populate: {
+    path: 'customSubspecialities',
+    select: 'subHeading explanations',
+  },
+};
+
+const populateCustomExplainantions = {
+  path: 'customExplainantions',
+  select: 'subHeading explaination',
+};
+
 class DepartmentRepository {
   async create(departmentData) {
     const department = new Department(departmentData);
@@ -9,7 +23,8 @@ class DepartmentRepository {
   async findById(id) {
     return await Department.findById(id)
       .populate('catagory', 'name')
-      .populate('subspeciality', 'name description');
+      .populate(populateSubspecialities)
+      .populate(populateCustomExplainantions);
   }
 
   async findAll(filters = {}) {
@@ -31,7 +46,8 @@ class DepartmentRepository {
 
     const departments = await Department.find(query)
       .populate('catagory', 'name')
-      .populate('subspeciality', 'name description')
+      .populate(populateSubspecialities)
+      .populate(populateCustomExplainantions)
       .sort(sort)
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -56,7 +72,8 @@ class DepartmentRepository {
       { new: true, runValidators: true }
     )
       .populate('catagory', 'name')
-      .populate('subspeciality', 'name description');
+      .populate(populateSubspecialities)
+      .populate(populateCustomExplainantions);
   }
 
 

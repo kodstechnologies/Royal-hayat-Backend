@@ -1,10 +1,13 @@
 import Joi from 'joi';
 
+const objectIdString = Joi.string().trim().pattern(/^[0-9a-fA-F]{24}$/i);
+
 const createDoctorSchema = Joi.object({
   doctorId: Joi.string().trim().min(1).max(50).required(),
   name: Joi.string().trim().min(2).max(100).required(),
-  specialty: Joi.string().trim().min(2).max(100).optional(),
-  department: Joi.string().trim().min(2).max(100).required(),
+  specialty: Joi.string().trim().min(2).optional(),
+  department: objectIdString.required(),
+  subspecialities: Joi.array().items(objectIdString).unique().optional().default([]),
   title: Joi.string().trim().min(2).max(100).optional(),
   bio: Joi.string().min(10).max(2000).optional(),
   qualifications: Joi.array().items(Joi.string().trim()).optional(),
@@ -21,8 +24,9 @@ const createDoctorSchema = Joi.object({
 const updateDoctorSchema = Joi.object({
   doctorId: Joi.string().trim().min(1).max(50).optional(),
   name: Joi.string().trim().min(2).max(100).optional(),
-  specialty: Joi.string().trim().min(2).max(100).optional(),
-  department: Joi.string().trim().min(2).max(100).optional(),
+  specialty: Joi.string().trim().min(2).optional(),
+  department: objectIdString.optional(),
+  subspecialities: Joi.array().items(objectIdString).unique().optional(),
   title: Joi.string().trim().min(2).max(100).optional(),
   bio: Joi.string().min(10).max(2000).optional(),
   qualifications: Joi.array().items(Joi.string().trim()).optional(),

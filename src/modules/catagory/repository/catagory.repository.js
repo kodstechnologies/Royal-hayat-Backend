@@ -80,6 +80,18 @@ class CatagoryRepository {
     const categoryIds = categories.map((c) => c._id);
     const departments = await Department.find({ catagory: { $in: categoryIds } })
       .sort({ order: 1, name: 1 })
+      .populate({
+        path: 'subspecialities',
+        select: 'name description customSubspecialities',
+        populate: {
+          path: 'customSubspecialities',
+          select: 'subHeading explanations',
+        },
+      })
+      .populate({
+        path: 'customExplainantions',
+        select: 'subHeading explaination',
+      })
       .lean();
 
     const deptIds = departments.map((d) => d._id);
@@ -102,9 +114,16 @@ class CatagoryRepository {
     const deptsByCat = new Map();
     for (const dep of departments) {
       const catKey = String(dep.catagory);
-      const { catagory: _omit, ...rest } = dep;
+      const { catagory: _omit, subspecialities: subMulti, ...rest } = dep;
+      const mergedSubspecialities = Array.isArray(subMulti)
+        ? subMulti.filter((s) => s && typeof s === 'object' && s._id)
+        : [];
+      const firstSub = mergedSubspecialities[0] || null;
       const row = {
         ...rest,
+        subspecialities: mergedSubspecialities,
+        subspeciality: firstSub,
+        subspecialityName: firstSub && typeof firstSub === 'object' && 'name' in firstSub ? String(firstSub.name || '') : '',
         doctors: doctorsByDept.get(String(dep._id)) || [],
       };
       if (!deptsByCat.has(catKey)) deptsByCat.set(catKey, []);
