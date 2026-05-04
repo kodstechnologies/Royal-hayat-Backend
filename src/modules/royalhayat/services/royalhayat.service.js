@@ -19,7 +19,12 @@ let cachedToken = null;
 let tokenExpiry = null;
 
 const parseResponseJson = async (resp) => {
-  return resp.json().catch(() => null);
+  try {
+    return await resp.json();
+  } catch (error) {
+    console.warn('[RoyalHayat] Failed to parse JSON response. Returning null.');
+    return null;
+  }
 };
 
 const getAuthToken = async () => {
@@ -150,87 +155,111 @@ const getAvailability = async (params) => {
 };
 
 const bookAppointment = async (patientId, slotBookingId) => {
-  if (!patientId || !slotBookingId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameters: patientId, slotBookingId');
+  try {
+    if (!patientId || !slotBookingId) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameters: patientId, slotBookingId');
+    }
+
+    const endpoint = '/WEBAPP/appointment/book';
+    const response = await makeAuthenticatedRequest(endpoint, {
+      method: 'POST',
+      body: JSON.stringify({
+        patient_id: patientId,
+        slot_booking_id: slotBookingId
+      })
+    });
+
+    if (response.status !== 'Success') {
+      console.error('[RoyalHayat] Booking Error Status:', response.status);
+      throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to book appointment', response);
+    }
+
+    return {
+      status: response.status,
+      raw: response
+    };
+  } catch (error) {
+    console.error('[RoyalHayat] bookAppointment Exception:', error.message);
+    throw error;
   }
-
-  const endpoint = '/WEBAPP/appointment/book';
-  const response = await makeAuthenticatedRequest(endpoint, {
-    method: 'POST',
-    body: JSON.stringify({
-      patient_id: patientId,
-      slot_booking_id: slotBookingId
-    })
-  });
-
-  if (response.status !== 'Success') {
-    throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to book appointment', response);
-  }
-
-  return {
-    status: response.status,
-    raw: response
-  };
 };
 
 const getPatient = async (params) => {
-  const { urn, nationalid } = params;
+  try {
+    const { urn, nationalid } = params;
 
-  if (!urn && !nationalid) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'At least one parameter required: urn or nationalid');
+    if (!urn && !nationalid) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'At least one parameter required: urn or nationalid');
+    }
+
+    const queryParams = new URLSearchParams();
+    if (urn) queryParams.append('urn', urn);
+    if (nationalid) queryParams.append('nationalid', nationalid);
+
+    const endpoint = `/WEBAPP/patient?${queryParams.toString()}`;
+    const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
+
+    if (response.status !== 'Success') {
+      console.error('[RoyalHayat] getPatient Error Status:', response.status);
+      throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch patient', response);
+    }
+
+    return {
+      patient: response,
+      raw: response
+    };
+  } catch (error) {
+    console.error('[RoyalHayat] getPatient Exception:', error.message);
+    throw error;
   }
-
-  const queryParams = new URLSearchParams();
-  if (urn) queryParams.append('urn', urn);
-  if (nationalid) queryParams.append('nationalid', nationalid);
-
-  const endpoint = `/WEBAPP/patient?${queryParams.toString()}`;
-  const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
-
-  if (response.status !== 'Success') {
-    throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch patient', response);
-  }
-
-  return {
-    patient: response,
-    raw: response
-  };
 };
 
 const getSpecialities = async (hospitalCode) => {
-  if (!hospitalCode) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameter: hospitalCode');
+  try {
+    if (!hospitalCode) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameter: hospitalCode');
+    }
+
+    const endpoint = `/WEBAPP/appointment/speciality?hospitalcode=${encodeURIComponent(hospitalCode)}`;
+    const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
+
+    if (response.status !== 'Success') {
+      console.error('[RoyalHayat] getSpecialities Error Status:', response.status);
+      throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch specialities', response);
+    }
+
+    return {
+      speciality_list: response.speciality_list || [],
+      raw: response
+    };
+  } catch (error) {
+    console.error('[RoyalHayat] getSpecialities Exception:', error.message);
+    throw error;
   }
-
-  const endpoint = `/WEBAPP/appointment/speciality?hospitalcode=${encodeURIComponent(hospitalCode)}`;
-  const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
-
-  if (response.status !== 'Success') {
-    throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch specialities', response);
-  }
-
-  return {
-    speciality_list: response.speciality_list || [],
-    raw: response
-  };
 };
 
 const getCareProviders = async (specialityCode) => {
-  if (!specialityCode) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameter: specialityCode');
+  try {
+    if (!specialityCode) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameter: specialityCode');
+    }
+
+    const endpoint = `/WEBAPP/appointment/doctor?specialitycode=${encodeURIComponent(specialityCode)}`;
+    const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
+
+    if (response.status !== 'Success') {
+      console.error('[RoyalHayat] getCareProviders Error Status:', response.status);
+      throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch care providers', response);
+    }
+
+    return {
+      provider_list: response.provider_list || [],
+      raw: response
+    };
+  } catch (error) {
+    console.error('[RoyalHayat] getCareProviders Exception:', error.message);
+    throw error;
   }
-
-  const endpoint = `/WEBAPP/appointment/doctor?specialitycode=${encodeURIComponent(specialityCode)}`;
-  const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
-
-  if (response.status !== 'Success') {
-    throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch care providers', response);
-  }
-
-  return {
-    provider_list: response.provider_list || [],
-    raw: response
-  };
 };
 
 export default {
