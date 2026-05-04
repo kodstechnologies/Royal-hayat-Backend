@@ -22,6 +22,40 @@ const parseResponseJson = async (resp) => {
   return resp.json().catch(() => null);
 };
 
+const isDataNotAvailableError = (statusCode, responseBody) => {
+  if ([204, 404].includes(statusCode)) {
+    return true;
+  }
+  const message = `${responseBody?.detail || ''} ${responseBody?.message || ''}`.toLowerCase();
+  return (
+    statusCode === 400 &&
+    (message.includes('not found') || message.includes('no data') || message.includes('not available'))
+  );
+};
+
+const fetchIdentityDataRaw = async (civilId, options = { allowMissing: false }) => {
+  const dataResp = await fetch(`${SHARPER_BASE_URL}data/${encodeURIComponent(civilId)}`, {
+    method: 'GET',
+    headers: {
+      Authorization: basicAuth
+    }
+  });
+
+  const dataBody = await parseResponseJson(dataResp);
+  if (!dataResp.ok) {
+    if (options.allowMissing && isDataNotAvailableError(dataResp.status, dataBody)) {
+      return null;
+    }
+    throw new ApiError(
+      dataResp.status || httpStatus.BAD_GATEWAY,
+      dataBody?.detail || dataBody?.message || 'Failed to fetch identity data',
+      dataBody || null
+    );
+  }
+
+  return dataBody;
+};
+
 const extractName = (payload) => {
   const nameObj = payload?.name;
   if (!nameObj) return { english: '', arabic: '' };
@@ -66,6 +100,19 @@ const normalizeStatusPayload = (rawBody) => {
 };
 
 const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, reason }) => {
+  const existingData = await fetchIdentityDataRaw(civilId, { allowMissing: true });
+  if (existingData) {
+    return {
+      operationId: null,
+      status: 'verified',
+      verified: true,
+      skippedStart: true,
+      dataSource: 'data',
+      civilId,
+      raw: existingData
+    };
+  }
+
   const payload = {
     civilId,
     callbackUrl: callbackUrl || SHARPER_CALLBACK_URL,
@@ -109,6 +156,10 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
 
   return {
     operationId: responseBody.operationId,
+    status: 'pending',
+    verified: null,
+    skippedStart: false,
+    dataSource: 'start',
     paciRequestId: responseBody.paciRequestId || null,
     statusUrl: responseBody?.urls?.status || null,
     callbackUrl: payload.callbackUrl,
@@ -156,6 +207,12 @@ const getIdentityStatus = async (operationId) => {
   }
 
   const normalized = normalizeStatusPayload(statusBody);
+  const effectiveCivilId = normalized.civilId || existing.civilId || null;
+  let identityData = null;
+  if (normalized.verified === true && effectiveCivilId) {
+    identityData = await fetchIdentityDataRaw(effectiveCivilId, { allowMissing: true });
+  }
+
   const updated = {
     ...existing,
     status: normalized.status,
@@ -170,9 +227,18 @@ const getIdentityStatus = async (operationId) => {
     status: normalized.status,
     verified: normalized.verified,
     personName: normalized.personName,
-    civilId: normalized.civilId || existing.civilId || null,
+    civilId: effectiveCivilId,
+    identityData,
     callbackReceived: updated.callbackReceived,
     updatedAt: updated.updatedAt
+  };
+};
+
+const getIdentityData = async (civilId) => {
+  const dataBody = await fetchIdentityDataRaw(civilId);
+  return {
+    civilId,
+    raw: dataBody
   };
 };
 
@@ -216,6 +282,7 @@ const handleIdentityCallback = async (callbackBody) => {
 export default {
   startIdentityVerification,
   getIdentityStatus,
+  getIdentityData,
   handleIdentityCallback
 };
 

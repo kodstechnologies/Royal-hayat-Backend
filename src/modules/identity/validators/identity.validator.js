@@ -16,8 +16,13 @@ const statusParamsSchema = Joi.object({
   operationId: Joi.string().trim().min(1).required()
 });
 
+const dataParamsSchema = Joi.object({
+  civilId: Joi.string().trim().pattern(/^\d{12}$/).required()
+});
+
 export {
   startIdentitySchema,
-  statusParamsSchema
+  statusParamsSchema,
+  dataParamsSchema
 };
 
