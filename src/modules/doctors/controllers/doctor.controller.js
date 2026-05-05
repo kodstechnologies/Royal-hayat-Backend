@@ -15,6 +15,38 @@ import { uploadToCloudinary } from '../../../utils/cloudinary.js';
 import fs from 'fs-extra';
 import path from 'path';
 
+const OID = /^[0-9a-fA-F]{24}$/i;
+
+/** Multipart: JSON array string, repeated fields, or single ObjectId. */
+function coerceDoctorSubspecialitiesField(formData) {
+  if (formData.subspecialities === undefined) return;
+  const raw = formData.subspecialities;
+  if (Array.isArray(raw)) {
+    formData.subspecialities = [...new Set(raw.map(String).filter((id) => OID.test(id)))];
+    return;
+  }
+  if (typeof raw === 'string') {
+    const t = raw.trim();
+    if (!t) {
+      formData.subspecialities = [];
+      return;
+    }
+    if (t.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(t);
+        formData.subspecialities = Array.isArray(parsed)
+          ? [...new Set(parsed.map(String).filter((id) => OID.test(id)))]
+          : [];
+        return;
+      } catch {
+        formData.subspecialities = [];
+        return;
+      }
+    }
+    formData.subspecialities = OID.test(t) ? [t] : [];
+  }
+}
+
 const createDoctor = asyncHandler(async (req, res) => {
   // Handle file upload
   let imageUrl = '';
@@ -70,6 +102,8 @@ const createDoctor = asyncHandler(async (req, res) => {
   if (formData.symptoms && typeof formData.symptoms === 'string') {
     formData.symptoms = [formData.symptoms];
   }
+
+  coerceDoctorSubspecialitiesField(formData);
   
   // Convert boolean strings to actual booleans
   if (formData.availableOnline !== undefined) {
@@ -213,6 +247,8 @@ const updateDoctor = asyncHandler(async (req, res) => {
   if (formData.symptoms && typeof formData.symptoms === 'string') {
     formData.symptoms = [formData.symptoms];
   }
+
+  coerceDoctorSubspecialitiesField(formData);
   
   // Convert boolean strings to actual booleans
   if (formData.availableOnline !== undefined) {

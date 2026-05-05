@@ -1,13 +1,22 @@
 import Subspeciality from '../model/subspeciality.model.js';
+import '../model/customSubspeciality.model.js';
 
 class SubspecialityRepository {
   async create(data) {
     const doc = new Subspeciality(data);
-    return await doc.save();
+    await doc.save();
+    return await this.findById(String(doc._id), { populateCustom: true });
   }
 
-  async findById(id) {
-    return await Subspeciality.findById(id).lean();
+  async findById(id, { populateCustom = true } = {}) {
+    let q = Subspeciality.findById(id);
+    if (populateCustom) {
+      q = q.populate({
+        path: 'customSubspecialities',
+        select: 'subHeading explanations createdAt updatedAt',
+      });
+    }
+    return await q.lean();
   }
 
   async findAll(filters = {}) {
@@ -33,7 +42,15 @@ class SubspecialityRepository {
     const skip = (page - 1) * limit;
 
     const [subspecialities, total] = await Promise.all([
-      Subspeciality.find(query).sort(sort).skip(skip).limit(limit).lean(),
+      Subspeciality.find(query)
+        .populate({
+          path: 'customSubspecialities',
+          select: 'subHeading explanations createdAt updatedAt',
+        })
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
       Subspeciality.countDocuments(query),
     ]);
 

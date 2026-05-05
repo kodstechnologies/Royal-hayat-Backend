@@ -8,7 +8,12 @@ class DoctorRepository {
 
   async findById(id) {
     return await Doctor.findById(id)
-      .populate('department', 'name departmentId')
+      .populate({
+        path: 'department',
+        select: 'name departmentId',
+        populate: { path: 'subspecialities', select: 'name description' },
+      })
+      .populate('subspecialities', 'name description')
       .lean();
   }
 

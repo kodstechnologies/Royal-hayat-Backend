@@ -16,7 +16,7 @@ const createJobSchema = Joi.object({
   computerLiteracy: Joi.boolean().optional(),
   languages: Joi.array().items(Joi.string().trim().max(50)).optional(),
   postedDate: Joi.date().optional(),
-  closingDate: Joi.date().greater(Joi.ref('postedDate')).optional(),
+  closingDate: Joi.date().optional(),
   urgency: Joi.string().valid('immediate', 'urgent', 'normal').optional(),
   isActive: Joi.boolean().default(true)
 });

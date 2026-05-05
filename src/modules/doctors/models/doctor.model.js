@@ -16,11 +16,13 @@ const doctorSchema = new mongoose.Schema({
     trim: true
   },
   department: {
-    type: String,
-    // required: true,
-   type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department'
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department',
   },
+  subspecialities: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Subspeciality',
+  }],
   title: {
     type: String,
     trim: true
@@ -77,6 +79,7 @@ const doctorSchema = new mongoose.Schema({
 doctorSchema.index({ doctorId: 1 });
 doctorSchema.index({ name: 1 });
 doctorSchema.index({ department: 1 });
+doctorSchema.index({ subspecialities: 1 });
 doctorSchema.index({ specialty: 1 });
 doctorSchema.index({ isActive: 1 });
 
