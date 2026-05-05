@@ -8,6 +8,7 @@ import jobApplicationRoutes from '../modules/jobs/routes/jobApplication.routes.j
 import identityRoutes from '../modules/identity/routes/identity.routes.js';
 import catagoryRoutes from '../modules/catagory/routes/catagory.routes.js';
 import subspecialityRoutes from '../modules/subspeciality/routes/subspeciality.routes.js';
+import appointmentRequestRoutes from '../modules/appintmentRequest/routes/appointmentRequest.routes.js';
 import { identityCallback } from '../modules/identity/controllers/identity.controller.js';
 
 const router = Router();
@@ -21,6 +22,7 @@ router.use('/api/v1/job-applications', jobApplicationRoutes);
 router.use('/api/v1/identity', identityRoutes);
 router.use('/api/v1/catagories', catagoryRoutes);
 router.use('/api/v1/subspecialities', subspecialityRoutes);
+router.use('/api/v1/appointment-requests', appointmentRequestRoutes);
 router.post('/api/callback', identityCallback);
 
 export default router;
