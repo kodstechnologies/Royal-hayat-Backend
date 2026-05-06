@@ -63,6 +63,14 @@ function extractDoctorsFromTs(tsSource) {
   return docs;
 }
 
+function toDoctorAuditShape(row) {
+  return {
+    name: row.name,
+    specialityid: row.specialitycode ?? null,
+    providerid: row.providerCode ?? null,
+  };
+}
+
 async function runPool(items, worker, { concurrency }) {
   const results = new Array(items.length);
   let idx = 0;
@@ -175,7 +183,45 @@ async function main() {
     delayMs,
   };
 
-  const payload = { summary, results };
+  const workingForDoctors = results
+    .filter((r) => r.ok)
+    .map((r) => ({
+      ...toDoctorAuditShape(r),
+      slotCount: r.slotCount ?? 0,
+      sampleSlot: r.sampleSlot ?? null,
+    }));
+
+  const notWorkingForDoctors = results
+    .filter((r) => !r.ok)
+    .map((r) => ({
+      ...toDoctorAuditShape(r),
+      skipped: !!r.skipped,
+      reason: r.reason ?? null,
+      error: r.error ?? null,
+    }));
+
+  const doctorsWithDifferentSlotFromAndToTime = results
+    .filter(
+      (r) =>
+        r.ok &&
+        r.sampleSlot &&
+        r.sampleSlot.slot_from_time &&
+        r.sampleSlot.slot_to_time &&
+        r.sampleSlot.slot_from_time !== r.sampleSlot.slot_to_time,
+    )
+    .map((r) => ({
+      ...toDoctorAuditShape(r),
+      slot_from_time: r.sampleSlot.slot_from_time,
+      slot_to_time: r.sampleSlot.slot_to_time,
+    }));
+
+  const payload = {
+    summary,
+    results,
+    workingForDoctors,
+    notWorkingForDoctors,
+    doctorsWithDifferentSlotFromAndToTime,
+  };
   fs.writeFileSync(outFile, JSON.stringify(payload, null, 2), "utf8");
 
   console.log(`Wrote availability audit: ${outFile}`);
