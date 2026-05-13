@@ -4,18 +4,35 @@ import '../model/customSubspeciality.model.js';
 class SubspecialityRepository {
   async create(data) {
     const doc = new Subspeciality(data);
+
     await doc.save();
-    return await this.findById(String(doc._id), { populateCustom: true });
+
+    return await this.findById(String(doc._id), {
+      populateCustom: true,
+    });
   }
 
-  async findById(id, { populateCustom = true } = {}) {
+  async findById(
+    id,
+    { populateCustom = true } = {}
+  ) {
     let q = Subspeciality.findById(id);
+
     if (populateCustom) {
       q = q.populate({
         path: 'customSubspecialities',
-        select: 'subHeading explanations createdAt updatedAt',
+        select:
+          `
+          subHeading
+          arabicSubHeading
+          explanations
+          arabicExplanations
+          createdAt
+          updatedAt
+          `,
       });
     }
+
     return await q.lean();
   }
 
@@ -29,63 +46,142 @@ class SubspecialityRepository {
     } = filters;
 
     const query = {};
+
+    // Search English + Arabic fields
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
+        {
+          name: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+
+        {
+          arabicName: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+
+        {
+          description: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+
+        {
+          arabicDescription: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
       ];
     }
 
     const sort = {};
-    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    sort[sortBy] =
+      sortOrder === 'desc' ? -1 : 1;
 
     const skip = (page - 1) * limit;
 
-    const [subspecialities, total] = await Promise.all([
-      Subspeciality.find(query)
-        .populate({
-          path: 'customSubspecialities',
-          select: 'subHeading explanations createdAt updatedAt',
-        })
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      Subspeciality.countDocuments(query),
-    ]);
+    const [subspecialities, total] =
+      await Promise.all([
+        Subspeciality.find(query)
+          .populate({
+            path: 'customSubspecialities',
+            select:
+              `
+              subHeading
+              arabicSubHeading
+              explanations
+              arabicExplanations
+              createdAt
+              updatedAt
+              `,
+          })
+          .sort(sort)
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+
+        Subspeciality.countDocuments(query),
+      ]);
 
     return {
       subspecialities,
+
       meta: {
         page,
         limit,
         totalRecords: total,
-        totalPages: Math.ceil(total / limit) || 1,
+
+        totalPages:
+          Math.ceil(total / limit) || 1,
       },
     };
   }
 
   async updateById(id, updateData) {
-    return await Subspeciality.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    }).lean();
+    return await Subspeciality.findByIdAndUpdate(
+      id,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).lean();
   }
 
   async deleteById(id) {
-    return await Subspeciality.findByIdAndDelete(id).lean();
+    return await Subspeciality.findByIdAndDelete(
+      id
+    ).lean();
   }
 
   async exists(id) {
-    return await Subspeciality.exists({ _id: id });
+    return await Subspeciality.exists({
+      _id: id,
+    });
   }
 
-  async existsByName(name, excludeId = null) {
-    const q = { name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+  // Check duplicate English OR Arabic name
+  async existsByName(
+    name,
+    arabicName,
+    excludeId = null
+  ) {
+    const query = {
+      $or: [
+        {
+          name: new RegExp(
+            `^${name.replace(
+              /[.*+?^${}()|[\]\\]/g,
+              '\\$&'
+            )}$`,
+            'i'
+          ),
+        },
+
+        {
+          arabicName: new RegExp(
+            `^${arabicName.replace(
+              /[.*+?^${}()|[\]\\]/g,
+              '\\$&'
+            )}$`,
+            'i'
+          ),
+        },
+      ],
+    };
+
     if (excludeId) {
-      q._id = { $ne: excludeId };
+      query._id = { $ne: excludeId };
     }
-    return await Subspeciality.exists(q);
+
+    return await Subspeciality.exists(query);
   }
 }
 

@@ -22,8 +22,13 @@ class CatagoryRepository {
     } = filters;
 
     const query = {};
+
+    // Search in English + Arabic names
     if (search) {
-      query.name = { $regex: search, $options: 'i' };
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { arabicName: { $regex: search, $options: 'i' } },
+      ];
     }
 
     const sort = {};
@@ -32,7 +37,12 @@ class CatagoryRepository {
     const skip = (page - 1) * limit;
 
     const [catagories, total] = await Promise.all([
-      Catagory.find(query).sort(sort).skip(skip).limit(limit).lean(),
+      Catagory.find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
       Catagory.countDocuments(query),
     ]);
 
@@ -62,23 +72,47 @@ class CatagoryRepository {
     return await Catagory.exists({ _id: id });
   }
 
-  async existsByName(name, excludeId = null) {
-    const q = { name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') };
+  // Check duplicate English OR Arabic names
+  async existsByName(name, arabicName, excludeId = null) {
+    const query = {
+      $or: [
+        {
+          name: new RegExp(
+            `^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+            'i'
+          ),
+        },
+        {
+          arabicName: new RegExp(
+            `^${arabicName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+            'i'
+          ),
+        },
+      ],
+    };
+
     if (excludeId) {
-      q._id = { $ne: excludeId };
+      query._id = { $ne: excludeId };
     }
-    return await Catagory.exists(q);
+
+    return await Catagory.exists(query);
   }
 
   /**
-   * All categories, each with departments in that category and doctors assigned to each department.
+   * All categories with departments and doctors
    */
   async findAllWithDepartmentsAndDoctors() {
-    const categories = await Catagory.find({}).sort({ name: 1 }).lean();
+    const categories = await Catagory.find({})
+      .sort({ name: 1 })
+      .lean();
+
     if (categories.length === 0) return [];
 
     const categoryIds = categories.map((c) => c._id);
-    const departments = await Department.find({ catagory: { $in: categoryIds } })
+
+    const departments = await Department.find({
+      catagory: { $in: categoryIds },
+    })
       .sort({ order: 1, name: 1 })
       .populate({
         path: 'subspecialities',
@@ -95,44 +129,76 @@ class CatagoryRepository {
       .lean();
 
     const deptIds = departments.map((d) => d._id);
+
     const doctors =
       deptIds.length === 0
         ? []
-        : await Doctor.find({ department: { $in: deptIds } })
-            .select('doctorId name specialty title department image isActive availableOnline initials')
-            .sort({ name: 1 })
-            .lean();
+        : await Doctor.find({
+          department: { $in: deptIds },
+        })
+          .select(
+            'doctorId name specialty title department image isActive availableOnline initials'
+          )
+          .sort({ name: 1 })
+          .lean();
 
     const doctorsByDept = new Map();
+
     for (const doc of doctors) {
       if (!doc.department) continue;
+
       const key = String(doc.department);
-      if (!doctorsByDept.has(key)) doctorsByDept.set(key, []);
+
+      if (!doctorsByDept.has(key)) {
+        doctorsByDept.set(key, []);
+      }
+
       doctorsByDept.get(key).push(doc);
     }
 
     const deptsByCat = new Map();
+
     for (const dep of departments) {
       const catKey = String(dep.catagory);
-      const { catagory: _omit, subspecialities: subMulti, ...rest } = dep;
+
+      const {
+        catagory: _omit,
+        subspecialities: subMulti,
+        ...rest
+      } = dep;
+
       const mergedSubspecialities = Array.isArray(subMulti)
-        ? subMulti.filter((s) => s && typeof s === 'object' && s._id)
+        ? subMulti.filter(
+          (s) => s && typeof s === 'object' && s._id
+        )
         : [];
+
       const firstSub = mergedSubspecialities[0] || null;
+
       const row = {
         ...rest,
         subspecialities: mergedSubspecialities,
         subspeciality: firstSub,
-        subspecialityName: firstSub && typeof firstSub === 'object' && 'name' in firstSub ? String(firstSub.name || '') : '',
+        subspecialityName:
+          firstSub &&
+            typeof firstSub === 'object' &&
+            'name' in firstSub
+            ? String(firstSub.name || '')
+            : '',
         doctors: doctorsByDept.get(String(dep._id)) || [],
       };
-      if (!deptsByCat.has(catKey)) deptsByCat.set(catKey, []);
+
+      if (!deptsByCat.has(catKey)) {
+        deptsByCat.set(catKey, []);
+      }
+
       deptsByCat.get(catKey).push(row);
     }
 
     return categories.map((cat) => ({
       _id: cat._id,
       name: cat.name,
+      arabicName: cat.arabicName,
       createdAt: cat.createdAt,
       updatedAt: cat.updatedAt,
       departments: deptsByCat.get(String(cat._id)) || [],
