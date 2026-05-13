@@ -100,6 +100,8 @@ const normalizeStatusPayload = (rawBody) => {
 };
 
 const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, reason }) => {
+  // USER REQUEST: Always call push notification api. Skip initial data check.
+  /*
   const existingData = await fetchIdentityDataRaw(civilId, { allowMissing: true });
   if (existingData) {
     return {
@@ -112,6 +114,7 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
       raw: existingData
     };
   }
+  */
 
   const payload = {
     civilId,
