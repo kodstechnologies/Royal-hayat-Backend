@@ -66,6 +66,11 @@ export const emitIdentityComplete = (operationId, payload) => {
   const clients = io.sockets.adapter.rooms.get(room);
   const count = clients?.size ?? 0;
   console.log(`[identity][socket] emit identity:complete room=${room} listeners=${count}`);
+  if (count === 0) {
+    console.log(
+      '[identity][socket] WARNING: no clients subscribed — UI will not update until user reconnects/subscribes'
+    );
+  }
   io.to(room).emit('identity:complete', payload);
 };
 
