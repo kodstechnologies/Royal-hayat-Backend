@@ -41,6 +41,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Log identity + Sharper callback traffic (PM2: pm2 logs backend)
+app.use((req, res, next) => {
+  const path = req.path || req.url || '';
+  const isIdentityTraffic =
+    path === '/api/callback' || path.startsWith('/api/v1/identity');
+  if (!isIdentityTraffic) return next();
+
+  const ts = new Date().toISOString();
+  console.log(`[identity][http] ${ts} ${req.method} ${req.originalUrl} ip=${req.ip}`);
+  console.log(
+    `[identity][http] ${ts} content-type=${req.headers['content-type'] || '-'} ua=${req.headers['user-agent'] || '-'}`
+  );
+  try {
+    console.log(`[identity][http] ${ts} body=${JSON.stringify(req.body ?? {})}`);
+  } catch {
+    console.log(`[identity][http] ${ts} body=(unserializable)`);
+  }
+  next();
+});
+
 // -------------------- Routes --------------------
 app.use('/', routes);
 

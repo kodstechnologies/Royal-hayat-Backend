@@ -6,6 +6,7 @@ import {
   getIdentityData,
   identityCallback
 } from '../controllers/identity.controller.js';
+import { logIdentityHttp } from '../utils/identity.logger.js';
 
 const router = Router();
 
@@ -33,10 +34,10 @@ const statusLimiter = rateLimit({
   }
 });
 
-router.post('/start', startLimiter, startIdentityVerification);
-router.get('/status/:operationId', statusLimiter, getIdentityStatus);
-router.get('/data/:civilId', getIdentityData);
-router.post('/callback', identityCallback);
+router.post('/start', logIdentityHttp('POST /api/v1/identity/start'), startLimiter, startIdentityVerification);
+router.get('/status/:operationId', logIdentityHttp('GET /api/v1/identity/status'), statusLimiter, getIdentityStatus);
+router.get('/data/:civilId', logIdentityHttp('GET /api/v1/identity/data'), getIdentityData);
+router.post('/callback', logIdentityHttp('POST /api/v1/identity/callback'), identityCallback);
 
 export default router;
 

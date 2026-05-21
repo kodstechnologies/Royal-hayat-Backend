@@ -11,5 +11,10 @@ connectDB().then(() => {
 
   httpServer.listen(PORT, () => {
     console.log(`Royal Hayatt server running on http://localhost:${PORT}`);
+    console.log('[identity][boot] PORT=', PORT);
+    console.log('[identity][boot] SHARPER_CALLBACK_URL=', process.env.SHARPER_CALLBACK_URL || '(not set)');
+    console.log('[identity][boot] Sharper will POST callback to URL above (must reach this process)');
+    console.log('[identity][boot] Routes: POST /api/callback | POST /api/v1/identity/start | socket /api/socket.io');
+    console.log('[identity][boot] View logs: pm2 logs backend --lines 200');
   });
 });

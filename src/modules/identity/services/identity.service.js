@@ -7,6 +7,7 @@ import {
   getOperation,
   setOperation
 } from '../store/identity.store.js';
+import { identityLog, identityLogJson } from '../utils/identity.logger.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -112,7 +113,11 @@ const persistAndEmit = async (operationId, entry) => {
   const clientPayload = buildClientPayload(operationId, stored, identityData);
 
   if (stored.status !== 'pending') {
+    identityLog('socket', `emit identity:complete operationId=${operationId} status=${stored.status}`);
+    identityLogJson('socket', 'emit payload', clientPayload);
     emitIdentityComplete(operationId, clientPayload);
+  } else {
+    identityLog('socket', `skip emit (still pending) operationId=${operationId}`);
   }
 
   return clientPayload;
@@ -126,6 +131,9 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
     reason: reason || { ar: 'تجربة', en: 'test' }
   };
 
+  identityLog('start', `service: calling Sharper push-notification civilId=${civilId}`);
+  identityLogJson('start', 'service: Sharper request payload', payload);
+
   const response = await fetch(`${SHARPER_BASE_URL}authenticate/start/push-notification`, {
     method: 'POST',
     headers: {
@@ -136,7 +144,11 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
   });
 
   const responseBody = await parseResponseJson(response);
+  identityLog('start', `service: Sharper HTTP status=${response.status}`);
+  identityLogJson('start', 'service: Sharper response body', responseBody);
+
   if (!response.ok) {
+    identityLog('start', 'service: Sharper start FAILED');
     throw new ApiError(
       response.status || httpStatus.BAD_GATEWAY,
       responseBody?.detail || responseBody?.message || 'Failed to start identity verification',
@@ -147,6 +159,8 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
   if (!responseBody?.operationId) {
     throw new ApiError(httpStatus.BAD_GATEWAY, 'Missing operationId in SharperIntegration response', responseBody || null);
   }
+
+  identityLog('start', `service: operationId=${responseBody.operationId} stored (pending)`);
 
   setOperation(responseBody.operationId, {
     operationId: responseBody.operationId,
@@ -247,12 +261,18 @@ const getIdentityData = async (civilId) => {
 };
 
 const handleIdentityCallback = async (callbackBody) => {
+  identityLog('callback', 'service: handleIdentityCallback entered');
+  identityLogJson('callback', 'service: raw callback body', callbackBody);
+
   const payload = callbackBody?.payload || callbackBody;
   const operationId = payload?.operationId || callbackBody?.operationId;
 
   if (!operationId) {
+    identityLog('callback', 'service: MISSING operationId in callback');
     throw new ApiError(httpStatus.BAD_REQUEST, 'operationId is required in callback payload');
   }
+
+  identityLog('callback', `service: operationId=${operationId}`);
 
   const existing = getOperation(operationId) || {
     operationId,
@@ -268,6 +288,8 @@ const handleIdentityCallback = async (callbackBody) => {
   };
 
   const normalized = normalizeStatusPayload(callbackBody);
+  identityLogJson('callback', 'service: normalized status', normalized);
+
   const clientPayload = await persistAndEmit(operationId, {
     ...existing,
     civilId: normalized.civilId || existing.civilId,
@@ -277,6 +299,11 @@ const handleIdentityCallback = async (callbackBody) => {
     callbackData: callbackBody,
     latestStatusRaw: normalized.raw
   });
+
+  identityLog(
+    'callback',
+    `service: done operationId=${operationId} status=${clientPayload.status} verified=${clientPayload.verified}`
+  );
 
   return {
     operationId,

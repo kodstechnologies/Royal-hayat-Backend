@@ -20,15 +20,24 @@ export const initSocket = (httpServer) => {
     path: '/api/socket.io'
   });
 
+  console.log('[identity][socket] initialized path=/api/socket.io cors=', corsOrigins);
+
   io.on('connection', (socket) => {
+    console.log(`[identity][socket] client connected id=${socket.id}`);
+
     socket.on('identity:subscribe', ({ operationId } = {}) => {
       const id = typeof operationId === 'string' ? operationId.trim() : '';
-      if (!id) return;
+      if (!id) {
+        console.log('[identity][socket] subscribe ignored (empty operationId)');
+        return;
+      }
 
       socket.join(operationRoom(id));
+      console.log(`[identity][socket] subscribe socket=${socket.id} operationId=${id}`);
 
       const snapshot = getIdentitySnapshot(id);
       if (snapshot && snapshot.status !== 'pending') {
+        console.log(`[identity][socket] replay identity:complete operationId=${id} status=${snapshot.status}`);
         socket.emit('identity:complete', snapshot);
       }
     });
@@ -37,6 +46,11 @@ export const initSocket = (httpServer) => {
       const id = typeof operationId === 'string' ? operationId.trim() : '';
       if (!id) return;
       socket.leave(operationRoom(id));
+      console.log(`[identity][socket] unsubscribe socket=${socket.id} operationId=${id}`);
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log(`[identity][socket] disconnected id=${socket.id} reason=${reason}`);
     });
   });
 
@@ -44,8 +58,15 @@ export const initSocket = (httpServer) => {
 };
 
 export const emitIdentityComplete = (operationId, payload) => {
-  if (!io || !operationId) return;
-  io.to(operationRoom(operationId)).emit('identity:complete', payload);
+  if (!io || !operationId) {
+    console.log('[identity][socket] emit skipped (no io or operationId)');
+    return;
+  }
+  const room = operationRoom(operationId);
+  const clients = io.sockets.adapter.rooms.get(room);
+  const count = clients?.size ?? 0;
+  console.log(`[identity][socket] emit identity:complete room=${room} listeners=${count}`);
+  io.to(room).emit('identity:complete', payload);
 };
 
 export const getSocketIo = () => io;
