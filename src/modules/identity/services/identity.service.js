@@ -1,7 +1,12 @@
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
-
-const operationStore = new Map();
+import { emitIdentityComplete } from '../../../config/socket.js';
+import {
+  buildClientPayload,
+  extractName,
+  getOperation,
+  setOperation
+} from '../store/identity.store.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -56,15 +61,6 @@ const fetchIdentityDataRaw = async (civilId, options = { allowMissing: false }) 
   return dataBody;
 };
 
-const extractName = (payload) => {
-  const nameObj = payload?.name;
-  if (!nameObj) return { english: '', arabic: '' };
-  return {
-    english: nameObj.english || nameObj.en || '',
-    arabic: nameObj.arabic || nameObj.ar || ''
-  };
-};
-
 const normalizeStatusPayload = (rawBody) => {
   const payload = rawBody?.payload || rawBody;
   const success = payload?.success;
@@ -99,23 +95,30 @@ const normalizeStatusPayload = (rawBody) => {
   };
 };
 
-const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, reason }) => {
-  // USER REQUEST: Always call push notification api. Skip initial data check.
-  /*
-  const existingData = await fetchIdentityDataRaw(civilId, { allowMissing: true });
-  if (existingData) {
-    return {
-      operationId: null,
-      status: 'verified',
-      verified: true,
-      skippedStart: true,
-      dataSource: 'data',
-      civilId,
-      raw: existingData
-    };
-  }
-  */
+const persistAndEmit = async (operationId, entry) => {
+  let identityData = entry.identityData ?? null;
+  const effectiveCivilId = entry.civilId || null;
 
+  if (entry.verified === true && effectiveCivilId && !identityData) {
+    identityData = await fetchIdentityDataRaw(effectiveCivilId, { allowMissing: true });
+  }
+
+  const stored = setOperation(operationId, {
+    ...entry,
+    identityData,
+    updatedAt: new Date().toISOString()
+  });
+
+  const clientPayload = buildClientPayload(operationId, stored, identityData);
+
+  if (stored.status !== 'pending') {
+    emitIdentityComplete(operationId, clientPayload);
+  }
+
+  return clientPayload;
+};
+
+const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, reason }) => {
   const payload = {
     civilId,
     callbackUrl: callbackUrl || SHARPER_CALLBACK_URL,
@@ -145,13 +148,14 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
     throw new ApiError(httpStatus.BAD_GATEWAY, 'Missing operationId in SharperIntegration response', responseBody || null);
   }
 
-  operationStore.set(responseBody.operationId, {
+  setOperation(responseBody.operationId, {
     operationId: responseBody.operationId,
     civilId,
     status: 'pending',
     verified: null,
     callbackReceived: false,
     callbackData: null,
+    identityData: null,
     latestStatusRaw: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -171,16 +175,21 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
 };
 
 const getIdentityStatus = async (operationId) => {
-  const existing = operationStore.get(operationId) || {
+  const existing = getOperation(operationId) || {
     operationId,
     status: 'pending',
     verified: null,
     callbackReceived: false,
     callbackData: null,
+    identityData: null,
     latestStatusRaw: null,
     createdAt: null,
     updatedAt: null
   };
+
+  if (existing.callbackReceived && existing.status !== 'pending') {
+    return buildClientPayload(operationId, existing, existing.identityData ?? null);
+  }
 
   const statusResp = await fetch(`${SHARPER_BASE_URL}status/${encodeURIComponent(operationId)}`, {
     method: 'GET',
@@ -211,30 +220,22 @@ const getIdentityStatus = async (operationId) => {
 
   const normalized = normalizeStatusPayload(statusBody);
   const effectiveCivilId = normalized.civilId || existing.civilId || null;
-  let identityData = null;
-  if (normalized.verified === true && effectiveCivilId) {
+  let identityData = existing.identityData ?? null;
+  if (normalized.verified === true && effectiveCivilId && !identityData) {
     identityData = await fetchIdentityDataRaw(effectiveCivilId, { allowMissing: true });
   }
 
-  const updated = {
+  const updated = setOperation(operationId, {
     ...existing,
+    civilId: effectiveCivilId || existing.civilId,
     status: normalized.status,
     verified: normalized.verified,
+    identityData,
     latestStatusRaw: normalized.raw,
     updatedAt: new Date().toISOString()
-  };
-  operationStore.set(operationId, updated);
+  });
 
-  return {
-    operationId,
-    status: normalized.status,
-    verified: normalized.verified,
-    personName: normalized.personName,
-    civilId: effectiveCivilId,
-    identityData,
-    callbackReceived: updated.callbackReceived,
-    updatedAt: updated.updatedAt
-  };
+  return buildClientPayload(operationId, updated, identityData);
 };
 
 const getIdentityData = async (civilId) => {
@@ -253,32 +254,34 @@ const handleIdentityCallback = async (callbackBody) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'operationId is required in callback payload');
   }
 
-  const existing = operationStore.get(operationId) || {
+  const existing = getOperation(operationId) || {
     operationId,
     civilId: payload?.civilId || null,
     status: 'pending',
     verified: null,
     callbackReceived: false,
     callbackData: null,
+    identityData: null,
     latestStatusRaw: null,
     createdAt: new Date().toISOString(),
     updatedAt: null
   };
 
   const normalized = normalizeStatusPayload(callbackBody);
-  operationStore.set(operationId, {
+  const clientPayload = await persistAndEmit(operationId, {
     ...existing,
+    civilId: normalized.civilId || existing.civilId,
     status: normalized.status,
     verified: normalized.verified,
     callbackReceived: true,
     callbackData: callbackBody,
-    updatedAt: new Date().toISOString()
+    latestStatusRaw: normalized.raw
   });
 
   return {
     operationId,
-    status: normalized.status,
-    verified: normalized.verified
+    status: clientPayload.status,
+    verified: clientPayload.verified
   };
 };
 
@@ -288,4 +291,3 @@ export default {
   getIdentityData,
   handleIdentityCallback
 };
-
