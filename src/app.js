@@ -9,6 +9,17 @@ dotenv.config();
 
 const app = express();
 
+// Behind nginx / load balancer: required when X-Forwarded-For is set (express-rate-limit).
+const trustProxy = process.env.TRUST_PROXY;
+if (trustProxy === 'false' || trustProxy === '0') {
+  app.set('trust proxy', false);
+} else if (trustProxy) {
+  const hops = Number(trustProxy);
+  app.set('trust proxy', Number.isFinite(hops) ? hops : trustProxy);
+} else {
+  app.set('trust proxy', 1);
+}
+
 // -------------------- CORS --------------------
 const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
   .split(',')
