@@ -8,6 +8,7 @@ const ADMIN_EMAILS = [
   'royahhayat@gmail.com',
   'prajwalanagekar@gmail.com',
 ];
+// admin seeding script
 
 const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_SEED_PASSWORD || 'Admin@123';
 
