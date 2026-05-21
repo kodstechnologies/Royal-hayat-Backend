@@ -59,7 +59,12 @@ const getIdentityData = asyncHandler(async (req, res) => {
 });
 
 const identityCallback = asyncHandler(async (req, res) => {
+  console.log('[identity callback] received at', new Date().toISOString());
+  console.log('[identity callback] body:', JSON.stringify(req.body, null, 2));
+
   const result = await identityService.handleIdentityCallback(req.body);
+
+  console.log('[identity callback] processed:', JSON.stringify(result, null, 2));
 
   res.status(httpStatus.OK).json({
     success: true,
