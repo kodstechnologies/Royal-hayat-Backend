@@ -1,240 +1,659 @@
 import departmentService from '../services/department.service.js';
+
 import asyncHandler from '../../../utils/asyncHandler.js';
+
 import {
   createDepartmentSchema,
   updateDepartmentSchema,
   getDepartmentsSchema,
-  departmentIdSchema
+  departmentIdSchema,
 } from '../validators/department.validator.js';
+
 import ApiError from '../../../utils/ApiError.js';
+
 import httpStatus from 'http-status';
+
 import { uploadToCloudinary } from '../../../utils/cloudinary.js';
+
 import fs from 'fs-extra';
 
 const OID = /^[0-9a-fA-F]{24}$/i;
 
-/** Multipart may send `subspecialities` as JSON string, repeated fields (array), or a single id. */
-function coerceSubspecialitiesField(formData) {
-  if (formData.subspecialities === undefined) return;
-  const raw = formData.subspecialities;
+/**
+ * Multipart may send:
+ * - JSON string
+ * - repeated fields
+ * - single id
+ */
+function coerceSubspecialitiesField(
+  formData
+) {
+  if (
+    formData.subspecialities ===
+    undefined
+  )
+    return;
+
+  const raw =
+    formData.subspecialities;
+
+  /**
+   * ARRAY
+   */
   if (Array.isArray(raw)) {
-    formData.subspecialities = [...new Set(raw.map(String).filter((id) => OID.test(id)))];
+    formData.subspecialities = [
+      ...new Set(
+        raw
+          .map(String)
+          .filter((id) =>
+            OID.test(id)
+          )
+      ),
+    ];
+
     return;
   }
+
+  /**
+   * STRING
+   */
   if (typeof raw === 'string') {
     const t = raw.trim();
+
     if (!t) {
-      formData.subspecialities = [];
+      formData.subspecialities =
+        [];
+
       return;
     }
+
+    /**
+     * JSON ARRAY
+     */
     if (t.startsWith('[')) {
       try {
-        const parsed = JSON.parse(t);
-        formData.subspecialities = Array.isArray(parsed)
-          ? [...new Set(parsed.map(String).filter((id) => OID.test(id)))]
-          : [];
+        const parsed =
+          JSON.parse(t);
+
+        formData.subspecialities =
+          Array.isArray(parsed)
+            ? [
+              ...new Set(
+                parsed
+                  .map(String)
+                  .filter((id) =>
+                    OID.test(id)
+                  )
+              ),
+            ]
+            : [];
+
         return;
       } catch {
-        formData.subspecialities = [];
+        formData.subspecialities =
+          [];
+
         return;
       }
     }
-    formData.subspecialities = OID.test(t) ? [t] : [];
+
+    /**
+     * SINGLE ID
+     */
+    formData.subspecialities =
+      OID.test(t) ? [t] : [];
   }
 }
 
-/** Multipart: `customExplainantions` as JSON string (array of { subHeading, explaination }). */
-function coerceCustomExplainantionsField(formData) {
-  if (formData.customExplainantions === undefined) return;
-  const raw = formData.customExplainantions;
+/**
+ * Multipart:
+ * customExplainantions as JSON string
+ *
+ * Supports:
+ * - subHeading
+ * - explaination
+ * - arabicSubHeading
+ * - arabicExplaination
+ */
+function coerceCustomExplainantionsField(
+  formData
+) {
+  if (
+    formData.customExplainantions ===
+    undefined
+  )
+    return;
+
+  const raw =
+    formData.customExplainantions;
+
   if (typeof raw === 'string') {
     const t = raw.trim();
+
     if (!t) {
-      formData.customExplainantions = [];
+      formData.customExplainantions =
+        [];
+
       return;
     }
+
     try {
-      const parsed = JSON.parse(t);
-      formData.customExplainantions = Array.isArray(parsed) ? parsed : [];
+      const parsed =
+        JSON.parse(t);
+
+      formData.customExplainantions =
+        Array.isArray(parsed)
+          ? parsed
+          : [];
     } catch {
-      formData.customExplainantions = [];
+      formData.customExplainantions =
+        [];
     }
+
     return;
   }
+
   if (!Array.isArray(raw)) {
-    formData.customExplainantions = [];
+    formData.customExplainantions =
+      [];
   }
 }
 
-const createDepartment = asyncHandler(async (req, res) => {
-  // Handle file upload
-  let imageUrl = '';
-  if (req.file) {
-    try {
-      const result = await uploadToCloudinary(req.file.path, 'royale-hayat/departments');
-      imageUrl = result.url;
-      
-      // Clean up temp file
-      await fs.remove(req.file.path);
-    } catch (error) {
-      // Clean up temp file on error
-      if (req.file && req.file.path) {
-        await fs.remove(req.file.path);
+/**
+ * CREATE
+ */
+const createDepartment =
+  asyncHandler(
+    async (req, res) => {
+      /**
+       * FILE UPLOAD
+       */
+      let imageUrl = '';
+
+      if (req.file) {
+        try {
+          const result =
+            await uploadToCloudinary(
+              req.file.path,
+              'royale-hayat/departments'
+            );
+
+          imageUrl =
+            result.url;
+
+          /**
+           * REMOVE TEMP FILE
+           */
+          await fs.remove(
+            req.file.path
+          );
+        } catch (error) {
+          /**
+           * REMOVE TEMP FILE ON ERROR
+           */
+          if (
+            req.file &&
+            req.file.path
+          ) {
+            await fs.remove(
+              req.file.path
+            );
+          }
+
+          throw new ApiError(
+            httpStatus.INTERNAL_SERVER_ERROR,
+            'Failed to upload image'
+          );
+        }
       }
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to upload image');
-    }
-  }
 
-  // Convert form data arrays to actual arrays
-  const formData = { ...req.body, image: imageUrl };
-  
-  // Convert string arrays from form data
-  if (formData.subSpecialties && typeof formData.subSpecialties === 'string') {
-    formData.subSpecialties = [formData.subSpecialties];
-  }
+      /**
+       * FORM DATA
+       */
+      const formData = {
+        ...req.body,
 
-  coerceSubspecialitiesField(formData);
-  coerceCustomExplainantionsField(formData);
-  
-  // Convert boolean strings to actual booleans
-  if (formData.isActive !== undefined) {
-    formData.isActive = formData.isActive === 'true' || formData.isActive === true;
-  }
-  if (formData.order !== undefined) {
-    formData.order = parseInt(formData.order) || 0;
-  }
+        image: imageUrl,
+      };
 
-  // Validate input
-  const { error, value } = createDepartmentSchema.validate(formData, { abortEarly: false });
-  if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
-  }
-
-  const department = await departmentService.createDepartment(value);
-  
-  res.status(201).json({
-    success: true,
-    message: 'Department created successfully',
-    data: department
-  });
-});
-
-const getAllDepartments = asyncHandler(async (req, res) => {
-  // Validate query parameters
-  const { error, value } = getDepartmentsSchema.validate(req.query, { abortEarly: false });
-  if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
-  }
-
-  const result = await departmentService.getAllDepartments({
-    ...value,
-    sortBy: 'createdAt',
-    sortOrder: 'asc'
-  });
-  
-  res.status(200).json({
-    success: true,
-    message: 'Departments fetched successfully',
-    data: result.departments,
-    meta: result.meta
-  });
-});
-
-const getDepartmentById = asyncHandler(async (req, res) => {
-  // Validate department ID
-  const { error, value } = departmentIdSchema.validate(req.params, { abortEarly: false });
-  if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
-  }
-
-  const department = await departmentService.getDepartmentById(value.id);
-  
-  res.status(200).json({
-    success: true,
-    message: 'Department fetched successfully',
-    data: department
-  });
-});
-
-const updateDepartment = asyncHandler(async (req, res) => {
-  // Validate department ID
-  const { error: idError, value: idValue } = departmentIdSchema.validate(req.params, { abortEarly: false });
-  if (idError) {
-    throw new ApiError(httpStatus.BAD_REQUEST, idError.details.map(d => d.message).join(", "));
-  }
-
-  // Handle file upload
-  let imageUrl = req.body.image; // Keep existing image if no new file
-  if (req.file) {
-    try {
-      const result = await uploadToCloudinary(req.file.path, 'royale-hayat/departments');
-      imageUrl = result.url;
-      
-      // Clean up temp file
-      await fs.remove(req.file.path);
-    } catch (error) {
-      // Clean up temp file on error
-      if (req.file && req.file.path) {
-        await fs.remove(req.file.path);
+      /**
+       * ENGLISH SUBSPECIALTIES
+       */
+      if (
+        formData.subSpecialties &&
+        typeof formData.subSpecialties ===
+        'string'
+      ) {
+        formData.subSpecialties = [
+          formData.subSpecialties,
+        ];
       }
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to upload image');
+
+      /**
+       * ARABIC SUBSPECIALTIES
+       */
+      if (
+        formData.arabicSubSpecialties &&
+        typeof formData.arabicSubSpecialties ===
+        'string'
+      ) {
+        formData.arabicSubSpecialties =
+          [
+            formData.arabicSubSpecialties,
+          ];
+      }
+
+      /**
+       * COERCE MULTIPART FIELDS
+       */
+      coerceSubspecialitiesField(
+        formData
+      );
+
+      coerceCustomExplainantionsField(
+        formData
+      );
+
+      /**
+       * BOOLEAN
+       */
+      if (
+        formData.isActive !==
+        undefined
+      ) {
+        formData.isActive =
+          formData.isActive ===
+          'true' ||
+          formData.isActive ===
+          true;
+      }
+
+      /**
+       * ORDER
+       */
+      if (
+        formData.order !==
+        undefined
+      ) {
+        formData.order =
+          parseInt(
+            formData.order
+          ) || 0;
+      }
+
+      /**
+       * VALIDATE
+       */
+      const {
+        error,
+        value,
+      } =
+        createDepartmentSchema.validate(
+          formData,
+          {
+            abortEarly: false,
+          }
+        );
+
+      if (error) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          error.details
+            .map((d) => d.message)
+            .join(', ')
+        );
+      }
+
+      /**
+       * CREATE
+       */
+      const department =
+        await departmentService.createDepartment(
+          value
+        );
+
+      res.status(201).json({
+        success: true,
+
+        message:
+          'Department created successfully',
+
+        data: department,
+      });
     }
-  }
+  );
 
-  // Convert form data arrays to actual arrays
-  const formData = { ...req.body, image: imageUrl };
-  
-  // Convert string arrays from form data
-  if (formData.subSpecialties && typeof formData.subSpecialties === 'string') {
-    formData.subSpecialties = [formData.subSpecialties];
-  }
+/**
+ * GET ALL
+ */
+const getAllDepartments =
+  asyncHandler(
+    async (req, res) => {
+      const {
+        error,
+        value,
+      } =
+        getDepartmentsSchema.validate(
+          req.query,
+          {
+            abortEarly: false,
+          }
+        );
 
-  coerceSubspecialitiesField(formData);
-  coerceCustomExplainantionsField(formData);
-  
-  // Convert boolean strings to actual booleans
-  if (formData.isActive !== undefined) {
-    formData.isActive = formData.isActive === 'true' || formData.isActive === true;
-  }
-  if (formData.order !== undefined) {
-    formData.order = parseInt(formData.order) || 0;
-  }
+      if (error) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          error.details
+            .map((d) => d.message)
+            .join(', ')
+        );
+      }
 
-  // Validate update data
-  const { error: dataError, value: dataValue } = updateDepartmentSchema.validate(formData, { abortEarly: false });
-  if (dataError) {
-    throw new ApiError(httpStatus.BAD_REQUEST, dataError.details.map(d => d.message).join(", "));
-  }
+      const result =
+        await departmentService.getAllDepartments(
+          {
+            ...value,
 
-  const department = await departmentService.updateDepartment(idValue.id, dataValue);
-  
-  res.status(200).json({
-    success: true,
-    message: 'Department updated successfully',
-    data: department
-  });
-});
+            sortBy:
+              'createdAt',
 
-const deleteDepartment = asyncHandler(async (req, res) => {
-  // Validate department ID
-  const { error, value } = departmentIdSchema.validate(req.params, { abortEarly: false });
-  if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
-  }
+            sortOrder: 'asc',
+          }
+        );
 
-  await departmentService.deleteDepartment(value.id);
-  
-  res.status(200).json({
-    success: true,
-    message: 'Department deleted successfully',
-    data: null
-  });
-});
+      res.status(200).json({
+        success: true,
+
+        message:
+          'Departments fetched successfully',
+
+        data: result.departments,
+
+        meta: result.meta,
+      });
+    }
+  );
+
+/**
+ * GET BY ID
+ */
+const getDepartmentById =
+  asyncHandler(
+    async (req, res) => {
+      const {
+        error,
+        value,
+      } =
+        departmentIdSchema.validate(
+          req.params,
+          {
+            abortEarly: false,
+          }
+        );
+
+      if (error) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          error.details
+            .map((d) => d.message)
+            .join(', ')
+        );
+      }
+
+      const department =
+        await departmentService.getDepartmentById(
+          value.id
+        );
+
+      res.status(200).json({
+        success: true,
+
+        message:
+          'Department fetched successfully',
+
+        data: department,
+      });
+    }
+  );
+
+/**
+ * UPDATE
+ */
+const updateDepartment =
+  asyncHandler(
+    async (req, res) => {
+      /**
+       * VALIDATE ID
+       */
+      const {
+        error: idError,
+        value: idValue,
+      } =
+        departmentIdSchema.validate(
+          req.params,
+          {
+            abortEarly: false,
+          }
+        );
+
+      if (idError) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          idError.details
+            .map((d) => d.message)
+            .join(', ')
+        );
+      }
+
+      /**
+       * FILE UPLOAD
+       */
+      let imageUrl =
+        req.body.image;
+
+      if (req.file) {
+        try {
+          const result =
+            await uploadToCloudinary(
+              req.file.path,
+              'royale-hayat/departments'
+            );
+
+          imageUrl =
+            result.url;
+
+          /**
+           * REMOVE TEMP FILE
+           */
+          await fs.remove(
+            req.file.path
+          );
+        } catch (error) {
+          /**
+           * REMOVE TEMP FILE ON ERROR
+           */
+          if (
+            req.file &&
+            req.file.path
+          ) {
+            await fs.remove(
+              req.file.path
+            );
+          }
+
+          throw new ApiError(
+            httpStatus.INTERNAL_SERVER_ERROR,
+            'Failed to upload image'
+          );
+        }
+      }
+
+      /**
+       * FORM DATA
+       */
+      const formData = {
+        ...req.body,
+
+        image: imageUrl,
+      };
+
+      /**
+       * ENGLISH SUBSPECIALTIES
+       */
+      if (
+        formData.subSpecialties &&
+        typeof formData.subSpecialties ===
+        'string'
+      ) {
+        formData.subSpecialties = [
+          formData.subSpecialties,
+        ];
+      }
+
+      /**
+       * ARABIC SUBSPECIALTIES
+       */
+      if (
+        formData.arabicSubSpecialties &&
+        typeof formData.arabicSubSpecialties ===
+        'string'
+      ) {
+        formData.arabicSubSpecialties =
+          [
+            formData.arabicSubSpecialties,
+          ];
+      }
+
+      /**
+       * COERCE MULTIPART FIELDS
+       */
+      coerceSubspecialitiesField(
+        formData
+      );
+
+      coerceCustomExplainantionsField(
+        formData
+      );
+
+      /**
+       * BOOLEAN
+       */
+      if (
+        formData.isActive !==
+        undefined
+      ) {
+        formData.isActive =
+          formData.isActive ===
+          'true' ||
+          formData.isActive ===
+          true;
+      }
+
+      /**
+       * ORDER
+       */
+      if (
+        formData.order !==
+        undefined
+      ) {
+        formData.order =
+          parseInt(
+            formData.order
+          ) || 0;
+      }
+
+      /**
+       * VALIDATE
+       */
+      const {
+        error: dataError,
+        value: dataValue,
+      } =
+        updateDepartmentSchema.validate(
+          formData,
+          {
+            abortEarly: false,
+          }
+        );
+
+      if (dataError) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          dataError.details
+            .map((d) => d.message)
+            .join(', ')
+        );
+      }
+
+      /**
+       * UPDATE
+       */
+      const department =
+        await departmentService.updateDepartment(
+          idValue.id,
+          dataValue
+        );
+
+      res.status(200).json({
+        success: true,
+
+        message:
+          'Department updated successfully',
+
+        data: department,
+      });
+    }
+  );
+
+/**
+ * DELETE
+ */
+const deleteDepartment =
+  asyncHandler(
+    async (req, res) => {
+      const {
+        error,
+        value,
+      } =
+        departmentIdSchema.validate(
+          req.params,
+          {
+            abortEarly: false,
+          }
+        );
+
+      if (error) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          error.details
+            .map((d) => d.message)
+            .join(', ')
+        );
+      }
+
+      await departmentService.deleteDepartment(
+        value.id
+      );
+
+      res.status(200).json({
+        success: true,
+
+        message:
+          'Department deleted successfully',
+
+        data: null,
+      });
+    }
+  );
 
 export {
   createDepartment,
+
   getAllDepartments,
+
   getDepartmentById,
+
   updateDepartment,
-  deleteDepartment
+
+  deleteDepartment,
 };

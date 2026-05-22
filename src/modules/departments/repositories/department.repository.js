@@ -1,97 +1,267 @@
 import Department from '../models/department.model.js';
 
+/**
+ * Populate subspecialities
+ */
 const populateSubspecialities = {
   path: 'subspecialities',
-  select: 'name description customSubspecialities',
+
+  select: `
+    name
+    arabicName
+    description
+    arabicDescription
+    customSubspecialities
+  `,
+
   populate: {
     path: 'customSubspecialities',
-    select: 'subHeading explanations',
+
+    select: `
+      subHeading
+      arabicSubHeading
+      explanations
+      arabicExplanations
+    `,
   },
 };
 
+/**
+ * Populate custom explanations
+ */
 const populateCustomExplainantions = {
   path: 'customExplainantions',
-  select: 'subHeading explaination',
+
+  select: `
+    subHeading
+    arabicSubHeading
+    explaination
+    arabicExplaination
+  `,
 };
 
 class DepartmentRepository {
+
   async create(departmentData) {
-    const department = new Department(departmentData);
+    const department =
+      new Department(departmentData);
+
     return await department.save();
   }
 
   async findById(id) {
     return await Department.findById(id)
-      .populate('catagory', 'name')
+
+      .populate(
+        'catagory',
+        'name arabicName'
+      )
+
       .populate(populateSubspecialities)
-      .populate(populateCustomExplainantions);
+
+      .populate(
+        populateCustomExplainantions
+      );
   }
 
   async findAll(filters = {}) {
     const {
       page = 1,
+
       limit = 10,
+
       isActive,
+
+      search,
+
       sortBy = 'order',
-      sortOrder = 'asc'
+
+      sortOrder = 'asc',
     } = filters;
 
     const query = {};
+
+    /**
+     * ACTIVE FILTER
+     */
     if (isActive !== undefined) {
       query.isActive = isActive;
     }
 
+    /**
+     * SEARCH FILTER
+     */
+    if (search) {
+      query.$or = [
+        {
+          name: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+
+        {
+          arabicName: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+
+        {
+          description: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+
+        {
+          arabicDescription: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+
+        {
+          departmentId: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+      ];
+    }
+
     const sort = {};
-    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
-    const departments = await Department.find(query)
-      .populate('catagory', 'name')
-      .populate(populateSubspecialities)
-      .populate(populateCustomExplainantions)
-      .sort(sort)
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+    sort[sortBy] =
+      sortOrder === 'desc' ? -1 : 1;
 
-    const total = await Department.countDocuments(query);
+    const departments =
+      await Department.find(query)
+
+        .populate(
+          'catagory',
+          'name arabicName'
+        )
+
+        .populate(
+          populateSubspecialities
+        )
+
+        .populate(
+          populateCustomExplainantions
+        )
+
+        .sort(sort)
+
+        .limit(limit * 1)
+
+        .skip((page - 1) * limit);
+
+    const total =
+      await Department.countDocuments(
+        query
+      );
 
     return {
       departments,
+
       meta: {
         page,
+
         limit,
+
         total,
-        pages: Math.ceil(total / limit)
-      }
+
+        pages: Math.ceil(
+          total / limit
+        ),
+      },
     };
   }
 
   async updateById(id, updateData) {
     return await Department.findByIdAndUpdate(
       id,
-      updateData,
-      { new: true, runValidators: true }
-    )
-      .populate('catagory', 'name')
-      .populate(populateSubspecialities)
-      .populate(populateCustomExplainantions);
-  }
 
+      updateData,
+
+      {
+        new: true,
+
+        runValidators: true,
+      }
+    )
+
+      .populate(
+        'catagory',
+        'name arabicName'
+      )
+
+      .populate(
+        populateSubspecialities
+      )
+
+      .populate(
+        populateCustomExplainantions
+      );
+  }
 
   async deleteById(id) {
-    return await Department.findByIdAndDelete(id);
+    return await Department.findByIdAndDelete(
+      id
+    );
   }
-
 
   async exists(id) {
-    return await Department.exists({ _id: id });
+    return await Department.exists({
+      _id: id,
+    });
   }
 
-  async existsByName(name) {
-    return await Department.exists({ name });
+  /**
+   * Check English OR Arabic name
+   */
+  async existsByName(
+    name,
+    arabicName,
+    excludeId = null
+  ) {
+    const query = {
+      $or: [
+        { name },
+
+        { arabicName },
+      ],
+    };
+
+    if (excludeId) {
+      query._id = {
+        $ne: excludeId,
+      };
+    }
+
+    return await Department.exists(
+      query
+    );
   }
 
-  async existsByDepartmentId(departmentId) {
-    return await Department.exists({ departmentId });
+  async existsByDepartmentId(
+    departmentId,
+    excludeId = null
+  ) {
+    const query = {
+      departmentId,
+    };
+
+    if (excludeId) {
+      query._id = {
+        $ne: excludeId,
+      };
+    }
+
+    return await Department.exists(
+      query
+    );
   }
 }
 

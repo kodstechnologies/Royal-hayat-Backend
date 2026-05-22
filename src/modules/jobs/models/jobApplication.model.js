@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 
 const jobApplicationSchema = new mongoose.Schema({
+  applicationId: {
+    type: String,
+    unique: true,
+    trim: true,
+    match: /^JA-\d{3,}$/
+  },
   jobId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Job',
@@ -29,11 +35,11 @@ const jobApplicationSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  tellusUrself: {
-    type: String,
-    trim: true,
-    maxlength: 1000
-  },
+  // tellusUrself: {
+  //   type: String,
+  //   trim: true,
+
+  // },
   status: {
     type: String,
     enum: ['pending', 'reviewed', 'shortlisted', 'rejected', 'hired'],
@@ -50,10 +56,33 @@ const jobApplicationSchema = new mongoose.Schema({
 });
 
 // Indexes for better performance
+// Note: applicationId unique index is defined on the field itself via `unique: true`
 jobApplicationSchema.index({ jobId: 1 });
 jobApplicationSchema.index({ status: 1 });
 jobApplicationSchema.index({ appliedDate: -1 });
 jobApplicationSchema.index({ email: 1 });
+
+// Auto-generate applicationId (e.g. JA-001) before saving
+jobApplicationSchema.pre('validate', async function (next) {
+  if (this.applicationId) return next();
+
+  const latest = await this.constructor.aggregate([
+    { $match: { applicationId: { $regex: /^JA-\d+$/ } } },
+    {
+      $project: {
+        seq: {
+          $toInt: { $arrayElemAt: [{ $split: ['$applicationId', '-'] }, 1] }
+        }
+      }
+    },
+    { $sort: { seq: -1 } },
+    { $limit: 1 }
+  ]);
+
+  const nextSeq = (latest[0]?.seq || 0) + 1;
+  this.applicationId = `JA-${String(nextSeq).padStart(3, '0')}`;
+  next();
+});
 
 const JobApplication = mongoose.model('JobApplication', jobApplicationSchema);
 
