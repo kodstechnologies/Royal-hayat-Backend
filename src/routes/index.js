@@ -17,6 +17,8 @@ import WorkCultureRoutes from "../modules/workCulture/routes/workCulture.js"
 import CSRRoutes from "../modules/csr/routes/csr.routes.js"
 import LeaderShipRoutes from "../modules/leadership/routes/leadership.routes.js"
 import { identityCallback } from '../modules/identity/controllers/identity.controller.js';
+import { callbackProbe } from '../modules/identity/middleware/callbackProbe.middleware.js';
+import { logIdentityHttp } from '../modules/identity/utils/identity.logger.js';
 
 const router = Router();
 
@@ -31,7 +33,7 @@ router.use('/api/v1/catagories', catagoryRoutes);
 router.use('/api/v1/subspecialities', subspecialityRoutes);
 router.use('/api/v1/royal-hayat', royalHayatRoutes);
 router.use('/api/v1/appointment-requests', appointmentRequestRoutes);
-router.post('/api/callback', identityCallback);
+router.all('/api/callback', callbackProbe, logIdentityHttp('POST /api/callback'), identityCallback);
 router.use("/api/v1/hsopital-feedback",HospitalFeedbackRoutes)
 router.use("/api/v1/documents",DocumentRoutes)
 router.use("/api/v1/medical-record-requests",MedicalRecordRoutes)

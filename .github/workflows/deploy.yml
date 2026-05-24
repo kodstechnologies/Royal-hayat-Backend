@@ -13,10 +13,13 @@ jobs:
     steps:
       - name: 🚀 Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
+          envs: ENV_FILE
           script: |
             echo "=============================="
             echo "🚀 STARTING DEPLOYMENT"
@@ -26,6 +29,11 @@ jobs:
 
             echo "🔄 Pulling latest code..."
             git pull https://${{ secrets.GH_TOKEN }}@github.com/kodstechnologies/Royal-hayat-Backend.git main
+
+            echo "🔐 Writing .env from ENV_FILE secret..."
+            touch .env
+            echo "$ENV_FILE" > .env
+            chmod 600 .env
 
             echo "📦 Installing dependencies..."
             npm install
