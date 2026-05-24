@@ -170,7 +170,7 @@ const bookAppointment = async (patientId, slotBookingId) => {
     });
    
     if (response.status !== 'Success') {
-       console.log(response)
+       console.log("book appointment res",response)
       console.error('[RoyalHayat] Booking Error Status:', response.status);
       throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to book appointment', response);
     }

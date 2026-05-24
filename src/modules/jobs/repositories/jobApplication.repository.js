@@ -6,6 +6,22 @@ class JobApplicationRepository {
     return await application.save();
   }
 
+  async findRecentApplicationByPhone(jobId, phone) {
+    const oneYearAgo = new Date();
+
+    oneYearAgo.setFullYear(
+      oneYearAgo.getFullYear() - 1
+    );
+
+    return await JobApplication.findOne({
+      jobId,
+      phone,
+      appliedDate: {
+        $gte: oneYearAgo
+      }
+    });
+  }
+
   async findById(id) {
     return await JobApplication.findById(id).populate('jobId');
   }
@@ -21,7 +37,7 @@ class JobApplicationRepository {
     } = filters;
 
     const query = {};
-    
+
     if (status) {
       query.status = status;
     }
@@ -88,12 +104,15 @@ class JobApplicationRepository {
         }
       }
     ]);
-    
+
     return counts.reduce((acc, item) => {
       acc[item._id] = item.count;
       return acc;
     }, {});
   }
+
+
+
 }
 
 export default new JobApplicationRepository();

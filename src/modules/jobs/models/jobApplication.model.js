@@ -61,7 +61,11 @@ jobApplicationSchema.index({ jobId: 1 });
 jobApplicationSchema.index({ status: 1 });
 jobApplicationSchema.index({ appliedDate: -1 });
 jobApplicationSchema.index({ email: 1 });
-
+jobApplicationSchema.index({
+  jobId: 1,
+  phone: 1,
+  appliedDate: -1
+});
 // Auto-generate applicationId (e.g. JA-001) before saving
 jobApplicationSchema.pre('validate', async function (next) {
   if (this.applicationId) return next();

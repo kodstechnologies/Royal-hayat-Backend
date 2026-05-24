@@ -5,20 +5,46 @@ import httpStatus from 'http-status';
 
 class JobApplicationService {
   async createJobApplication(applicationData) {
+
     // Check if job exists
-    const job = await jobService.getJobById(applicationData.jobId);
+    const job = await jobService.getJobById(
+      applicationData.jobId
+    );
+
     if (!job) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Job not found');
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        'Job not found'
+      );
     }
 
-    const application = await jobApplicationRepository.create(applicationData);
-    
-    // Increment job applications count
-    await jobService.incrementApplicationsCount(applicationData.jobId);
-    
+    // CHECK EXISTING APPLICATION
+    const existingApplication =
+      await jobApplicationRepository.findRecentApplicationByPhone(
+        applicationData.jobId,
+        applicationData.phone
+      );
+
+    if (existingApplication) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'You have already applied for this job within the last 1 year'
+      );
+    }
+
+    // CREATE APPLICATION
+    const application =
+      await jobApplicationRepository.create(
+        applicationData
+      );
+
+    // INCREMENT COUNT
+    await jobService.incrementApplicationsCount(
+      applicationData.jobId
+    );
+
     return application;
   }
-
   async getAllJobApplications(filters = {}) {
     return await jobApplicationRepository.findAll(filters);
   }
