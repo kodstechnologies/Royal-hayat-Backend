@@ -1,40 +1,60 @@
 import multer from "multer";
-import fs from "fs-extra";
-import path from "path";
+import ApiError from "./ApiError.js";
 
-/**
- * Temp upload directory (service-owned)
- */
-const TEMP_UPLOAD_DIR = "tmp/uploads";
-fs.ensureDirSync(TEMP_UPLOAD_DIR);
+const multerOptions = {
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB
+    files: 25,
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      // images
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      // videos
+      "video/mp4",
+      "video/webm",
+      "video/quicktime",
+      // documents
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
 
-/**
- * Disk storage (best for large files & KYC docs)
- */
-const storage = multer.diskStorage({
-    destination: (_, __, cb) => {
-        cb(null, TEMP_UPLOAD_DIR);
-    },
-    filename: (_, file, cb) => {
-        const safeName = file.originalname
-            .replace(/\s+/g, "_")
-            .replace(/[^\w.\-]/g, "")
-            .toLowerCase();
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new ApiError(400, "Only image, video, and document files are allowed"), false);
+    }
+  },
+};
 
-        cb(null, `${Date.now()}-${safeName}`);
-    },
-});
+export const upload = multer(multerOptions);
 
-/**
- * Multer instance
- * ❌ No fileFilter here
- * ✔ File validation happens in controller AFTER Joi
- */
-const upload = multer({
-    storage,
-    limits: {
-        fileSize: 50 * 1024 * 1024, // 50MB (adjust per service)
-    },
-});
+/** Accept multipart text fields + files (use instead of .fields() when the app sends both). */
+export const uploadAny = multer(multerOptions).any();
+
+const flattenUploadedFiles = (files) => {
+  if (!files) return [];
+  if (Array.isArray(files)) return files;
+  return Object.values(files).flat();
+};
+
+/** Reject file parts whose field names are not in the allowlist. */
+export const restrictUploadedFileFields =
+  (allowedFieldNames = []) =>
+  (req, res, next) => {
+    const allowed = new Set(allowedFieldNames);
+    const invalid = flattenUploadedFiles(req.files).find(
+      (file) => !allowed.has(file.fieldname)
+    );
+    if (invalid) {
+      return next(new ApiError(400, `Unexpected file field: ${invalid.fieldname}`));
+    }
+    return next();
+  };
 
 export default upload;

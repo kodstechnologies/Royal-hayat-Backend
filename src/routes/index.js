@@ -19,6 +19,8 @@ import LeaderShipRoutes from "../modules/leadership/routes/leadership.routes.js"
 import { identityCallback } from '../modules/identity/controllers/identity.controller.js';
 import { callbackProbe } from '../modules/identity/middleware/callbackProbe.middleware.js';
 import { logIdentityHttp } from '../modules/identity/utils/identity.logger.js';
+import DoctorFeedbacks from "../modules/feedback/routes/doctorFeedback.routes.js"
+import HospitalFeedbacks from "../modules/feedback/routes/hospitalFeedback.routes.js"
 
 const router = Router();
 
@@ -40,5 +42,7 @@ router.use("/api/v1/medical-record-requests",MedicalRecordRoutes)
 router.use("/api/v1/work-culture",WorkCultureRoutes)
 router.use("/api/v1/csr",CSRRoutes)
 router.use("/api/v1/leadership",LeaderShipRoutes)
+router.use("/api/v1/doctor-feedback",DoctorFeedbacks)
+router.use("/api/v1/hospital-feedback",HospitalFeedbacks)
 
 export default router;

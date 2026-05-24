@@ -7,19 +7,40 @@ const router = express.Router();
 import {
     createHospitalFeedback,
     getAllHospitalFeedbacks,
-    getEnglishHospitalFeedbacks,
-    getArabicHospitalFeedbacks,
+    getHospitalFeedbackById,
+    updateHospitalFeedback,
     deleteHospitalFeedback
 } from "../controller/hospitalFeedback.controller.js";
 
-router.post("/create", createHospitalFeedback);
 
-router.get("/all", getAllHospitalFeedbacks);
+// CREATE
+router.post(
+    "/create",
+    createHospitalFeedback
+);
 
-router.get("/english", getEnglishHospitalFeedbacks);
+// GET ALL
+router.get(
+    "/all",
+    getAllHospitalFeedbacks
+);
 
-router.get("/arabic", getArabicHospitalFeedbacks);
+// GET BY ID
+router.get(
+    "/:id",
+    getHospitalFeedbackById
+);
 
-router.delete("/delete/:id", deleteHospitalFeedback);
+// UPDATE
+router.put(
+    "/update/:id",
+    updateHospitalFeedback
+);
+
+// DELETE
+router.delete(
+    "/delete/:id",
+    deleteHospitalFeedback
+);
 
 export default router;

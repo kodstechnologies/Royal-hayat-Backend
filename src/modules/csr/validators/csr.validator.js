@@ -26,6 +26,9 @@ export const createCSRValidator = Joi.object({
     "string.empty": "Arabic description is required",
     "any.required": "Arabic description is required",
   }),
+
+  images: Joi.array().items(Joi.string().uri()).optional(),
+  imagesKey: Joi.array().items(Joi.string()).optional(),
 });
 
 export const updateCSRValidator = Joi.object({
@@ -44,4 +47,7 @@ export const updateCSRValidator = Joi.object({
   descriptionArabic: Joi.string().trim().messages({
     "string.base": "Arabic description must be a string",
   }),
+
+  images: Joi.array().items(Joi.string().uri()).optional(),
+  imagesKey: Joi.array().items(Joi.string()).optional(),
 });

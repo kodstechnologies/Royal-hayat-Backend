@@ -17,7 +17,8 @@ import {
   updateWorkCultureValidator,
 } from "../validators/workCulture.validators.js";
 
-import upload from "../../../utils/multer.js";
+import { upload } from "../../../utils/multer.js";
+import { uploadToS3 } from "../../../utils/uploadToS3.js";
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ const router = express.Router();
 router.post(
   "/",
   upload.array("images"),
+  uploadToS3("work-culture", { images: "images" }, { arrayTargets: ["images"] }),
   validate(createWorkCultureValidator),
   createWorkCulture
 );
@@ -39,6 +41,7 @@ router.get("/:id", getWorkCultureById);
 router.put(
   "/:id",
   upload.array("images"),
+  uploadToS3("work-culture", { images: "images" }, { arrayTargets: ["images"] }),
   validate(updateWorkCultureValidator),
   updateWorkCulture
 );

@@ -17,7 +17,8 @@ import {
   updateLeadershipValidator,
 } from "../validators/leadership.validator.js";
 
-import upload from "../../../utils/multer.js";
+import { upload } from "../../../utils/multer.js";
+import { uploadToS3 } from "../../../utils/uploadToS3.js";
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ const router = express.Router();
 router.post(
   "/",
   upload.single("image"),
+  uploadToS3("leadership", { image: "image" }),
   validate(createLeadershipValidator),
   createLeadership
 );
@@ -39,6 +41,7 @@ router.get("/:id", getLeadershipById);
 router.put(
   "/:id",
   upload.single("image"),
+  uploadToS3("leadership", { image: "image" }),
   validate(updateLeadershipValidator),
   updateLeadership
 );

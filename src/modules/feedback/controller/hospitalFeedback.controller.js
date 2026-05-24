@@ -3,112 +3,200 @@
 import {
     createHospitalFeedbackService,
     getAllHospitalFeedbacksService,
-    getEnglishHospitalFeedbacksService,
-    getArabicHospitalFeedbacksService,
+    getHospitalFeedbackByIdService,
+    updateHospitalFeedbackService,
     deleteHospitalFeedbackService
 } from "../service/hospitalFeedback.service.js";
 
-export const createHospitalFeedback = async (req, res) => {
 
-    try {
+// CREATE
+export const createHospitalFeedback =
+    async (req, res) => {
 
-        const feedback =
-            await createHospitalFeedbackService(req.body);
+        try {
 
-        return res.status(201).json({
-            success: true,
-            message: "Hospital feedback created successfully",
-            data: feedback
-        });
+            const {
+                addedBy
+            } = req.query;
 
-    } catch (error) {
+            // VALIDATE addedBy
+            const allowedAddedBy = [
+                "patient",
+                "admin"
+            ];
 
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
+            if (
+                addedBy &&
+                !allowedAddedBy.includes(addedBy)
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid addedBy value"
+                });
+            }
 
-export const getAllHospitalFeedbacks = async (req, res) => {
+            const payload = {
+                stars: req.body.stars,
+                shownOnWebsite: req.body.shownOnWebsite,
+                addedBy: addedBy || "patient",
+                // Accept both languages in a single create
+                userName: req.body.userName,
+                feedback: req.body.feedback,
+                arabicUserName: req.body.arabicUserName,
+                arabicFeedback: req.body.arabicFeedback,
+            };
 
-    try {
+            // Remove undefined keys
+            Object.keys(payload).forEach(
+                key => payload[key] === undefined && delete payload[key]
+            );
 
-        const feedbacks =
-            await getAllHospitalFeedbacksService();
+            const feedback =
+                await createHospitalFeedbackService(
+                    payload
+                );
 
-        return res.status(200).json({
-            success: true,
-            data: feedbacks
-        });
+            return res.status(201).json({
+                success: true,
+                message:
+                    "Hospital feedback created successfully",
+                data: feedback
+            });
 
-    } catch (error) {
+        } catch (error) {
 
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
+            return res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    };
 
-export const getEnglishHospitalFeedbacks = async (req, res) => {
 
-    try {
+// GET ALL
+export const getAllHospitalFeedbacks =
+    async (req, res) => {
 
-        const feedbacks =
-            await getEnglishHospitalFeedbacksService();
+        try {
 
-        return res.status(200).json({
-            success: true,
-            data: feedbacks
-        });
+            const feedbacks =
+                await getAllHospitalFeedbacksService();
 
-    } catch (error) {
+            return res.status(200).json({
+                success: true,
+                data: feedbacks
+            });
 
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
+        } catch (error) {
 
-export const getArabicHospitalFeedbacks = async (req, res) => {
+            return res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    };
 
-    try {
 
-        const feedbacks =
-            await getArabicHospitalFeedbacksService();
+// GET BY ID
+export const getHospitalFeedbackById =
+    async (req, res) => {
 
-        return res.status(200).json({
-            success: true,
-            data: feedbacks
-        });
+        try {
 
-    } catch (error) {
+            const feedback =
+                await getHospitalFeedbackByIdService(
+                    req.params.id
+                );
 
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
+            if (!feedback) {
 
-export const deleteHospitalFeedback = async (req, res) => {
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        "Hospital feedback not found"
+                });
+            }
 
-    try {
+            return res.status(200).json({
+                success: true,
+                data: feedback
+            });
 
-        await deleteHospitalFeedbackService(req.params.id);
+        } catch (error) {
 
-        return res.status(200).json({
-            success: true,
-            message: "Hospital feedback deleted successfully"
-        });
+            return res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    };
 
-    } catch (error) {
 
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
+// UPDATE
+export const updateHospitalFeedback =
+    async (req, res) => {
+
+        try {
+
+            const payload = {
+                stars: req.body.stars,
+                shownOnWebsite: req.body.shownOnWebsite,
+                // Accept both languages in a single update
+                userName: req.body.userName,
+                feedback: req.body.feedback,
+                arabicUserName: req.body.arabicUserName,
+                arabicFeedback: req.body.arabicFeedback,
+            };
+
+            // Remove undefined keys so Mongoose doesn't overwrite with null
+            Object.keys(payload).forEach(
+                key => payload[key] === undefined && delete payload[key]
+            );
+
+            const feedback =
+                await updateHospitalFeedbackService(
+                    req.params.id,
+                    payload
+                );
+
+            return res.status(200).json({
+                success: true,
+                message:
+                    "Hospital feedback updated successfully",
+                data: feedback
+            });
+
+        } catch (error) {
+
+            return res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    };
+
+
+// DELETE
+export const deleteHospitalFeedback =
+    async (req, res) => {
+
+        try {
+
+            await deleteHospitalFeedbackService(
+                req.params.id
+            );
+
+            return res.status(200).json({
+                success: true,
+                message:
+                    "Hospital feedback deleted successfully"
+            });
+
+        } catch (error) {
+
+            return res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    };

@@ -3,50 +3,40 @@
 import {
     createDoctorFeedbackRepo,
     getAllDoctorFeedbacksRepo,
-    getEnglishDoctorFeedbacksRepo,
-    getArabicDoctorFeedbacksRepo,
-    deleteDoctorFeedbackRepo,
-    updateArabicDoctorFeedbackRepo,
-    updateEnglishDoctorFeedbackRepo
+    getDoctorFeedbackByIdRepo,
+    updateDoctorFeedbackRepo,
+    deleteDoctorFeedbackRepo
 } from "../repository/doctorFeedback.repository.js";
 
-export const createDoctorFeedbackService = async (body) => {
-    return await createDoctorFeedbackRepo(body);
-};
+export const createDoctorFeedbackService =
+    async (body) => {
 
-export const getAllDoctorFeedbacksService = async () => {
-    return await getAllDoctorFeedbacksRepo();
-};
+        return await createDoctorFeedbackRepo(body);
+    };
 
-export const getEnglishDoctorFeedbacksService = async () => {
-    return await getEnglishDoctorFeedbacksRepo();
-};
+export const getAllDoctorFeedbacksService =
+    async () => {
 
-export const getArabicDoctorFeedbacksService = async () => {
-    return await getArabicDoctorFeedbacksRepo();
-};
+        return await getAllDoctorFeedbacksRepo();
+    };
 
-export const deleteDoctorFeedbackService = async (id) => {
-    return await deleteDoctorFeedbackRepo(id);
-};
+export const getDoctorFeedbackByIdService =
+    async (id) => {
 
+        return await getDoctorFeedbackByIdRepo(id);
+    };
 
-// UPDATE ENGLISH
-export const updateEnglishDoctorFeedbackService =
+export const updateDoctorFeedbackService =
     async (id, body) => {
 
-        return await updateEnglishDoctorFeedbackRepo(
+        return await updateDoctorFeedbackRepo(
             id,
             body
         );
     };
 
-// UPDATE ARABIC
-export const updateArabicDoctorFeedbackService =
-    async (id, body) => {
+export const deleteDoctorFeedbackService =
+    async (id) => {
 
-        return await updateArabicDoctorFeedbackRepo(
-            id,
-            body
-        );
+        return await deleteDoctorFeedbackRepo(id);
     };

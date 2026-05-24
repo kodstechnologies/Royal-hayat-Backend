@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
-
-const appointmentRequestSchema = new mongoose.Schema(
-  {
+const AppointmentBookingRecord=new mongoose.Schema(  {
     fullname: {
       type: String,
       required: true,
@@ -56,22 +54,7 @@ const appointmentRequestSchema = new mongoose.Schema(
       type: [String],
 
     },
-    status: {
-      type: String,
-      enum: ['received', 'accepted', 'cancelled'],
-      default: 'received',
-    },
+   
   },
   { timestamps: true },
 );
-
-appointmentRequestSchema.index({ createdAt: -1 });
-appointmentRequestSchema.index({ phone: 1 });
-appointmentRequestSchema.index({ status: 1 });
-
-const AppointmentRequest = mongoose.model(
-  'AppointmentRequest',
-  appointmentRequestSchema,
-);
-
-export default AppointmentRequest;

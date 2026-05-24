@@ -7,33 +7,40 @@ const router = express.Router();
 import {
     createDoctorFeedback,
     getAllDoctorFeedbacks,
-    getEnglishDoctorFeedbacks,
-    getArabicDoctorFeedbacks,
-    deleteDoctorFeedback,
-    updateEnglishDoctorFeedback,
-    updateArabicDoctorFeedback
-} from "../controller/doctorFeedback.controller";
-
-router.post("/create", createDoctorFeedback);
-
-router.get("/all", getAllDoctorFeedbacks);
-
-router.get("/english", getEnglishDoctorFeedbacks);
-
-router.get("/arabic", getArabicDoctorFeedbacks);
-
-router.delete("/delete/:id", deleteDoctorFeedback);
+    getDoctorFeedbackById,
+    updateDoctorFeedback,
+    deleteDoctorFeedback
+} from "../controller/doctorFeedback.controller.js";
 
 
-// UPDATE ENGLISH
-router.put(
-    "/update-english/:id",
-    updateEnglishDoctorFeedback
+// CREATE
+router.post(
+    "/create",
+    createDoctorFeedback
 );
 
-// UPDATE ARABIC
-router.put(
-    "/update-arabic/:id",
-    updateArabicDoctorFeedback
+// GET ALL
+router.get(
+    "/all",
+    getAllDoctorFeedbacks
 );
+
+// GET BY ID
+router.get(
+    "/:id",
+    getDoctorFeedbackById
+);
+
+// UPDATE
+router.put(
+    "/update/:id",
+    updateDoctorFeedback
+);
+
+// DELETE
+router.delete(
+    "/delete/:id",
+    deleteDoctorFeedback
+);
+
 export default router;
