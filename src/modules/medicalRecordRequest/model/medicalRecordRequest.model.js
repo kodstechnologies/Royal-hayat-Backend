@@ -92,6 +92,10 @@ const medicalRecordRequestSchema = new mongoose.Schema({
     patientNameConfirmation: {
         type: String,
         trim: true
+    },
+    emailIdToShare:{
+        type:String,
+        
     }
 
 }, { timestamps: true });

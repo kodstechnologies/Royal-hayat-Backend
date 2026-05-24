@@ -9,8 +9,10 @@ import {
     getAllDoctorFeedbacks,
     getEnglishDoctorFeedbacks,
     getArabicDoctorFeedbacks,
-    deleteDoctorFeedback
-} from "../controllers/doctorFeedback.controller.js";
+    deleteDoctorFeedback,
+    updateEnglishDoctorFeedback,
+    updateArabicDoctorFeedback
+} from "../controller/doctorFeedback.controller";
 
 router.post("/create", createDoctorFeedback);
 
@@ -22,4 +24,16 @@ router.get("/arabic", getArabicDoctorFeedbacks);
 
 router.delete("/delete/:id", deleteDoctorFeedback);
 
+
+// UPDATE ENGLISH
+router.put(
+    "/update-english/:id",
+    updateEnglishDoctorFeedback
+);
+
+// UPDATE ARABIC
+router.put(
+    "/update-arabic/:id",
+    updateArabicDoctorFeedback
+);
 export default router;

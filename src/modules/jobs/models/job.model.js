@@ -6,7 +6,10 @@ const jobSchema = new mongoose.Schema(
       type: String,
       unique: true,
       trim: true,
-      match: /^JA-\d{3,}$/,
+
+      // FORMAT => YYYYMM-XXXXXX
+      // Example => 202605-000001
+      match: /^\d{6}-\d{6}$/,
     },
 
     // ENGLISH TITLE
@@ -137,8 +140,6 @@ const jobSchema = new mongoose.Schema(
 );
 
 // INDEXES
-// Note: jobId unique index is defined on the field itself via `unique: true`
-
 jobSchema.index({ title: 1 });
 
 jobSchema.index({ arabicTitle: 1 });
@@ -155,58 +156,52 @@ jobSchema.index({ postedDate: -1 });
 
 /**
  * AUTO JOB ID
+ * FORMAT => YYYYMM-XXXXXX
+ * Example => 202605-000001
  */
 jobSchema.pre(
   'validate',
   async function (next) {
-    if (this.jobId)
+    if (this.jobId) {
       return next();
+    }
 
+    const now = new Date();
+
+    const year = now.getFullYear();
+
+    const month = String(
+      now.getMonth() + 1
+    ).padStart(2, '0');
+
+    const prefix = `${year}${month}`;
+
+    // Find latest job for current month
     const latest =
-      await this.constructor.aggregate([
-        {
-          $match: {
-            jobId: {
-              $regex: /^JA-\d+$/,
-            },
-          },
+      await this.constructor.findOne({
+        jobId: {
+          $regex: `^${prefix}-`,
         },
+      })
+        .sort({ createdAt: -1 })
+        .lean();
 
-        {
-          $project: {
-            seq: {
-              $toInt: {
-                $arrayElemAt: [
-                  {
-                    $split: [
-                      '$jobId',
-                      '-',
-                    ],
-                  },
-                  1,
-                ],
-              },
-            },
-          },
-        },
+    let nextSequence = 1;
 
-        {
-          $sort: {
-            seq: -1,
-          },
-        },
+    if (latest?.jobId) {
+      const lastSequence =
+        parseInt(
+          latest.jobId.split('-')[1]
+        );
 
-        {
-          $limit: 1,
-        },
-      ]);
+      nextSequence = lastSequence + 1;
+    }
 
-    const nextSeq =
-      (latest[0]?.seq || 0) + 1;
+    const sequence = String(
+      nextSequence
+    ).padStart(6, '0');
 
-    this.jobId = `JA-${String(
-      nextSeq
-    ).padStart(3, '0')}`;
+    this.jobId = `${prefix}-${sequence}`;
 
     next();
   }

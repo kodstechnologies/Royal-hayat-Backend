@@ -26,3 +26,53 @@ export const getArabicHospitalFeedbacksRepo = async () => {
 export const deleteHospitalFeedbackRepo = async (id) => {
     return await HospitalFeedback.findByIdAndDelete(id);
 };
+
+// UPDATE ENGLISH
+export const updateEnglishHospitalFeedbackRepo =
+    async (id, payload) => {
+
+        return await HospitalFeedback.findByIdAndUpdate(
+            id,
+            {
+                userName:
+                    payload.userName,
+
+                feedback:
+                    payload.feedback,
+
+                stars:
+                    payload.stars,
+
+                shownOnWebsite:
+                    payload.shownOnWebsite,
+            },
+            {
+                new: true,
+            }
+        );
+    };
+
+// UPDATE ARABIC
+export const updateArabicHospitalFeedbackRepo =
+    async (id, payload) => {
+
+        return await HospitalFeedback.findByIdAndUpdate(
+            id,
+            {
+                arabicUserName:
+                    payload.arabicUserName,
+
+                arabicFeedback:
+                    payload.arabicFeedback,
+
+                stars:
+                    payload.stars,
+
+                shownOnWebsite:
+                    payload.shownOnWebsite,
+            },
+            {
+                new: true,
+            }
+        );
+    };

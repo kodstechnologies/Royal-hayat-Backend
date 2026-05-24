@@ -13,7 +13,8 @@ import {
     createMedicalRecordRequest,
     getAllMedicalRecordRequests,
     getMedicalRecordRequestById,
-    deleteMedicalRecordRequest
+    deleteMedicalRecordRequest,
+    shareMedicalRecordRequestViaEmail
 } from "../controller/medicalRecordRequest.controller.js";
 
 
@@ -36,6 +37,10 @@ router.get(
 router.delete(
     "/delete/:id",
     deleteMedicalRecordRequest
+);
+router.post(
+    "/share-via-email/:id",
+    shareMedicalRecordRequestViaEmail
 );
 
 export default router;

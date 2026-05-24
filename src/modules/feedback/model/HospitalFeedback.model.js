@@ -32,7 +32,12 @@ const hospitalFeedbackSchema = new mongoose.Schema({
     shownOnWebsite: {
         type: Boolean,
         default: false
-    }
+    },
+    addedBy: {
+        type: String,
+        enum: ["patient", "admin"],
+        default: "patient"
+    },
 
 }, { timestamps: true });
 

@@ -5,7 +5,9 @@ import {
     getAllDoctorFeedbacksRepo,
     getEnglishDoctorFeedbacksRepo,
     getArabicDoctorFeedbacksRepo,
-    deleteDoctorFeedbackRepo
+    deleteDoctorFeedbackRepo,
+    updateArabicDoctorFeedbackRepo,
+    updateEnglishDoctorFeedbackRepo
 } from "../repository/doctorFeedback.repository.js";
 
 export const createDoctorFeedbackService = async (body) => {
@@ -27,3 +29,24 @@ export const getArabicDoctorFeedbacksService = async () => {
 export const deleteDoctorFeedbackService = async (id) => {
     return await deleteDoctorFeedbackRepo(id);
 };
+
+
+// UPDATE ENGLISH
+export const updateEnglishDoctorFeedbackService =
+    async (id, body) => {
+
+        return await updateEnglishDoctorFeedbackRepo(
+            id,
+            body
+        );
+    };
+
+// UPDATE ARABIC
+export const updateArabicDoctorFeedbackService =
+    async (id, body) => {
+
+        return await updateArabicDoctorFeedbackRepo(
+            id,
+            body
+        );
+    };

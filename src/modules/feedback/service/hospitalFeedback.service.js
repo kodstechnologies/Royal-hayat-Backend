@@ -5,7 +5,8 @@ import {
     getAllHospitalFeedbacksRepo,
     getEnglishHospitalFeedbacksRepo,
     getArabicHospitalFeedbacksRepo,
-    deleteHospitalFeedbackRepo
+    deleteHospitalFeedbackRepo,
+    updateArabicHospitalFeedbackRepo
 } from "../repository/hospitalFeedback.repository.js";
 
 export const createHospitalFeedbackService = async (body) => {
@@ -27,3 +28,23 @@ export const getArabicHospitalFeedbacksService = async () => {
 export const deleteHospitalFeedbackService = async (id) => {
     return await deleteHospitalFeedbackRepo(id);
 };
+
+// UPDATE ENGLISH
+export const updateEnglishHospitalFeedbackService =
+    async (id, body) => {
+
+        return await updateEnglishHospitalFeedbackRepo(
+            id,
+            body
+        );
+    };
+
+// UPDATE ARABIC
+export const updateArabicHospitalFeedbackService =
+    async (id, body) => {
+
+        return await updateArabicHospitalFeedbackRepo(
+            id,
+            body
+        );
+    };

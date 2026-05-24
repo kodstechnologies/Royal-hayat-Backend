@@ -47,6 +47,7 @@ export const getFileUrl = async (key) => {
         const command = new GetObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: cleanKey,
+            
         });
 
         // Signed URL valid for 1 hour

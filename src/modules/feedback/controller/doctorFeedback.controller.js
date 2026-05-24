@@ -112,3 +112,59 @@ export const deleteDoctorFeedback = async (req, res) => {
         });
     }
 };
+
+// UPDATE ENGLISH
+export const updateEnglishDoctorFeedback =
+    async (req, res) => {
+
+        try {
+
+            const feedback =
+                await updateEnglishDoctorFeedbackService(
+                    req.params.id,
+                    req.body
+                );
+
+            return res.status(200).json({
+                success: true,
+                message:
+                    "English doctor feedback updated successfully",
+                data: feedback
+            });
+
+        } catch (error) {
+
+            return res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    };
+
+// UPDATE ARABIC
+export const updateArabicDoctorFeedback =
+    async (req, res) => {
+
+        try {
+
+            const feedback =
+                await updateArabicDoctorFeedbackService(
+                    req.params.id,
+                    req.body
+                );
+
+            return res.status(200).json({
+                success: true,
+                message:
+                    "Arabic doctor feedback updated successfully",
+                data: feedback
+            });
+
+        } catch (error) {
+
+            return res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    };

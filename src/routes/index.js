@@ -13,6 +13,9 @@ import appointmentRequestRoutes from '../modules/appintmentRequest/routes/appoin
 import HospitalFeedbackRoutes from "../modules/feedback/routes/hospitalFeedback.routes.js"
 import DocumentRoutes from "../modules/document/routes/document.routes.js"
 import MedicalRecordRoutes from "../modules/medicalRecordRequest/routes/medicalRecordRequest.routes.js"
+import WorkCultureRoutes from "../modules/workCulture/routes/workCulture.js"
+import CSRRoutes from "../modules/csr/routes/csr.routes.js"
+import LeaderShipRoutes from "../modules/leadership/routes/leadership.routes.js"
 import { identityCallback } from '../modules/identity/controllers/identity.controller.js';
 
 const router = Router();
@@ -32,4 +35,8 @@ router.post('/api/callback', identityCallback);
 router.use("/api/v1/hsopital-feedback",HospitalFeedbackRoutes)
 router.use("/api/v1/documents",DocumentRoutes)
 router.use("/api/v1/medical-record-requests",MedicalRecordRoutes)
+router.use("/api/v1/work-culture",WorkCultureRoutes)
+router.use("/api/v1/csr",CSRRoutes)
+router.use("/api/v1/leadership",LeaderShipRoutes)
+
 export default router;

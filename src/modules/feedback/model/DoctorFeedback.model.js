@@ -33,7 +33,11 @@ const doctorFeedbackSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-
+    addedBy: {
+        type: String,
+        enum: ["patient", "admin"],
+        default: "patient"
+    },
     doctor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Doctor",

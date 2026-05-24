@@ -1,10 +1,12 @@
 // controllers/medicalRecordRequest.controller.js
+import httpStatus from "http-status";
 
 import {
     createMedicalRecordRequestService,
     getAllMedicalRecordRequestsService,
     getMedicalRecordRequestByIdService,
-    deleteMedicalRecordRequestService
+    deleteMedicalRecordRequestService,
+    shareMedicalRecordRequestViaEmailService
 } from "../service/medicalRecordRequest.service.js";
 
 export const createMedicalRecordRequest =
@@ -103,3 +105,17 @@ export const deleteMedicalRecordRequest =
             });
         }
     };
+
+export const shareMedicalRecordRequestViaEmail =
+    (async (req, res) => {
+        const response =
+            await shareMedicalRecordRequestViaEmailService(
+                req.params.id,
+                req.body
+            );
+
+        res.status(httpStatus.OK).json({
+            success: true,
+            message: response.message,
+        });
+    });
