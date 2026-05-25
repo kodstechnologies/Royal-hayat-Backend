@@ -1,5 +1,9 @@
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
+import {
+  enrichPatientLookupApiError,
+  throwPatientLookupError
+} from '../utils/patientLookup.errors.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -202,7 +206,14 @@ const getPatient = async (params) => {
 
     if (response.status !== 'Success') {
       console.error('[RoyalHayat] getPatient Error Status:', response.status);
-      throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to fetch patient', response);
+      throwPatientLookupError(response.status || 'Failed to fetch patient', response);
+    }
+
+    if (!response.patient_id) {
+      throwPatientLookupError('Error: Patient not found', {
+        patient_exist: false,
+        status: 'Error: Patient not found'
+      });
     }
 
     return {
@@ -211,7 +222,7 @@ const getPatient = async (params) => {
     };
   } catch (error) {
     console.error('[RoyalHayat] getPatient Exception:', error.message);
-    throw error;
+    throw enrichPatientLookupApiError(error);
   }
 };
 
