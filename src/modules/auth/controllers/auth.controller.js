@@ -37,7 +37,7 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 });
 
 export const logout = asyncHandler(async (req, res) => {
-  await authService.logout(req.user._id);
+  await authService.logout(req.user.id);
   res
     .clearCookie('accessToken')
     .clearCookie('refreshToken')

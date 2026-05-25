@@ -6,8 +6,9 @@ import {
   updateEnquiry,
   deleteEnquiry
 } from '../controller/enquiry.controller.js';
-
+import {verifyJWT} from "../../../middlewares/authMiddleware.js"
 const router = Router();
+router.use(verifyJWT)
 
 router.post('/', createEnquiry);
 router.get('/', getAllEnquiries);

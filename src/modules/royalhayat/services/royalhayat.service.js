@@ -108,31 +108,31 @@ const makeAuthenticatedRequest = async (endpoint, options = {}) => {
 const getAvailability = async (params) => {
   try {
     const {
-    specialitycode,
-    providercode,
-    servicecode,
-    datefrom,
-    dateto,
-    timefrom,
-    timeto,
-    dow
-  } = params;
+      specialitycode,
+      providercode,
+      servicecode,
+      datefrom,
+      dateto,
+      timefrom,
+      timeto,
+      dow
+    } = params;
 
-  if (!specialitycode || !providercode || !servicecode || !datefrom) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameters: specialitycode, providercode, servicecode, datefrom');
-  }
+    if (!specialitycode || !providercode || !servicecode || !datefrom) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameters: specialitycode, providercode, servicecode, datefrom');
+    }
 
-  const queryParams = new URLSearchParams({
-    specialitycode,
-    providercode,
-    servicecode,
-    datefrom
-  });
+    const queryParams = new URLSearchParams({
+      specialitycode,
+      providercode,
+      servicecode,
+      datefrom
+    });
 
-  if (dateto) queryParams.append('dateto', dateto);
-  if (timefrom) queryParams.append('timefrom', timefrom);
-  if (timeto) queryParams.append('timeto', timeto);
-  if (dow) queryParams.append('dow', dow);
+    if (dateto) queryParams.append('dateto', dateto);
+    if (timefrom) queryParams.append('timefrom', timefrom);
+    if (timeto) queryParams.append('timeto', timeto);
+    if (dow) queryParams.append('dow', dow);
 
     const endpoint = `/WEBAPP/appointment/availability?${queryParams.toString()}`;
     const response = await makeAuthenticatedRequest(endpoint, { method: 'GET' });
@@ -168,8 +168,9 @@ const bookAppointment = async (patientId, slotBookingId) => {
         slot_booking_id: slotBookingId
       })
     });
-
+   
     if (response.status !== 'Success') {
+       console.log("book appointment res",response)
       console.error('[RoyalHayat] Booking Error Status:', response.status);
       throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to book appointment', response);
     }

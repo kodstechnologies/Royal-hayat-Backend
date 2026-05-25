@@ -9,9 +9,18 @@ import identityRoutes from '../modules/identity/routes/identity.routes.js';
 import catagoryRoutes from '../modules/catagory/routes/catagory.routes.js';
 import subspecialityRoutes from '../modules/subspeciality/routes/subspeciality.routes.js';
 import royalHayatRoutes from '../modules/royalhayat/routes/royalhayat.routes.js';
+import appointmentRequestRoutes from '../modules/appintmentRequest/routes/appointmentRequest.routes.js';
+import HospitalFeedbackRoutes from "../modules/feedback/routes/hospitalFeedback.routes.js"
+import DocumentRoutes from "../modules/document/routes/document.routes.js"
+import MedicalRecordRoutes from "../modules/medicalRecordRequest/routes/medicalRecordRequest.routes.js"
+import WorkCultureRoutes from "../modules/workCulture/routes/workCulture.js"
+import CSRRoutes from "../modules/csr/routes/csr.routes.js"
+import LeaderShipRoutes from "../modules/leadership/routes/leadership.routes.js"
 import { identityCallback } from '../modules/identity/controllers/identity.controller.js';
 import { callbackProbe } from '../modules/identity/middleware/callbackProbe.middleware.js';
 import { logIdentityHttp } from '../modules/identity/utils/identity.logger.js';
+import DoctorFeedbacks from "../modules/feedback/routes/doctorFeedback.routes.js"
+import HospitalFeedbacks from "../modules/feedback/routes/hospitalFeedback.routes.js"
 
 const router = Router();
 
@@ -25,6 +34,15 @@ router.use('/api/v1/identity', identityRoutes);
 router.use('/api/v1/catagories', catagoryRoutes);
 router.use('/api/v1/subspecialities', subspecialityRoutes);
 router.use('/api/v1/royal-hayat', royalHayatRoutes);
+router.use('/api/v1/appointment-requests', appointmentRequestRoutes);
 router.all('/api/callback', callbackProbe, logIdentityHttp('POST /api/callback'), identityCallback);
+router.use("/api/v1/hsopital-feedback",HospitalFeedbackRoutes)
+router.use("/api/v1/documents",DocumentRoutes)
+router.use("/api/v1/medical-record-requests",MedicalRecordRoutes)
+router.use("/api/v1/work-culture",WorkCultureRoutes)
+router.use("/api/v1/csr",CSRRoutes)
+router.use("/api/v1/leadership",LeaderShipRoutes)
+router.use("/api/v1/doctor-feedback",DoctorFeedbacks)
+router.use("/api/v1/hospital-feedback",HospitalFeedbacks)
 
 export default router;

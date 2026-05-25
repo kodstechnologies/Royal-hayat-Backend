@@ -27,9 +27,14 @@ const jobApplicationIdSchema = Joi.object({
   id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required()
 });
 
+const jobIdParamSchema = Joi.object({
+  jobId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required()
+});
+
 export {
   createJobApplicationSchema,
   getJobApplicationsSchema,
   updateJobApplicationSchema,
-  jobApplicationIdSchema
+  jobApplicationIdSchema,
+  jobIdParamSchema
 };

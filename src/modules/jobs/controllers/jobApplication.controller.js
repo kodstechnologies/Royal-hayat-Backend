@@ -4,7 +4,8 @@ import {
   createJobApplicationSchema,
   getJobApplicationsSchema,
   updateJobApplicationSchema,
-  jobApplicationIdSchema
+  jobApplicationIdSchema,
+  jobIdParamSchema
 } from '../validators/jobApplication.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
@@ -31,7 +32,7 @@ const createJobApplication = asyncHandler(async (req, res) => {
   }
 
   // Convert form data
-  const formData = { ...req.body, resume };
+  const formData = { ...req.body, resume: resumeUrl };
   
   // Validate input
   const { error, value } = createJobApplicationSchema.validate(formData, { abortEarly: false });
@@ -119,10 +120,27 @@ const deleteJobApplication = asyncHandler(async (req, res) => {
   });
 });
 
+const getApplicationsByJobId = asyncHandler(async (req, res) => {
+  // Validate job ID param
+  const { error, value } = jobIdParamSchema.validate(req.params, { abortEarly: false });
+  if (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+  }
+
+  const applications = await jobApplicationService.getApplicationsByJobId(value.jobId);
+
+  res.status(200).json({
+    success: true,
+    message: 'Applications for job fetched successfully',
+    data: applications
+  });
+});
+
 export {
   createJobApplication,
   getAllJobApplications,
   getJobApplicationById,
+  getApplicationsByJobId,
   updateJobApplication,
   deleteJobApplication
 };

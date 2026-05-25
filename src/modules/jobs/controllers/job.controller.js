@@ -8,18 +8,72 @@ import {
 } from '../validators/job.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
-import { uploadToCloudinary } from '../../../utils/cloudinary.js';
-import fs from 'fs-extra';
+
 
 const createJob = asyncHandler(async (req, res) => {
   // Validate input
-  const { error, value } = createJobSchema.validate(req.body, { abortEarly: false });
+  const formData = {
+    ...req.body,
+  };
+
+  /**
+   * ARRAY FIELDS
+   */
+
+  [
+    'responsibilities',
+
+    'arabicResponsibilities',
+
+    'requirements',
+
+    'arabicRequirements',
+  ].forEach((key) => {
+
+    if (
+      formData[key] &&
+      typeof formData[key] === 'string'
+    ) {
+      try {
+        formData[key] =
+          JSON.parse(formData[key]);
+      } catch {
+        formData[key] = [
+          formData[key],
+        ];
+      }
+    }
+  });
+
+  /**
+   * BOOLEAN
+   */
+
+  if (
+    formData.isActive !== undefined
+  ) {
+    formData.isActive =
+      formData.isActive === 'true' ||
+      formData.isActive === true;
+  }
+
+  /**
+   * VALIDATE
+   */
+
+  const { error, value } =
+    createJobSchema.validate(
+      formData,
+      {
+        abortEarly: false,
+      }
+    );
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
   }
 
   const job = await jobService.createJob(value);
-  
+
   res.status(201).json({
     success: true,
     message: 'Job created successfully',
@@ -35,7 +89,7 @@ const getAllJobs = asyncHandler(async (req, res) => {
   }
 
   const result = await jobService.getAllJobs(value);
-  
+
   res.status(200).json({
     success: true,
     message: 'Jobs fetched successfully',
@@ -52,7 +106,7 @@ const getJobById = asyncHandler(async (req, res) => {
   }
 
   const job = await jobService.getJobById(value.id);
-  
+
   res.status(200).json({
     success: true,
     message: 'Job fetched successfully',
@@ -74,7 +128,7 @@ const updateJob = asyncHandler(async (req, res) => {
   }
 
   const job = await jobService.updateJob(idValue.id, dataValue);
-  
+
   res.status(200).json({
     success: true,
     message: 'Job updated successfully',
@@ -90,7 +144,7 @@ const deleteJob = asyncHandler(async (req, res) => {
   }
 
   await jobService.deleteJob(value.id);
-  
+
   res.status(200).json({
     success: true,
     message: 'Job deleted successfully',
@@ -98,19 +152,24 @@ const deleteJob = asyncHandler(async (req, res) => {
   });
 });
 
-const getDepartments = asyncHandler(async (req, res) => {
-  const departments = await jobService.getDepartments();
-  
+const getArabicLocations = asyncHandler(async (req, res) => {
+
+  const locations =
+    await jobService.getArabicLocations();
+
   res.status(200).json({
     success: true,
-    message: 'Departments fetched successfully',
-    data: departments
+
+    message:
+      'Arabic locations fetched successfully',
+
+    data: locations,
   });
 });
 
 const getLocations = asyncHandler(async (req, res) => {
   const locations = await jobService.getLocations();
-  
+
   res.status(200).json({
     success: true,
     message: 'Locations fetched successfully',
@@ -120,21 +179,11 @@ const getLocations = asyncHandler(async (req, res) => {
 
 const getTypes = asyncHandler(async (req, res) => {
   const types = await jobService.getTypes();
-  
+
   res.status(200).json({
     success: true,
     message: 'Job types fetched successfully',
     data: types
-  });
-});
-
-const getClassifications = asyncHandler(async (req, res) => {
-  const classifications = await jobService.getClassifications();
-  
-  res.status(200).json({
-    success: true,
-    message: 'Job classifications fetched successfully',
-    data: classifications
   });
 });
 
@@ -144,8 +193,8 @@ export {
   getJobById,
   updateJob,
   deleteJob,
-  getDepartments,
+
   getLocations,
   getTypes,
-  getClassifications
+  getArabicLocations
 };

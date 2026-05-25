@@ -3,6 +3,7 @@ import {
   createJobApplication,
   getAllJobApplications,
   getJobApplicationById,
+  getApplicationsByJobId,
   updateJobApplication,
   deleteJobApplication
 } from '../controllers/jobApplication.controller.js';
@@ -15,6 +16,7 @@ router.post('/', upload.single("resume"), createJobApplication);
 
 // Admin routes (add middleware later for authentication)
 router.get('/', getAllJobApplications);
+router.get('/job/:jobId', getApplicationsByJobId);
 router.get('/:id', getJobApplicationById);
 router.put('/:id', updateJobApplication);
 router.delete('/:id', deleteJobApplication);
