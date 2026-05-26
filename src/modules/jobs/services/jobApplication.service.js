@@ -2,13 +2,39 @@ import jobApplicationRepository from '../repositories/jobApplication.repository.
 import jobService from './job.service.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
+import { putObject } from '../../../utils/putObject.js';
 
 class JobApplicationService {
-  async createJobApplication(applicationData) {
+  async createJobApplication(applicationData, resumeFile) {
+    if (!resumeFile) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Resume is required');
+    }
+
+    let resumeUrl;
+    try {
+      const uploaded = await putObject(
+        resumeFile,
+        'job-applications/resumes'
+      );
+      resumeUrl = uploaded.url;
+    } catch {
+      throw new ApiError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to upload resume'
+      );
+    }
+
+    const payload = {
+      ...applicationData,
+      resume: resumeUrl,
+      ...(applicationData.coverLetter === ''
+        ? { coverLetter: undefined }
+        : {})
+    };
 
     // Check if job exists
     const job = await jobService.getJobById(
-      applicationData.jobId
+      payload.jobId
     );
 
     if (!job) {
@@ -21,8 +47,8 @@ class JobApplicationService {
     // CHECK EXISTING APPLICATION
     const existingApplication =
       await jobApplicationRepository.findRecentApplicationByPhone(
-        applicationData.jobId,
-        applicationData.phone
+        payload.jobId,
+        payload.phone
       );
 
     if (existingApplication) {
@@ -35,12 +61,12 @@ class JobApplicationService {
     // CREATE APPLICATION
     const application =
       await jobApplicationRepository.create(
-        applicationData
+        payload
       );
 
     // INCREMENT COUNT
     await jobService.incrementApplicationsCount(
-      applicationData.jobId
+      payload.jobId
     );
 
     return application;

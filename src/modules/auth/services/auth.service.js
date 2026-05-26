@@ -147,6 +147,25 @@ const authService = {
     return { user, accessToken, refreshToken };
   },
 
+  resetPassword: async (userId, { currentPassword, newPassword }) => {
+    const user = await authRepository.findById(userId);
+    if (!user) throw new ApiError(404, 'User not found');
+
+    const isCurrentPasswordValid = await user.isPasswordCorrect(currentPassword);
+    if (!isCurrentPasswordValid) {
+      throw new ApiError(401, 'Current password is incorrect');
+    }
+
+    if (currentPassword === newPassword) {
+      throw new ApiError(400, 'New password must be different from current password');
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return { email: user.email };
+  },
+
   logout: async (userId) => {
     await authRepository.updateRefreshToken(userId, null);
   },

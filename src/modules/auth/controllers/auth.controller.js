@@ -36,14 +36,29 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     ));
 });
 
+export const resetPassword = asyncHandler(async (req, res) => {
+  const payload = await authService.resetPassword(req.user._id, req.body);
+  res.json(ApiResponse.success(payload, 'Password updated successfully'));
+});
+
 export const logout = asyncHandler(async (req, res) => {
-  await authService.logout(req.user.id);
+  await authService.logout(req.user._id);
   res
-    .clearCookie('accessToken')
-    .clearCookie('refreshToken')
+    .clearCookie('accessToken', cookieOptions)
+    .clearCookie('refreshToken', cookieOptions)
     .json(ApiResponse.success(null, 'Logged out successfully'));
 });
 
 export const getMe = asyncHandler(async (req, res) => {
-  res.json(ApiResponse.success(req.user, 'User fetched successfully'));
+  res.json(
+    ApiResponse.success(
+      {
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role,
+      },
+      'User fetched successfully'
+    )
+  );
 });

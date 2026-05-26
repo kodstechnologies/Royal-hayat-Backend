@@ -26,8 +26,8 @@ const router = express.Router();
 router.post(
   "/",
   upload.single("image"),
-  uploadToS3("leadership", { image: "image" }),
   validate(createLeadershipValidator),
+  uploadToS3("leadership", { image: "image" }),
   createLeadership
 );
 
@@ -41,8 +41,8 @@ router.get("/:id", getLeadershipById);
 router.put(
   "/:id",
   upload.single("image"),
-  uploadToS3("leadership", { image: "image" }),
   validate(updateLeadershipValidator),
+  uploadToS3("leadership", { image: "image" }),
   updateLeadership
 );
 

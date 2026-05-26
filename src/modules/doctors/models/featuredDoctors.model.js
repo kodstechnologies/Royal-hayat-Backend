@@ -7,6 +7,6 @@ const featuredDoctorsSchema=new mongoose.Schema({
     }
 })
 
-const featuredDoctors = mongoose.model('Doctor', featuredDoctorsSchema);
+const FeaturedDoctor = mongoose.model('FeaturedDoctor', featuredDoctorsSchema);
 
-export default featuredDoctors;
+export default FeaturedDoctor;

@@ -27,6 +27,7 @@ const jobApplicationSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
+    required: true,
     trim: true,
     maxlength: 20
   },
@@ -35,11 +36,11 @@ const jobApplicationSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  // tellusUrself: {
-  //   type: String,
-  //   trim: true,
-
-  // },
+  coverLetter: {
+    type: String,
+    trim: true,
+    maxlength: 5000
+  },
   status: {
     type: String,
     enum: ['pending', 'reviewed', 'shortlisted', 'rejected', 'hired'],

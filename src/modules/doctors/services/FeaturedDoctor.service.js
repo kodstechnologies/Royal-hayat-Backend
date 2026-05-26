@@ -8,7 +8,7 @@ import FeaturedDoctorsRepository from "../repositories/featuredDoctor.repository
 import {
   createFeaturedDoctorValidator,
   updateFeaturedDoctorValidator,
-} from "../validators/doctor.validator.js";
+} from "../validators/featuredDoctor.validators.js";
 
 class FeaturedDoctorsService {
   // Add Featured Doctor

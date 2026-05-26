@@ -45,6 +45,13 @@ const jobSchema = new mongoose.Schema(
       maxlength: 2000,
     },
 
+    classification: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100,
+    },
+
     // LOCATION ENGLISH
     location: {
       type: String,
@@ -143,6 +150,8 @@ const jobSchema = new mongoose.Schema(
 jobSchema.index({ title: 1 });
 
 jobSchema.index({ arabicTitle: 1 });
+
+jobSchema.index({ classification: 1 });
 
 jobSchema.index({ location: 1 });
 

@@ -1,0 +1,24 @@
+import { Router } from "express";
+import {
+  getDashboardStats,
+  getCurrentWeekAppointmentRequests,
+  getMonthlyAppointmentRequests,
+  getFeedbackStarStats,
+  getDoctorsCountByDepartment,
+} from "../controller/dashboard.controller.js";
+
+const router = Router();
+
+router.get("/stats", getDashboardStats);
+router.get(
+  "/current-week-appointment-requests",
+  getCurrentWeekAppointmentRequests
+);
+router.get(
+  "/monthly-appointment-requests",
+  getMonthlyAppointmentRequests
+);
+router.get("/feedback-star-stats", getFeedbackStarStats);
+router.get("/doctors-by-department", getDoctorsCountByDepartment);
+
+export default router;

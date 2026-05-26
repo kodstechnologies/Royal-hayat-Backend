@@ -12,7 +12,7 @@ import upload from "../../../utils/multer.js";
 const router = Router();
 
 // Public routes
-router.post('/', upload.single("resume"), createJobApplication);
+router.post('/', upload.single('resume'), createJobApplication);
 
 // Admin routes (add middleware later for authentication)
 router.get('/', getAllJobApplications);

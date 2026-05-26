@@ -4,7 +4,7 @@ const createJobSchema = Joi.object({
   jobId: Joi.string().trim().pattern(/^JA-\d{3,}$/).optional(),
   title: Joi.string().trim().min(2).max(200).required(),
   description: Joi.string().min(10).max(2000).required(),
-  department: Joi.string().trim().min(2).max(100).required(),
+  classification: Joi.string().trim().min(2).max(100).required(),
   location: Joi.string().trim().min(2).max(100).required(),
   type: Joi.string().valid('Full-time', 'Part-time', 'Contract').required(),
   responsibilities: Joi.array().items(Joi.string().trim().max(500)).min(1).required(),
@@ -30,7 +30,7 @@ const updateJobSchema = Joi.object({
   jobId: Joi.string().trim().pattern(/^JA-\d{3,}$/).optional(),
   title: Joi.string().trim().min(2).max(200).optional(),
   description: Joi.string().min(10).max(2000).optional(),
-  department: Joi.string().trim().min(2).max(100).optional(),
+  classification: Joi.string().trim().min(2).max(100).optional(),
   location: Joi.string().trim().min(2).max(100).optional(),
   type: Joi.string().valid('Full-time', 'Part-time', 'Contract').optional(),
   responsibilities: Joi.array().items(Joi.string().trim().max(500)).min(1).optional(),
@@ -57,12 +57,12 @@ const updateJobSchema = Joi.object({
 const getJobsSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
-  department: Joi.string().trim().optional(),
+  classification: Joi.string().trim().optional(),
   location: Joi.string().trim().optional(),
   type: Joi.string().valid('Full-time', 'Part-time', 'Contract').optional(),
   urgency: Joi.string().valid('immediate', 'urgent', 'normal').optional(),
   isActive: Joi.boolean().optional(),
-  sortBy: Joi.string().valid('postedDate', 'department', 'location', 'urgency').default('postedDate'),
+  sortBy: Joi.string().valid('postedDate', 'classification', 'location', 'urgency').default('postedDate'),
   sortOrder: Joi.string().valid('asc', 'desc').default('desc')
 });
 
