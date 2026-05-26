@@ -1,7 +1,7 @@
 import jobApplicationService from '../services/jobApplication.service.js';
 import asyncHandler from '../../../utils/asyncHandler.js';
 import {
-  createJobApplicationSchema,
+  applyJobApplicationSchema,
   getJobApplicationsSchema,
   updateJobApplicationSchema,
   jobApplicationIdSchema,
@@ -9,39 +9,24 @@ import {
 } from '../validators/jobApplication.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
-import { uploadToCloudinary } from '../../../utils/cloudinary.js';
-import fs from 'fs-extra';
 
 const createJobApplication = asyncHandler(async (req, res) => {
-  // Handle file upload
-  let resumeUrl = '';
-  if (req.file) {
-    try {
-      const result = await uploadToCloudinary(req.file.path, 'royale-hayat/resumes');
-      resumeUrl = result.url;
-      
-      // Clean up temp file
-      await fs.remove(req.file.path);
-    } catch (error) {
-      // Clean up temp file on error
-      if (req.file && req.file.path) {
-        await fs.remove(req.file.path);
-      }
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to upload resume');
-    }
-  }
-
-  // Convert form data
-  const formData = { ...req.body, resume: resumeUrl };
-  
-  // Validate input
-  const { error, value } = createJobApplicationSchema.validate(formData, { abortEarly: false });
+  const { error, value } = applyJobApplicationSchema.validate(req.body, {
+    abortEarly: false
+  });
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', ')
+    );
   }
 
-  await jobApplicationService.createJobApplication(value);
-  
+  if (!req.file) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Resume is required');
+  }
+
+  await jobApplicationService.createJobApplication(value, req.file);
+
   res.status(201).json({
     success: true,
     message: 'Job application submitted successfully',
@@ -50,14 +35,18 @@ const createJobApplication = asyncHandler(async (req, res) => {
 });
 
 const getAllJobApplications = asyncHandler(async (req, res) => {
-  // Validate query parameters
-  const { error, value } = getJobApplicationsSchema.validate(req.query, { abortEarly: false });
+  const { error, value } = getJobApplicationsSchema.validate(req.query, {
+    abortEarly: false
+  });
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', ')
+    );
   }
 
   const result = await jobApplicationService.getAllJobApplications(value);
-  
+
   res.status(200).json({
     success: true,
     message: 'Job applications fetched successfully',
@@ -67,14 +56,20 @@ const getAllJobApplications = asyncHandler(async (req, res) => {
 });
 
 const getJobApplicationById = asyncHandler(async (req, res) => {
-  // Validate application ID
-  const { error, value } = jobApplicationIdSchema.validate(req.params, { abortEarly: false });
+  const { error, value } = jobApplicationIdSchema.validate(req.params, {
+    abortEarly: false
+  });
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', ')
+    );
   }
 
-  const application = await jobApplicationService.getJobApplicationById(value.id);
-  
+  const application = await jobApplicationService.getJobApplicationById(
+    value.id
+  );
+
   res.status(200).json({
     success: true,
     message: 'Job application fetched successfully',
@@ -83,20 +78,31 @@ const getJobApplicationById = asyncHandler(async (req, res) => {
 });
 
 const updateJobApplication = asyncHandler(async (req, res) => {
-  // Validate application ID
-  const { error: idError, value: idValue } = jobApplicationIdSchema.validate(req.params, { abortEarly: false });
+  const { error: idError, value: idValue } = jobApplicationIdSchema.validate(
+    req.params,
+    { abortEarly: false }
+  );
   if (idError) {
-    throw new ApiError(httpStatus.BAD_REQUEST, idError.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      idError.details.map((d) => d.message).join(', ')
+    );
   }
 
-  // Validate update data
-  const { error: dataError, value: dataValue } = updateJobApplicationSchema.validate(req.body, { abortEarly: false });
+  const { error: dataError, value: dataValue } =
+    updateJobApplicationSchema.validate(req.body, { abortEarly: false });
   if (dataError) {
-    throw new ApiError(httpStatus.BAD_REQUEST, dataError.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      dataError.details.map((d) => d.message).join(', ')
+    );
   }
 
-  const application = await jobApplicationService.updateJobApplication(idValue.id, dataValue);
-  
+  const application = await jobApplicationService.updateJobApplication(
+    idValue.id,
+    dataValue
+  );
+
   res.status(200).json({
     success: true,
     message: 'Job application updated successfully',
@@ -105,14 +111,18 @@ const updateJobApplication = asyncHandler(async (req, res) => {
 });
 
 const deleteJobApplication = asyncHandler(async (req, res) => {
-  // Validate application ID
-  const { error, value } = jobApplicationIdSchema.validate(req.params, { abortEarly: false });
+  const { error, value } = jobApplicationIdSchema.validate(req.params, {
+    abortEarly: false
+  });
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', ')
+    );
   }
 
   await jobApplicationService.deleteJobApplication(value.id);
-  
+
   res.status(200).json({
     success: true,
     message: 'Job application deleted successfully',
@@ -121,13 +131,19 @@ const deleteJobApplication = asyncHandler(async (req, res) => {
 });
 
 const getApplicationsByJobId = asyncHandler(async (req, res) => {
-  // Validate job ID param
-  const { error, value } = jobIdParamSchema.validate(req.params, { abortEarly: false });
+  const { error, value } = jobIdParamSchema.validate(req.params, {
+    abortEarly: false
+  });
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', ')
+    );
   }
 
-  const applications = await jobApplicationService.getApplicationsByJobId(value.jobId);
+  const applications = await jobApplicationService.getApplicationsByJobId(
+    value.jobId
+  );
 
   res.status(200).json({
     success: true,

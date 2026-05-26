@@ -14,44 +14,62 @@ import { uploadToS3 } from "../../../utils/s3Upload.js";
 
 import { getFileUrl } from "../../../utils/s3Fetch.js";
 
+/** Remove S3 upload middleware fields before Joi validation. */
+const stripUploadFields = (data = {}) => {
+  const { image, imageKey, ...fields } = data;
+  return { fields, imageKey };
+};
+
+const attachSignedImage = async (leadership) => {
+  if (!leadership) return null;
+
+  const doc = leadership.toObject ? leadership.toObject() : leadership;
+
+  if (!doc.image) {
+    return doc;
+  }
+
+  const signedImage = await getFileUrl(doc.image);
+
+  return {
+    ...doc,
+    image: signedImage,
+  };
+};
+
 class LeadershipService {
 
   // Create
   async createLeadership(data, file) {
+    const { fields, imageKey } = stripUploadFields(data);
 
-    if (!file) {
-      throw new Error(
-        "Image is required"
-      );
-    }
-
-    // validate only text fields
-    const { error, value } =
-      createLeadershipValidator.validate(
-        data,
-        {
-          abortEarly: false,
-        }
-      );
+    const { error, value } = createLeadershipValidator.validate(fields, {
+      abortEarly: false,
+    });
 
     if (error) {
-      throw new Error(
-        error.details
-          .map((err) => err.message)
-          .join(", ")
+      const err = new Error(
+        error.details.map((detail) => detail.message).join(", ")
       );
+      err.statusCode = httpStatus.BAD_REQUEST;
+      throw err;
     }
 
-    const uploaded =
-      await uploadToS3(file);
+    const payload = { ...value };
 
-    const payload = {
-      ...value,
-      image: uploaded.key,
-    };
+    if (imageKey) {
+      payload.image = imageKey;
+    } else if (file) {
+      const uploaded = await uploadToS3(file);
+      payload.image = uploaded.key;
+    } else {
+      const err = new Error("Image is required");
+      err.statusCode = httpStatus.BAD_REQUEST;
+      throw err;
+    }
 
-    return await LeadershipRepository
-      .createLeadership(payload);
+    const created = await LeadershipRepository.createLeadership(payload);
+    return attachSignedImage(created);
   }
 
   // Get All
@@ -167,35 +185,27 @@ class LeadershipService {
       throw err;
     }
 
-    // validate only text fields
-    const { error, value } =
-      updateLeadershipValidator.validate(
-        data,
-        {
-          abortEarly: false,
-        }
-      );
+    const { fields, imageKey } = stripUploadFields(data);
+
+    const { error, value } = updateLeadershipValidator.validate(fields, {
+      abortEarly: false,
+    });
 
     if (error) {
-
-      throw new Error(
-        error.details
-          .map((err) => err.message)
-          .join(", ")
+      const err = new Error(
+        error.details.map((detail) => detail.message).join(", ")
       );
+      err.statusCode = httpStatus.BAD_REQUEST;
+      throw err;
     }
 
-    let uploadedImage =
-      existingLeadership.image;
+    let uploadedImage = existingLeadership.image;
 
-    // if new image uploaded
-    if (file) {
-
-      const uploaded =
-        await uploadToS3(file);
-
-      uploadedImage =
-        uploaded.key;
+    if (imageKey) {
+      uploadedImage = imageKey;
+    } else if (file) {
+      const uploaded = await uploadToS3(file);
+      uploadedImage = uploaded.key;
     }
 
     const payload = {
@@ -204,20 +214,9 @@ class LeadershipService {
     };
 
     const updatedLeadership =
-      await LeadershipRepository.updateLeadership(
-        id,
-        payload
-      );
+      await LeadershipRepository.updateLeadership(id, payload);
 
-    const signedImage =
-      await getFileUrl(
-        updatedLeadership.image
-      );
-
-    return {
-      ...updatedLeadership.toObject(),
-      image: signedImage,
-    };
+    return attachSignedImage(updatedLeadership);
   }
 
   // Delete

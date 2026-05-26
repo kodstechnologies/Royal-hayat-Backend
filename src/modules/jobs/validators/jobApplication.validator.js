@@ -1,13 +1,16 @@
 import Joi from 'joi';
 
-const createJobApplicationSchema = Joi.object({
+const applyJobApplicationSchema = Joi.object({
   jobId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
   fullName: Joi.string().trim().min(2).max(100).required(),
   email: Joi.string().email().trim().max(100).required(),
-  phone: Joi.string().trim().max(20).optional(),
-  resume: Joi.string().trim().required(),
-  tellusUrself: Joi.string().trim().max(1000).optional(),
+  phone: Joi.string().trim().min(6).max(20).required(),
+  coverLetter: Joi.string().trim().max(5000).optional().allow(''),
   status: Joi.string().valid('pending', 'reviewed', 'shortlisted', 'rejected', 'hired').optional()
+});
+
+const createJobApplicationSchema = applyJobApplicationSchema.keys({
+  resume: Joi.string().trim().required()
 });
 
 const getJobApplicationsSchema = Joi.object({
@@ -32,6 +35,7 @@ const jobIdParamSchema = Joi.object({
 });
 
 export {
+  applyJobApplicationSchema,
   createJobApplicationSchema,
   getJobApplicationsSchema,
   updateJobApplicationSchema,
