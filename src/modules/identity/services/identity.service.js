@@ -46,7 +46,7 @@ const fetchIdentityDataRaw = async (civilId, options = { allowMissing: false }) 
       Authorization: basicAuth
     }
   });
-
+  console.log('dataResp', dataResp);
   const dataBody = await parseResponseJson(dataResp);
   if (!dataResp.ok) {
     if (options.allowMissing && isDataNotAvailableError(dataResp.status, dataBody)) {

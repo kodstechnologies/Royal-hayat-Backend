@@ -22,3 +22,14 @@ export const verifyOtpSchema = Joi.object({
   email: Joi.string().email().lowercase().required(),
   otp: Joi.string().length(6).required(),
 });
+
+export const resetPasswordSchema = Joi.object({
+  currentPassword: Joi.string().required(),
+  newPassword: Joi.string().min(6).max(50).required(),
+  confirmNewPassword: Joi.string()
+    .valid(Joi.ref('newPassword'))
+    .required()
+    .messages({
+      'any.only': 'Confirm new password must match new password',
+    }),
+});

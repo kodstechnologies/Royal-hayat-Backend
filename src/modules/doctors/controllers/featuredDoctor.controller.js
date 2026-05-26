@@ -1,6 +1,6 @@
 // controllers/featuredDoctors.controller.js
 
-import asyncHandler from "express-async-handler";
+import asyncHandler from "../../../utils/asyncHandler.js";
 import httpStatus from "http-status";
 
 import FeaturedDoctorsService from "../services/FeaturedDoctor.service.js";

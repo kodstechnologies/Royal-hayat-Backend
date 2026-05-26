@@ -49,7 +49,7 @@ class JobApplicationRepository {
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
     const applications = await JobApplication.find(query)
-      .populate('jobId', 'title department location type')
+      .populate('jobId', 'title classification location type')
       .sort(sort)
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -85,13 +85,13 @@ class JobApplicationRepository {
 
   async findByJobId(jobId) {
     return await JobApplication.find({ jobId })
-      .populate('jobId', 'title department location type')
+      .populate('jobId', 'title classification location type')
       .sort({ appliedDate: -1 });
   }
 
   async findByEmail(email) {
     return await JobApplication.find({ email })
-      .populate('jobId', 'title department location type')
+      .populate('jobId', 'title classification location type')
       .sort({ appliedDate: -1 });
   }
 

@@ -21,11 +21,15 @@ import { callbackProbe } from '../modules/identity/middleware/callbackProbe.midd
 import { logIdentityHttp } from '../modules/identity/utils/identity.logger.js';
 import DoctorFeedbacks from "../modules/feedback/routes/doctorFeedback.routes.js"
 import HospitalFeedbacks from "../modules/feedback/routes/hospitalFeedback.routes.js"
+import achievementRoutes from "../modules/achievements/routes/achievement.routes.js"
+import featuredDoctorRoutes from "../modules/doctors/routes/featuredDoctor.routes.js"
+import dashboardRoutes from "../modules/dashborad/routes/dashboard.route.js"
 
 const router = Router();
 
 router.use('/api/v1/auth', authRoutes);
 router.use('/api/v1/doctors', doctorRoutes);
+router.use('/api/v1/featured-doctors', featuredDoctorRoutes);
 router.use('/api/v1/enquiries', enquiryRoutes);
 router.use('/api/v1/departments', departmentRoutes);
 router.use('/api/v1/jobs', jobRoutes);
@@ -44,5 +48,7 @@ router.use("/api/v1/csr",CSRRoutes)
 router.use("/api/v1/leadership",LeaderShipRoutes)
 router.use("/api/v1/doctor-feedback",DoctorFeedbacks)
 router.use("/api/v1/hospital-feedback",HospitalFeedbacks)
+router.use("/api/v1/achievements", achievementRoutes)
+router.use("/api/v1/dashboard", dashboardRoutes)
 
 export default router;

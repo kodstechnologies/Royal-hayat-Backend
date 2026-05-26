@@ -27,6 +27,8 @@ class JobRepository {
 
       limit = 10,
 
+      classification,
+
       location,
 
       type,
@@ -47,6 +49,16 @@ class JobRepository {
      */
     if (isActive !== undefined) {
       query.isActive = isActive;
+    }
+
+    /**
+     * CLASSIFICATION FILTER
+     */
+    if (classification) {
+      query.classification = {
+        $regex: classification,
+        $options: 'i',
+      };
     }
 
     /**
@@ -126,6 +138,13 @@ class JobRepository {
 
         {
           jobId: {
+            $regex: search,
+            $options: 'i',
+          },
+        },
+
+        {
+          classification: {
             $regex: search,
             $options: 'i',
           },
