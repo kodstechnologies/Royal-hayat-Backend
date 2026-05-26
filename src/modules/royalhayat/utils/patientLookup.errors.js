@@ -11,22 +11,26 @@ export const PATIENT_LOOKUP_CODES = {
   UNKNOWN: 'PATIENT_LOOKUP_FAILED'
 };
 
+/**
+ * Classify TrakCare WebAppointment patient lookup failures (GET /WEBAPP/patient).
+ * Status strings documented by RHH integration team.
+ */
 const classifyPatientStatus = (statusText, body = {}) => {
   const text = String(statusText || body?.status || '').toLowerCase();
 
   if (text.includes('not found') || body?.patient_exist === false) {
     return { code: PATIENT_LOOKUP_CODES.NOT_FOUND, statusCode: httpStatus.NOT_FOUND };
   }
-  if (text.includes('multiple patient')) {
+  if (text.includes('multiple patient with the same national id') || text.includes('multiple patient')) {
     return { code: PATIENT_LOOKUP_CODES.DUPLICATE, statusCode: httpStatus.CONFLICT };
   }
-  if (text.includes('merged patient record') || text.includes('urn belongs to a merged')) {
+  if (text.includes('urn belongs to a merged') || text.includes('merged patient record')) {
     return { code: PATIENT_LOOKUP_CODES.MERGED_URN, statusCode: httpStatus.CONFLICT };
   }
-  if (text.includes('inactive') || text.includes('has been merged')) {
+  if (text.includes('inactive or has been merged') || text.includes('inactive') || text.includes('has been merged')) {
     return { code: PATIENT_LOOKUP_CODES.INACTIVE, statusCode: httpStatus.CONFLICT };
   }
-  if (text.includes('input too long')) {
+  if (text.includes('input too long') || text.includes('max 50 characters')) {
     return { code: PATIENT_LOOKUP_CODES.INPUT_TOO_LONG, statusCode: httpStatus.BAD_REQUEST };
   }
 
