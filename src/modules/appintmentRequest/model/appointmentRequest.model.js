@@ -28,27 +28,55 @@ const appointmentRequestSchema = new mongoose.Schema(
       trim: true,
     },
 
-    dateOfBirth: {
+    dob: {
       type: Date,
     },
-    civilID: {
+    patient_id: {
+      type: String,
+    },
+    urn: {
+      type: String,
+    },
+    national_id: {
+      type: String,
+    },
+    mobile_number: {
+      type: String,
+    },
+    email: {
+      type: String,
+      trim: true,
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
+    englishName: {
+      type: String,
+      trim: true,
+    },
+    arabicName: {
+      type: String,
+      trim: true,
+    },
+    operationId: {
       type: String
     },
-    operationalId: {
+    paciRequestId: {
+      type: String,
+    },
+    date: {
       type: String
     },
-    date:{
+    time: {
       type: String
     },
-    time:{
-      type: String
-    },
-    nationality:{
-      
+    nationality: {
+
       type: String
 
     },
-    passportNumber:{
+    passportNumber: {
       type: String
     },
     symptoms: {
@@ -56,10 +84,17 @@ const appointmentRequestSchema = new mongoose.Schema(
       type: [String],
 
     },
+    doctor: {
+      type: String,
+
+    },
+    department: {
+      type: String,
+    },
     status: {
       type: String,
       enum: ['received', 'accepted', 'cancelled'],
-      default: 'received',
+      // default: 'received',
     },
   },
   { timestamps: true },

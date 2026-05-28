@@ -9,57 +9,36 @@ import {
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 
+const ARRAY_FIELDS = [
+  'responsibilities',
+  'arabicResponsibilities',
+  'requirements',
+  'arabicRequirements',
+];
 
-const createJob = asyncHandler(async (req, res) => {
-  // Validate input
-  const formData = {
-    ...req.body,
-  };
+const normalizeJobBody = (body = {}) => {
+  const formData = { ...body };
 
-  /**
-   * ARRAY FIELDS
-   */
-
-  [
-    'responsibilities',
-
-    'arabicResponsibilities',
-
-    'requirements',
-
-    'arabicRequirements',
-  ].forEach((key) => {
-
-    if (
-      formData[key] &&
-      typeof formData[key] === 'string'
-    ) {
+  ARRAY_FIELDS.forEach((key) => {
+    if (formData[key] && typeof formData[key] === 'string') {
       try {
-        formData[key] =
-          JSON.parse(formData[key]);
+        formData[key] = JSON.parse(formData[key]);
       } catch {
-        formData[key] = [
-          formData[key],
-        ];
+        formData[key] = [formData[key]];
       }
     }
   });
 
-  /**
-   * BOOLEAN
-   */
-
-  if (
-    formData.isActive !== undefined
-  ) {
+  if (formData.isActive !== undefined) {
     formData.isActive =
-      formData.isActive === 'true' ||
-      formData.isActive === true;
+      formData.isActive === 'true' || formData.isActive === true;
   }
 
-  /**
-   * VALIDATE
-   */
+  return formData;
+};
+
+const createJob = asyncHandler(async (req, res) => {
+  const formData = normalizeJobBody(req.body);
 
   const { error, value } =
     createJobSchema.validate(
@@ -121,8 +100,9 @@ const updateJob = asyncHandler(async (req, res) => {
     throw new ApiError(httpStatus.BAD_REQUEST, idError.details.map(d => d.message).join(", "));
   }
 
-  // Validate update data
-  const { error: dataError, value: dataValue } = updateJobSchema.validate(req.body, { abortEarly: false });
+  const formData = normalizeJobBody(req.body);
+
+  const { error: dataError, value: dataValue } = updateJobSchema.validate(formData, { abortEarly: false });
   if (dataError) {
     throw new ApiError(httpStatus.BAD_REQUEST, dataError.details.map(d => d.message).join(", "));
   }

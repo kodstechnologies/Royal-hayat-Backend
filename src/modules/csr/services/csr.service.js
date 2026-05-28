@@ -154,23 +154,23 @@ class CSRService {
       );
     }
 
-    let uploadedImages =
-      existingCSR.images || [];
+    let uploadedImages = existingCSR.images || [];
 
-    // if new images uploaded
-    if (files && files.length > 0) {
+    // keep images the client chose to retain (empty string = clear all existing)
+    if (data.existingImages !== undefined) {
+      const kept = Array.isArray(data.existingImages)
+        ? data.existingImages
+        : [data.existingImages];
+      uploadedImages = kept.filter((url) => url && String(url).trim());
+    }
 
-      uploadedImages = [];
-
+    // new uploads (already on S3 via route middleware when present on body)
+    if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+      uploadedImages = [...uploadedImages, ...data.images];
+    } else if (files && files.length > 0) {
       for (const file of files) {
-
-        const uploaded =
-          await uploadToS3(file);
-
-        // STORE DIRECT URL
-        uploadedImages.push(
-          uploaded.url
-        );
+        const uploaded = await uploadToS3(file);
+        uploadedImages.push(uploaded.url);
       }
     }
 

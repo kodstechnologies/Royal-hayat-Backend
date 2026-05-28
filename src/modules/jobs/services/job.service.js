@@ -15,10 +15,13 @@ class JobService {
      * CHECK TITLE
      * ENGLISH + ARABIC
      */
+    const arabicTitle =
+      jobData.arabicTitle?.trim() || undefined;
+
     const existingJob =
       await jobRepository.existsByTitle(
         jobData.title,
-        jobData.arabicTitle
+        arabicTitle
       );
 
     if (existingJob) {
@@ -107,15 +110,15 @@ class JobService {
     /**
      * CHECK TITLE
      */
-    if (
-      updateData.title ||
-      updateData.arabicTitle
-    ) {
+    const arabicTitle =
+      updateData.arabicTitle?.trim() || undefined;
+
+    if (updateData.title || arabicTitle) {
 
       const titleExists =
         await jobRepository.existsByTitle(
           updateData.title,
-          updateData.arabicTitle,
+          arabicTitle,
           id
         );
 

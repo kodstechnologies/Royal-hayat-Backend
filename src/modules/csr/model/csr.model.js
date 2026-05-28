@@ -14,6 +14,18 @@ const csrSchema = new mongoose.Schema(
       trim: true,
     },
 
+    subheading: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    subheadingArabic: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     description: {
       type: String,
       required: true,

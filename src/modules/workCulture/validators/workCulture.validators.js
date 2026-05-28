@@ -24,7 +24,10 @@ export const createWorkCultureValidator = Joi.object({
     "string.empty": "Arabic description is required",
     "any.required": "Arabic description is required",
   }),
-});
+
+  images: Joi.array().items(Joi.string().uri()).optional(),
+  imagesKey: Joi.array().items(Joi.string()).optional(),
+}).unknown(true);
 
 export const updateWorkCultureValidator = Joi.object({
   heading: Joi.string().trim().messages({
@@ -42,4 +45,13 @@ export const updateWorkCultureValidator = Joi.object({
   descriptionArabic: Joi.string().trim().messages({
     "string.base": "Arabic description must be a string",
   }),
-});
+
+  existingImages: Joi.alternatives()
+    .try(
+      Joi.array().items(Joi.string().uri()),
+      Joi.array().items(Joi.string().allow("")),
+      Joi.string().uri(),
+      Joi.string().allow("")
+    )
+    .optional(),
+}).unknown(true);

@@ -2,6 +2,8 @@ import httpStatus from 'http-status';
 import asyncHandler from '../../../utils/asyncHandler.js';
 import ApiError from '../../../utils/ApiError.js';
 import AppointmentRequest from '../model/appointmentRequest.model.js';
+import AppointmentBookingRecord from '../model/appointmentBookingRecord.model.js';
+import { buildAppointmentListFilter } from '../utils/appointmentListFilters.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 
@@ -9,6 +11,14 @@ const VALID_STATUS = ['received', 'accepted', 'cancelled'];
 
 const sanitizePayload = (body = {}) => {
   const payload = {};
+  const patientData =
+    body.patient && typeof body.patient === 'object'
+      ? body.patient
+      : {};
+  const rawIdentityData =
+    body.raw && typeof body.raw === 'object'
+      ? body.raw
+      : {};
 
   if (body.fullname !== undefined) {
     payload.fullname = String(body.fullname).trim();
@@ -30,17 +40,114 @@ const sanitizePayload = (body = {}) => {
     payload.additionalNotes = String(body.additionalNotes).trim();
   }
 
-  if (body.dateOfBirth !== undefined && body.dateOfBirth !== '') {
-    const dob = new Date(body.dateOfBirth);
+  if (body.doctor !== undefined) {
+    payload.doctor = String(body.doctor).trim();
+  }
 
+  if (body.department !== undefined) {
+    payload.department = String(body.department).trim();
+  }
+
+  const dobInput =
+    body.dob ??
+    body.dateOfBirth ??
+    patientData.dob ??
+    rawIdentityData.dateOfBirth;
+  if (dobInput !== undefined && dobInput !== '') {
+    const dob = new Date(dobInput);
     if (Number.isNaN(dob.getTime())) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
-        'Invalid dateOfBirth',
+        'Invalid dob',
       );
     }
+    payload.dob = dob;
+  }
 
-    payload.dateOfBirth = dob;
+  const patientId =
+    body.patient_id ??
+    patientData.patient_id;
+  if (patientId !== undefined) {
+    payload.patient_id = String(patientId).trim();
+  }
+
+  const urn = body.urn ?? patientData.urn;
+  if (urn !== undefined) {
+    payload.urn = String(urn).trim();
+  }
+
+  const nationalId =
+    body.national_id ??
+    patientData.national_id;
+  if (nationalId !== undefined) {
+    payload.national_id = String(nationalId).trim();
+  }
+
+  const mobileNumber =
+    body.mobile_number ??
+    patientData.mobile_number;
+  if (mobileNumber !== undefined) {
+    payload.mobile_number = String(mobileNumber).trim();
+  }
+
+  const email =
+    body.email ??
+    patientData.email;
+  if (email !== undefined) {
+    payload.email = String(email).trim();
+  }
+
+  const address =
+    body.address ??
+    patientData.address;
+  if (address !== undefined) {
+    payload.address = String(address).trim();
+  }
+
+  const englishName =
+    body.englishName ??
+    rawIdentityData?.name?.english;
+  if (englishName !== undefined) {
+    payload.englishName = String(englishName).trim();
+  }
+
+  const arabicName =
+    body.arabicName ??
+    rawIdentityData?.name?.arabic;
+  if (arabicName !== undefined) {
+    payload.arabicName = String(arabicName).trim();
+  }
+
+  const operationId =
+    body.operationId ??
+    rawIdentityData.operationId;
+  if (operationId !== undefined) {
+    payload.operationId = String(operationId).trim();
+  }
+
+  const paciRequestId =
+    body.paciRequestId ??
+    rawIdentityData.paciRequestId;
+  if (paciRequestId !== undefined) {
+    payload.paciRequestId = String(paciRequestId).trim();
+  }
+
+  if (body.nationality !== undefined) {
+    payload.nationality = String(body.nationality).trim();
+  } else if (rawIdentityData?.nationality?.name) {
+    payload.nationality = String(
+      rawIdentityData.nationality.name.english ??
+      rawIdentityData.nationality.name.arabic ??
+      '',
+    ).trim();
+  }
+
+  if (body.passportNumber !== undefined) {
+    payload.passportNumber = String(body.passportNumber).trim();
+  } else if (rawIdentityData?.registration?.passport !== undefined) {
+    payload.passportNumber = String(
+      rawIdentityData.registration.passport,
+    ).trim();
   }
 
   if (body.status !== undefined) {
@@ -84,6 +191,32 @@ const validateCreate = (payload) => {
   }
 };
 
+const mapRequestToBookingPayload = (request) => ({
+  fullname: request.fullname,
+  phone: request.phone,
+  age: request.age,
+  gender: request.gender,
+  additionalNotes: request.additionalNotes,
+  dob: request.dob,
+  patient_id: request.patient_id,
+  urn: request.urn,
+  national_id: request.national_id,
+  mobile_number: request.mobile_number,
+  email: request.email,
+  address: request.address,
+  englishName: request.englishName,
+  arabicName: request.arabicName,
+  operationId: request.operationId,
+  paciRequestId: request.paciRequestId,
+  date: request.date,
+  time: request.time,
+  nationality: request.nationality,
+  passportNumber: request.passportNumber,
+  symptoms: request.symptoms,
+  doctor: request.doctor,
+  department: request.department,
+});
+
 const createAppointmentRequest = asyncHandler(
   async (req, res) => {
 
@@ -118,23 +251,9 @@ const getAllAppointmentRequests = asyncHandler(
 
     const skip = (page - 1) * limit;
 
-    const filter = {};
-
-    if (req.query.status) {
-
-      const status = String(req.query.status)
-        .trim()
-        .toLowerCase();
-
-      if (!VALID_STATUS.includes(status)) {
-        throw new ApiError(
-          httpStatus.BAD_REQUEST,
-          `status must be one of ${VALID_STATUS.join(', ')}`,
-        );
-      }
-
-      filter.status = status;
-    }
+    const filter = buildAppointmentListFilter(req.query, {
+      includeStatus: true,
+    });
 
     const [rows, total] = await Promise.all([
       AppointmentRequest.find(filter)
@@ -288,6 +407,20 @@ const acceptAppointmentRequest = asyncHandler(
       );
     }
 
+    const current = await AppointmentRequest.findById(id);
+    if (!current) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        'Appointment request not found',
+      );
+    }
+
+    if (current.status !== 'accepted') {
+      await AppointmentBookingRecord.create(
+        mapRequestToBookingPayload(current),
+      );
+    }
+
     const updated =
       await AppointmentRequest.findByIdAndUpdate(
         id,
@@ -299,13 +432,6 @@ const acceptAppointmentRequest = asyncHandler(
           runValidators: true,
         },
       );
-
-    if (!updated) {
-      throw new ApiError(
-        httpStatus.NOT_FOUND,
-        'Appointment request not found',
-      );
-    }
 
     res.status(httpStatus.OK).json({
       success: true,

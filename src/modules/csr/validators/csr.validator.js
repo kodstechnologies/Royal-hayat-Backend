@@ -15,6 +15,18 @@ export const createCSRValidator = Joi.object({
     "any.required": "Arabic heading is required",
   }),
 
+  subheading: Joi.string().trim().required().messages({
+    "string.base": "Subheading must be a string",
+    "string.empty": "Subheading is required",
+    "any.required": "Subheading is required",
+  }),
+
+  subheadingArabic: Joi.string().trim().required().messages({
+    "string.base": "Arabic subheading must be a string",
+    "string.empty": "Arabic subheading is required",
+    "any.required": "Arabic subheading is required",
+  }),
+
   description: Joi.string().trim().required().messages({
     "string.base": "Description must be a string",
     "string.empty": "Description is required",
@@ -40,6 +52,14 @@ export const updateCSRValidator = Joi.object({
     "string.base": "Arabic heading must be a string",
   }),
 
+  subheading: Joi.string().trim().messages({
+    "string.base": "Subheading must be a string",
+  }),
+
+  subheadingArabic: Joi.string().trim().messages({
+    "string.base": "Arabic subheading must be a string",
+  }),
+
   description: Joi.string().trim().messages({
     "string.base": "Description must be a string",
   }),
@@ -50,4 +70,13 @@ export const updateCSRValidator = Joi.object({
 
   images: Joi.array().items(Joi.string().uri()).optional(),
   imagesKey: Joi.array().items(Joi.string()).optional(),
-});
+
+  existingImages: Joi.alternatives()
+    .try(
+      Joi.array().items(Joi.string().uri()),
+      Joi.array().items(Joi.string().allow("")),
+      Joi.string().uri(),
+      Joi.string().allow("")
+    )
+    .optional(),
+}).unknown(true);

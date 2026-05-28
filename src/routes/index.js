@@ -10,6 +10,7 @@ import catagoryRoutes from '../modules/catagory/routes/catagory.routes.js';
 import subspecialityRoutes from '../modules/subspeciality/routes/subspeciality.routes.js';
 import royalHayatRoutes from '../modules/royalhayat/routes/royalhayat.routes.js';
 import appointmentRequestRoutes from '../modules/appintmentRequest/routes/appointmentRequest.routes.js';
+import appointmentBookingRecordRoutes from '../modules/appintmentRequest/routes/appointmentBookingRecord.js';
 import HospitalFeedbackRoutes from "../modules/feedback/routes/hospitalFeedback.routes.js"
 import DocumentRoutes from "../modules/document/routes/document.routes.js"
 import MedicalRecordRoutes from "../modules/medicalRecordRequest/routes/medicalRecordRequest.routes.js"
@@ -39,6 +40,7 @@ router.use('/api/v1/catagories', catagoryRoutes);
 router.use('/api/v1/subspecialities', subspecialityRoutes);
 router.use('/api/v1/royal-hayat', royalHayatRoutes);
 router.use('/api/v1/appointment-requests', appointmentRequestRoutes);
+router.use('/api/v1/appointment-booking-records', appointmentBookingRecordRoutes);
 router.all('/api/callback', callbackProbe, logIdentityHttp('POST /api/callback'), identityCallback);
 router.use("/api/v1/hsopital-feedback",HospitalFeedbackRoutes)
 router.use("/api/v1/documents",DocumentRoutes)
