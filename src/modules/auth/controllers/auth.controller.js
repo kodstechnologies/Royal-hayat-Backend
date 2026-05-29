@@ -1,6 +1,7 @@
 import asyncHandler from '../../../utils/asyncHandler.js';
 import ApiResponse from '../../../utils/ApiResponse.js';
 import authService from '../services/auth.service.js';
+import User from '../models/user.model.js';
 
 const cookieOptions = {
   httpOnly: true,
@@ -62,3 +63,68 @@ export const getMe = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const createSubadmin = async (
+  req,
+  res
+) => {
+  try {
+
+    const {
+      name,
+      email,
+      password,
+      role,
+      permissions,
+    } = req.body;
+
+    const allowedRoles = [
+      
+      // 'doctor',
+      // 'nurse',
+      // 'receptionist',
+      'call_center',
+      // 'customer_support',
+    ];
+
+    // Role validation
+    if (!allowedRoles.includes(role)) {
+      console.log("------",role)
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid role',
+      });
+    }
+
+    const existingUser =
+      await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email already exists',
+      });
+    }
+
+    const subadmin = await User.create({
+      name,
+      email,
+      password,
+      role,
+      permissions,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      data: subadmin,
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

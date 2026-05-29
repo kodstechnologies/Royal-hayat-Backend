@@ -4,13 +4,11 @@ const leadershipSchema = new mongoose.Schema(
   {
     initials: {
       type: String,
-      required: true,
       trim: true,
     },
 
     initialsArabic: {
       type: String,
-      required: true,
       trim: true,
     },
 

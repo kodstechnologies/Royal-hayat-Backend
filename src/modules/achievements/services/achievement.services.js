@@ -16,6 +16,22 @@ const stripUploadFields = (data = {}) => {
   return { fields, imageKey };
 };
 
+const normalizeAchievementFields = (fields = {}) => {
+  const normalized = { ...fields };
+
+  normalized.employeeId = normalized.employeeId || normalized.employeeID;
+  normalized.employeeID = normalized.employeeID || normalized.employeeId;
+
+  normalized.arabicTitle = normalized.arabicTitle || normalized.arabictitle || "";
+  normalized.arabicAchievements =
+    normalized.arabicAchievements || normalized.arabicachievements || "";
+
+  delete normalized.arabictitle;
+  delete normalized.arabicachievements;
+
+  return normalized;
+};
+
 const attachSignedImage = async (achievement) => {
   if (!achievement) return null;
 
@@ -37,9 +53,12 @@ class AchievementService {
   async createAchievement(data, file) {
     const { fields, imageKey } = stripUploadFields(data);
 
-    const { error, value } = createAchievementValidator.validate(fields, {
+    const { error, value } = createAchievementValidator.validate(
+      normalizeAchievementFields(fields),
+      {
       abortEarly: false,
-    });
+      }
+    );
 
     if (error) {
       const err = new Error(error.details.map((d) => d.message).join(", "));
@@ -131,9 +150,12 @@ class AchievementService {
 
     const { fields, imageKey: uploadedImageKey } = stripUploadFields(data);
 
-    const { error, value } = updateAchievementValidator.validate(fields, {
+    const { error, value } = updateAchievementValidator.validate(
+      normalizeAchievementFields(fields),
+      {
       abortEarly: false,
-    });
+      }
+    );
 
     if (error) {
       const err = new Error(error.details.map((d) => d.message).join(", "));

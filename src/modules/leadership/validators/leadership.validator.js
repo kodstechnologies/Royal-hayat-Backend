@@ -3,15 +3,9 @@
 import Joi from "joi";
 
 export const createLeadershipValidator = Joi.object({
-  initials: Joi.string().trim().required().messages({
-    "string.empty": "Initials are required",
-    "any.required": "Initials are required",
-  }),
+  initials: Joi.string().trim().allow("").optional(),
 
-  initialsArabic: Joi.string().trim().required().messages({
-    "string.empty": "Arabic initials are required",
-    "any.required": "Arabic initials are required",
-  }),
+  initialsArabic: Joi.string().trim().allow("").optional(),
 
   name: Joi.string().trim().required().messages({
     "string.empty": "Name is required",

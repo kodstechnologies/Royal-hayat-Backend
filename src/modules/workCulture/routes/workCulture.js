@@ -30,7 +30,7 @@ router.post(
   validate(createWorkCultureValidator),
   createWorkCulture
 );
-
+  
 // Get All
 router.get("/", getAllWorkCultures);
 

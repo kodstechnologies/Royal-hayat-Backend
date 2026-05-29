@@ -9,10 +9,15 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ['admin', 'doctor', 'nurse', 'receptionist', 'patient'],
+      enum: ['admin','sub_admin','call_center'],
       default: 'patient',
     },
     refreshToken: { type: String },
+    permissions: [
+      {
+        type: String,
+      },
+    ],
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

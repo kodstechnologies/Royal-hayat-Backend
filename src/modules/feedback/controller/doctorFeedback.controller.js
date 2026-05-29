@@ -1,179 +1,143 @@
 // controllers/doctorFeedback.controller.js
 
+import httpStatus from "http-status";
+import ApiError from "../../../utils/ApiError.js";
 import {
     createDoctorFeedbackService,
     getAllDoctorFeedbacksService,
-    getDoctorFeedbackByIdService,
+    getDoctorFeedbacksByDoctorIdService,
     updateDoctorFeedbackService,
-    deleteDoctorFeedbackService
+    deleteDoctorFeedbackService,
 } from "../service/doctorFeedback.service.js";
 
+const handleError = (res, error) => {
+    const statusCode =
+        error instanceof ApiError ? error.statusCode : httpStatus.INTERNAL_SERVER_ERROR;
 
-// CREATE
-export const createDoctorFeedback =
-    async (req, res) => {
+    return res.status(statusCode).json({
+        success: false,
+        message: error.message,
+    });
+};
 
-        try {
+// CREATE — body.doctorId (or legacy body.doctor)
+export const createDoctorFeedback = async (req, res) => {
+    try {
+        const { addedBy } = req.query;
+        const doctorRef = req.body.doctorId ?? req.body.doctor;
 
-            const {
-                addedBy
-            } = req.query;
-
-            const payload = {
-                doctor: req.body.doctor,
-                stars: req.body.stars,
-                shownOnWebsite: req.body.shownOnWebsite,
-                addedBy: addedBy || "patient",
-                // Accept both languages in a single create
-                userName: req.body.userName,
-                feedback: req.body.feedback,
-                arabicUserName: req.body.arabicUserName,
-                arabicFeedback: req.body.arabicFeedback,
-            };
-
-            // Remove undefined keys
-            Object.keys(payload).forEach(
-                key => payload[key] === undefined && delete payload[key]
-            );
-
-            const feedback =
-                await createDoctorFeedbackService(
-                    payload
-                );
-
-            return res.status(201).json({
-                success: true,
-                message:
-                    "Doctor feedback created successfully",
-                data: feedback
-            });
-
-        } catch (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
+        if (!doctorRef) {
+            throw new ApiError(httpStatus.BAD_REQUEST, "doctorId is required");
         }
-    };
 
+        const payload = {
+            doctorId: doctorRef,
+            stars: req.body.stars,
+            shownOnWebsite: req.body.shownOnWebsite,
+            addedBy: addedBy || "patient",
+            userName: req.body.userName,
+            feedback: req.body.feedback,
+            arabicUserName: req.body.arabicUserName,
+            arabicFeedback: req.body.arabicFeedback,
+        };
+
+        Object.keys(payload).forEach(
+            (key) => payload[key] === undefined && delete payload[key]
+        );
+
+        const feedback = await createDoctorFeedbackService(payload);
+
+        return res.status(201).json({
+            success: true,
+            message: "Doctor feedback created successfully",
+            data: feedback,
+        });
+    } catch (error) {
+        return handleError(res, error);
+    }
+};
 
 // GET ALL
-export const getAllDoctorFeedbacks =
-    async (req, res) => {
+export const getAllDoctorFeedbacks = async (req, res) => {
+    try {
+        const feedbacks = await getAllDoctorFeedbacksService();
 
-        try {
+        return res.status(200).json({
+            success: true,
+            data: feedbacks,
+        });
+    } catch (error) {
+        return handleError(res, error);
+    }
+};
 
-            const feedbacks =
-                await getAllDoctorFeedbacksService();
+// GET BY doctorId (business id, not feedback MongoDB _id)
+export const getDoctorFeedbackById = async (req, res) => {
+    try {
+        const feedbacks = await getDoctorFeedbacksByDoctorIdService(
+            req.params.doctorId
+        );
 
-            return res.status(200).json({
-                success: true,
-                data: feedbacks
-            });
+        return res.status(200).json({
+            success: true,
+            data: feedbacks,
+        });
+    } catch (error) {
+        return handleError(res, error);
+    }
+};
 
-        } catch (error) {
+// UPDATE — :doctorId in path, feedbackId in body
+export const updateDoctorFeedback = async (req, res) => {
+    try {
+        const feedbackId = req.body.feedbackId ?? req.query.feedbackId;
 
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
+        const payload = {
+            stars: req.body.stars,
+            shownOnWebsite: req.body.shownOnWebsite,
+            userName: req.body.userName,
+            feedback: req.body.feedback,
+            arabicUserName: req.body.arabicUserName,
+            arabicFeedback: req.body.arabicFeedback,
+        };
+
+        const doctorRef = req.body.doctorId ?? req.body.doctor;
+        if (doctorRef !== undefined) {
+            payload.doctorId = doctorRef;
         }
-    };
 
+        Object.keys(payload).forEach(
+            (key) => payload[key] === undefined && delete payload[key]
+        );
 
-// GET BY ID
-export const getDoctorFeedbackById =
-    async (req, res) => {
+        const feedback = await updateDoctorFeedbackService(
+            req.params.doctorId,
+            feedbackId,
+            payload
+        );
 
-        try {
+        return res.status(200).json({
+            success: true,
+            message: "Doctor feedback updated successfully",
+            data: feedback,
+        });
+    } catch (error) {
+        return handleError(res, error);
+    }
+};
 
-            const feedback =
-                await getDoctorFeedbackByIdService(
-                    req.params.id
-                );
+// DELETE — :doctorId in path, feedbackId in body or query
+export const deleteDoctorFeedback = async (req, res) => {
+    try {
+        const feedbackId = req.body.feedbackId ?? req.query.feedbackId;
 
-            return res.status(200).json({
-                success: true,
-                data: feedback
-            });
+        await deleteDoctorFeedbackService(req.params.doctorId, feedbackId);
 
-        } catch (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
-    };
-
-
-// UPDATE
-export const updateDoctorFeedback =
-    async (req, res) => {
-
-        try {
-
-            const payload = {
-                stars: req.body.stars,
-                shownOnWebsite: req.body.shownOnWebsite,
-                // Accept both languages in a single update
-                userName: req.body.userName,
-                feedback: req.body.feedback,
-                arabicUserName: req.body.arabicUserName,
-                arabicFeedback: req.body.arabicFeedback,
-                doctor: req.body.doctor,
-            };
-
-            // Remove undefined keys so Mongoose doesn't overwrite with null
-            Object.keys(payload).forEach(
-                key => payload[key] === undefined && delete payload[key]
-            );
-
-            const feedback =
-                await updateDoctorFeedbackService(
-                    req.params.id,
-                    payload
-                );
-
-            return res.status(200).json({
-                success: true,
-                message:
-                    "Doctor feedback updated successfully",
-                data: feedback
-            });
-
-        } catch (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
-    };
-
-
-// DELETE
-export const deleteDoctorFeedback =
-    async (req, res) => {
-
-        try {
-
-            await deleteDoctorFeedbackService(
-                req.params.id
-            );
-
-            return res.status(200).json({
-                success: true,
-                message:
-                    "Doctor feedback deleted successfully"
-            });
-
-        } catch (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
-    };
+        return res.status(200).json({
+            success: true,
+            message: "Doctor feedback deleted successfully",
+        });
+    } catch (error) {
+        return handleError(res, error);
+    }
+};

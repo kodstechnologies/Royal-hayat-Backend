@@ -395,10 +395,19 @@ const deleteAppointmentRequest = asyncHandler(
 );
 
 
+const resolveStatusNote = (body = {}) => {
+  if (body.note === undefined || body.note === null) {
+    return undefined;
+  }
+  const trimmed = String(body.note).trim();
+  return trimmed.length ? trimmed : undefined;
+};
+
 const acceptAppointmentRequest = asyncHandler(
   async (req, res) => {
 
     const { id } = req.params;
+    const note = resolveStatusNote(req.body);
 
     if (!OID.test(id)) {
       throw new ApiError(
@@ -421,12 +430,15 @@ const acceptAppointmentRequest = asyncHandler(
       );
     }
 
+    const updatePayload = { status: 'accepted' };
+    if (note !== undefined) {
+      updatePayload.note = note;
+    }
+
     const updated =
       await AppointmentRequest.findByIdAndUpdate(
         id,
-        {
-          status: 'accepted',
-        },
+        updatePayload,
         {
           new: true,
           runValidators: true,
@@ -447,6 +459,7 @@ const cancelAppointmentRequest = asyncHandler(
   async (req, res) => {
 
     const { id } = req.params;
+    const note = resolveStatusNote(req.body);
 
     if (!OID.test(id)) {
       throw new ApiError(
@@ -455,12 +468,15 @@ const cancelAppointmentRequest = asyncHandler(
       );
     }
 
+    const updatePayload = { status: 'cancelled' };
+    if (note !== undefined) {
+      updatePayload.note = note;
+    }
+
     const updated =
       await AppointmentRequest.findByIdAndUpdate(
         id,
-        {
-          status: 'cancelled',
-        },
+        updatePayload,
         {
           new: true,
           runValidators: true,

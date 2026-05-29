@@ -7,14 +7,26 @@ const achievementSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    employeeID: {
+      type: String,
+      trim: true,
+    },
 
     employeeName: {
       type: String,
       required: true,
       trim: true,
     },
+    employeeNameArabic: {
+      type: String,
+      trim: true,
+    },
 
     department: {
+      type: String,
+      trim: true,
+    },
+    arabicDepartment: {
       type: String,
       trim: true,
     },
@@ -24,10 +36,18 @@ const achievementSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    arabicTitle: {
+      type: String,
+      trim: true,
+    },
 
     achievements: {
       type: String,
       required: true,
+      trim: true,
+    },
+    arabicAchievements: {
+      type: String,
       trim: true,
     },
 
@@ -46,6 +66,24 @@ const achievementSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Common query indexes
+achievementSchema.index({ visibilityStatus: 1, createdAt: -1 });
+achievementSchema.index({ employeeId: 1 });
+achievementSchema.index({ employeeID: 1 });
+achievementSchema.index({ createdAt: -1 });
+
+// Text search index for list/search screens
+achievementSchema.index({
+  employeeName: "text",
+  employeeNameArabic: "text",
+  title: "text",
+  arabicTitle: "text",
+  department: "text",
+  arabicDepartment: "text",
+  achievements: "text",
+  arabicAchievements: "text",
+});
 
 const Achievement = mongoose.model(
   "Achievement",

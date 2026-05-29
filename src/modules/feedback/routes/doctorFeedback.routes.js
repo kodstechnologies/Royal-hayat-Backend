@@ -9,38 +9,22 @@ import {
     getAllDoctorFeedbacks,
     getDoctorFeedbackById,
     updateDoctorFeedback,
-    deleteDoctorFeedback
+    deleteDoctorFeedback,
 } from "../controller/doctorFeedback.controller.js";
 
-
-// CREATE
-router.post(
-    "/create",
-    createDoctorFeedback
-);
+// CREATE (body.doctorId)
+router.post("/create", createDoctorFeedback);
 
 // GET ALL
-router.get(
-    "/all",
-    getAllDoctorFeedbacks
-);
+router.get("/all", getAllDoctorFeedbacks);
 
-// GET BY ID
-router.get(
-    "/:id",
-    getDoctorFeedbackById
-);
+// GET BY doctorId (business id)
+router.get("/:doctorId", getDoctorFeedbackById);
 
-// UPDATE
-router.put(
-    "/update/:id",
-    updateDoctorFeedback
-);
+// UPDATE (path: doctorId, body/query: feedbackId)
+router.put("/update/:doctorId", updateDoctorFeedback);
 
-// DELETE
-router.delete(
-    "/delete/:id",
-    deleteDoctorFeedback
-);
+// DELETE (path: doctorId, body/query: feedbackId)
+router.delete("/delete/:doctorId", deleteDoctorFeedback);
 
 export default router;

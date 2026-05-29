@@ -2,6 +2,13 @@
 
 import DoctorFeedback from "../model/DoctorFeedback.model.js";
 
+const doctorPopulate = {
+    path: "doctor",
+    populate: {
+        path: "department",
+    },
+};
+
 export const createDoctorFeedbackRepo =
     async (payload) => {
 
@@ -12,48 +19,40 @@ export const getAllDoctorFeedbacksRepo =
     async () => {
 
         return await DoctorFeedback.find()
-            .populate({
-                path: "doctor",
-                populate: {
-                    path: "department"
-                }
-            })
+            .populate(doctorPopulate)
+            .sort({ createdAt: -1 });
+    };
+
+export const getDoctorFeedbacksByDoctorIdRepo =
+    async (doctorObjectId) => {
+
+        return await DoctorFeedback.find({ doctor: doctorObjectId })
+            .populate(doctorPopulate)
             .sort({ createdAt: -1 });
     };
 
 export const getDoctorFeedbackByIdRepo =
-    async (id) => {
+    async (feedbackId) => {
 
-        return await DoctorFeedback.findById(id)
-            .populate({
-                path: "doctor",
-                populate: {
-                    path: "department"
-                }
-            });
+        return await DoctorFeedback.findById(feedbackId)
+            .populate(doctorPopulate);
     };
 
 export const updateDoctorFeedbackRepo =
-    async (id, payload) => {
+    async (feedbackId, payload) => {
 
         return await DoctorFeedback.findByIdAndUpdate(
-            id,
+            feedbackId,
             payload,
             {
                 new: true,
-                runValidators: true
+                runValidators: true,
             }
-        )
-            .populate({
-                path: "doctor",
-                populate: {
-                    path: "department"
-                }
-            });
+        ).populate(doctorPopulate);
     };
 
 export const deleteDoctorFeedbackRepo =
-    async (id) => {
+    async (feedbackId) => {
 
-        return await DoctorFeedback.findByIdAndDelete(id);
+        return await DoctorFeedback.findByIdAndDelete(feedbackId);
     };

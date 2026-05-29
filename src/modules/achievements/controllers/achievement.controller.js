@@ -4,7 +4,7 @@ import AchievementService from "../services/achievement.services.js";
 
 export const createAchievement = asyncHandler(async (req, res) => {
   const achievement = await AchievementService.createAchievement(
-    req.body,
+    req.body || {},
     req.file
   );
 
@@ -39,7 +39,7 @@ export const getAchievementById = asyncHandler(async (req, res) => {
 export const updateAchievement = asyncHandler(async (req, res) => {
   const achievement = await AchievementService.updateAchievement(
     req.params.id,
-    req.body,
+    req.body || {},
     req.file
   );
 
