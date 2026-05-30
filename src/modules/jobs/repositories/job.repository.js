@@ -1,4 +1,5 @@
 import Job from '../models/job.model.js';
+import jobApplicationRepository from './jobApplication.repository.js';
 
 class JobRepository {
 
@@ -15,7 +16,7 @@ class JobRepository {
    * GET BY ID
    */
   async findById(id) {
-    return await Job.findById(id);
+    return await Job.findById(id).select('-isViewed');
   }
 
   /**
@@ -171,13 +172,26 @@ class JobRepository {
 
         .skip((page - 1) * limit);
 
+    const jobIds = jobs.map((job) => job._id);
+    const [unviewedByJobId, totalUnviewedApplications] = await Promise.all([
+      jobApplicationRepository.countUnviewedByJobIds(jobIds),
+      jobApplicationRepository.countAllUnviewed(),
+    ]);
+
+    const jobsWithUnviewedCounts = jobs.map((job) => {
+      const jobObject = job.toObject();
+      jobObject.unviewedApplicationsCount =
+        unviewedByJobId.get(String(job._id)) ?? 0;
+      return jobObject;
+    });
+
     const total =
       await Job.countDocuments(
         query
       );
 
     return {
-      jobs,
+      jobs: jobsWithUnviewedCounts,
 
       meta: {
         page,
@@ -189,6 +203,8 @@ class JobRepository {
         pages: Math.ceil(
           total / limit
         ),
+
+        totalUnviewedApplications,
       },
     };
   }
@@ -340,6 +356,7 @@ class JobRepository {
     );
   }
 
+  
   /**
    * GET TYPES
    */

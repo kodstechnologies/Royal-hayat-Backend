@@ -42,9 +42,16 @@ const doctorFeedbackSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Doctor",
         required: true
-    }
+    },
+    isViewed: {
+        type: Boolean,
+        default: false
+    },
+    
 
 }, { timestamps: true });
+
+doctorFeedbackSchema.index({ isViewed: 1 });
 
 const DoctorFeedback = mongoose.model(
     "DoctorFeedback",

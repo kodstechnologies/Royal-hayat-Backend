@@ -1,9 +1,14 @@
 import AppointmentRequest from "../../appintmentRequest/model/appointmentRequest.model.js";
+import AppointmentBookingRecord from "../../appintmentRequest/model/appointmentBookingRecord.model.js";
 import MedicalRecordRequest from "../../medicalRecordRequest/model/medicalRecordRequest.model.js";
 import DoctorFeedback from "../../feedback/model/DoctorFeedback.model.js";
 import HospitalFeedback from "../../feedback/model/HospitalFeedback.model.js";
+import Enquiry from "../../enquiry/models/enquiry.model.js";
+import JobApplication from "../../jobs/models/jobApplication.model.js";
 import Doctor from "../../doctors/models/doctor.model.js";
 import Department from "../../departments/models/department.model.js";
+
+const UNVIEWED_FILTER = { isViewed: false };
 
 const WEEKDAY_NAMES = [
   "Sunday",
@@ -291,6 +296,36 @@ class DashboardRepository {
           combinedTotal
         ),
       },
+    };
+  }
+
+  async getUnviewedSidebarCounts() {
+    const [
+      enquiries,
+      doctorFeedbacks,
+      hospitalFeedbacks,
+      jobApplications,
+      medicalRecordRequests,
+      appointmentRequests,
+      appointmentBookingRecords,
+    ] = await Promise.all([
+      Enquiry.countDocuments(UNVIEWED_FILTER),
+      DoctorFeedback.countDocuments(UNVIEWED_FILTER),
+      HospitalFeedback.countDocuments(UNVIEWED_FILTER),
+      JobApplication.countDocuments(UNVIEWED_FILTER),
+      MedicalRecordRequest.countDocuments(UNVIEWED_FILTER),
+      AppointmentRequest.countDocuments(UNVIEWED_FILTER),
+      AppointmentBookingRecord.countDocuments(UNVIEWED_FILTER),
+    ]);
+
+    return {
+      enquiries,
+      doctorFeedbacks,
+      hospitalFeedbacks,
+      jobApplications,
+      medicalRecordRequests,
+      appointmentRequests,
+      appointmentBookingRecords,
     };
   }
 

@@ -10,6 +10,7 @@ import {
     getDoctorFeedbackById,
     updateDoctorFeedback,
     deleteDoctorFeedback,
+    getFeedbackCountsForAll,
 } from "../controller/doctorFeedback.controller.js";
 
 // CREATE (body.doctorId)
@@ -17,6 +18,8 @@ router.post("/create", createDoctorFeedback);
 
 // GET ALL
 router.get("/all", getAllDoctorFeedbacks);
+
+router.get("/counts", getFeedbackCountsForAll);
 
 // GET BY doctorId (business id)
 router.get("/:doctorId", getDoctorFeedbackById);

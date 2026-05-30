@@ -39,9 +39,9 @@ export const createLeadershipValidator = Joi.object({
 });
 
 export const updateLeadershipValidator = Joi.object({
-  initials: Joi.string().trim(),
+  initials: Joi.string().trim().allow("").optional(),
 
-  initialsArabic: Joi.string().trim(),
+  initialsArabic: Joi.string().trim().allow("").optional(),
 
   name: Joi.string().trim(),
 

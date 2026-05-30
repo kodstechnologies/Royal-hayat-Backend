@@ -31,6 +31,10 @@ const enquirySchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    isViewed: {
+      type: Boolean,
+      default: false
     }
   },
   {
@@ -64,6 +68,7 @@ enquirySchema.pre('save', async function (next) {
 enquirySchema.index({ department: 1 });
 enquirySchema.index({ email: 1 });
 enquirySchema.index({ isActive: 1 });
+enquirySchema.index({ isViewed: 1 });
 
 const Enquiry = mongoose.model('Enquiry', enquirySchema);
 export default Enquiry;

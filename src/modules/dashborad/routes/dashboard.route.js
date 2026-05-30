@@ -5,6 +5,7 @@ import {
   getMonthlyAppointmentRequests,
   getFeedbackStarStats,
   getDoctorsCountByDepartment,
+  getSidebarCounts,
 } from "../controller/dashboard.controller.js";
 
 const router = Router();
@@ -20,5 +21,6 @@ router.get(
 );
 router.get("/feedback-star-stats", getFeedbackStarStats);
 router.get("/doctors-by-department", getDoctorsCountByDepartment);
+router.get("/sidebar-counts", getSidebarCounts);
 
 export default router;

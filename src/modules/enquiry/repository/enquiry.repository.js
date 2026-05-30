@@ -7,9 +7,16 @@ class EnquiryRepository {
   }
 
   async findById(id) {
-    return await Enquiry.findById(id);
+    return await Enquiry.findByIdAndUpdate(
+      id,
+      {
+        isViewed: true
+      },
+      {
+        new: true
+      }
+    );
   }
-
   async findOne(query) {
     return await Enquiry.findOne(query);
   }

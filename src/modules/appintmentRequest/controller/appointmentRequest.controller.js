@@ -9,6 +9,27 @@ const OID = /^[0-9a-fA-F]{24}$/;
 
 const VALID_STATUS = ['received', 'accepted', 'cancelled'];
 
+const VALID_REQUEST_TYPES = [
+  'doctor unavailability request',
+  'first time visitor request',
+];
+
+const normalizeRequestType = (value) => {
+  const raw = String(value).trim();
+  const key = raw.toLowerCase();
+
+  const aliases = {
+    'doctor unavailability request': 'doctor unavailability request',
+    'doctor_unavailability_request': 'doctor unavailability request',
+    'doctor-unavailability-request': 'doctor unavailability request',
+    'first time visitor request': 'first time visitor request',
+    'first_time_visitor_request': 'first time visitor request',
+    'first-time-visitor-request': 'first time visitor request',
+  };
+
+  return aliases[key] ?? raw;
+};
+
 const sanitizePayload = (body = {}) => {
   const payload = {};
   const patientData =
@@ -161,6 +182,37 @@ const sanitizePayload = (body = {}) => {
     }
   }
 
+  if (body.requestType !== undefined) {
+    payload.requestType = normalizeRequestType(body.requestType);
+
+    if (!VALID_REQUEST_TYPES.includes(payload.requestType)) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        `requestType must be one of ${VALID_REQUEST_TYPES.join(', ')}`,
+      );
+    }
+  }
+
+  if (body.symptoms !== undefined) {
+    payload.symptoms = Array.isArray(body.symptoms)
+      ? body.symptoms.map((item) => String(item).trim()).filter(Boolean)
+      : [];
+  }
+
+  const preferredDate = body.preferredDate ?? body.date;
+  if (preferredDate !== undefined && preferredDate !== '') {
+    payload.date = String(preferredDate).trim();
+  }
+
+  const timeSlot = body.timeSlot ?? body.time;
+  if (timeSlot !== undefined && timeSlot !== '') {
+    if (typeof timeSlot === 'object' && timeSlot !== null) {
+      payload.time = String(timeSlot.time ?? timeSlot.label ?? '').trim();
+    } else {
+      payload.time = String(timeSlot).trim();
+    }
+  }
+
   return payload;
 };
 
@@ -187,6 +239,20 @@ const validateCreate = (payload) => {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       'age must be a valid number',
+    );
+  }
+
+  if (!payload.requestType) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'requestType is required',
+    );
+  }
+
+  if (!VALID_REQUEST_TYPES.includes(payload.requestType)) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `requestType must be one of ${VALID_REQUEST_TYPES.join(', ')}`,
     );
   }
 };

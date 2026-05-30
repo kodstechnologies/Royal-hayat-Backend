@@ -53,3 +53,14 @@ export const getDoctorsCountByDepartment = asyncHandler(async (req, res) => {
     data: departmentStats,
   });
 });
+
+
+export const getSidebarCounts = asyncHandler(async (req, res) => {
+  const counts = await DashboardService.getSidebarCounts();
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Sidebar unviewed counts fetched successfully",
+    data: counts,
+  });
+});

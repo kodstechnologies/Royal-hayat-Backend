@@ -13,29 +13,51 @@ import {
 } from "../validators/achievement.validators.js";
 import { upload } from "../../../utils/multer.js";
 import { uploadToS3 } from "../../../utils/uploadToS3.js";
+import { verifyJWT } from "../../../middlewares/authMiddleware.js";
+import checkPermission from "../../../middlewares/checkPermission.js";
+import { PERMISSIONS } from "../../../constants/permission.js";
 
 const router = express.Router();
 
+router.use(verifyJWT);
+
 router.post(
   "/",
+  checkPermission(PERMISSIONS.ACHIEVEMENT_CREATE),
   upload.single("image"),
   validate(createAchievementValidator),
   uploadToS3("achievements", { image: "image" }),
   createAchievement
 );
 
-router.get("/", getAllAchievements);
+router.get(
+  "/",
+  checkPermission(PERMISSIONS.ACHIEVEMENT_VIEW_ALL),
+  getAllAchievements
+);
 
-router.get("/:id", getAchievementById);
+router.get(
+  "/:id",
+  checkPermission([
+    PERMISSIONS.ACHIEVEMENT_VIEW,
+    PERMISSIONS.ACHIEVEMENT_VIEW_ALL,
+  ]),
+  getAchievementById
+);
 
 router.put(
   "/:id",
+  checkPermission(PERMISSIONS.ACHIEVEMENT_UPDATE),
   upload.single("image"),
   validate(updateAchievementValidator),
   uploadToS3("achievements", { image: "image" }),
   updateAchievement
 );
 
-router.delete("/:id", deleteAchievement);
+router.delete(
+  "/:id",
+  checkPermission(PERMISSIONS.ACHIEVEMENT_DELETE),
+  deleteAchievement
+);
 
 export default router;

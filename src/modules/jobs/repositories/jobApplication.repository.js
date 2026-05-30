@@ -23,7 +23,11 @@ class JobApplicationRepository {
   }
 
   async findById(id) {
-    return await JobApplication.findById(id).populate('jobId');
+    return await JobApplication.findByIdAndUpdate(
+      id,
+      { isViewed: true },
+      { new: true }
+    ).populate('jobId');
   }
 
   async findAll(filters = {}) {
@@ -111,8 +115,34 @@ class JobApplicationRepository {
     }, {});
   }
 
+  async countUnviewedByJobIds(jobIds = []) {
+    if (!jobIds.length) {
+      return new Map();
+    }
 
+    const grouped = await JobApplication.aggregate([
+      {
+        $match: {
+          jobId: { $in: jobIds },
+          isViewed: false,
+        },
+      },
+      {
+        $group: {
+          _id: '$jobId',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
 
+    return new Map(
+      grouped.map((item) => [String(item._id), item.count])
+    );
+  }
+
+  async countAllUnviewed() {
+    return JobApplication.countDocuments({ isViewed: false });
+  }
 }
 
 export default new JobApplicationRepository();

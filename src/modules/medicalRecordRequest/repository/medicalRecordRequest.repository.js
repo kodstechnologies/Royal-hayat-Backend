@@ -12,9 +12,16 @@ export const getAllMedicalRecordRequestsRepo = async () => {
 };
 
 export const getMedicalRecordRequestByIdRepo = async (id) => {
-    return await MedicalRecordRequest.findById(id);
+    return await MedicalRecordRequest.findByIdAndUpdate(
+        id,
+        {
+            isViewed: true
+        },
+        {
+            new: true
+        }
+    );
 };
-
 export const deleteMedicalRecordRequestRepo = async (id) => {
     return await MedicalRecordRequest.findByIdAndDelete(id);
 };

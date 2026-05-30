@@ -3,6 +3,7 @@ import asyncHandler from '../../../utils/asyncHandler.js';
 import ApiError from '../../../utils/ApiError.js';
 import AppointmentBookingRecord from '../model/appointmentBookingRecord.model.js';
 import { buildAppointmentListFilter } from '../utils/appointmentListFilters.js';
+import AppointmentRequest from '../model/appointmentRequest.model.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 
@@ -267,6 +268,35 @@ const deleteAppointmentBookingRecord = asyncHandler(async (req, res) => {
     data: null,
   });
 });
+const getAppointmentCounts = asyncHandler(async (req, res) => {
+
+  const [
+    appointmentBookingCount,
+    appointmentRequestCount
+  ] = await Promise.all([
+    AppointmentBookingRecord.countDocuments({
+      isViewed: false
+    }),
+
+    AppointmentRequest.countDocuments({
+      isViewed: false
+    })
+  ]);
+
+  const totalCount =
+    appointmentBookingCount + appointmentRequestCount;
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Appointment counts fetched successfully',
+
+    data: {
+      total: totalCount,
+      appointmentBookings: appointmentBookingCount,
+      appointmentRequests: appointmentRequestCount
+    }
+  });
+});
 
 export {
   createAppointmentBookingRecord,
@@ -274,4 +304,5 @@ export {
   getAppointmentBookingRecordById,
   updateAppointmentBookingRecord,
   deleteAppointmentBookingRecord,
+  getAppointmentCounts
 };

@@ -1,4 +1,5 @@
 import jobRepository from '../repositories/job.repository.js';
+import jobApplicationRepository from '../repositories/jobApplication.repository.js';
 
 import ApiError from '../../../utils/ApiError.js';
 
@@ -83,7 +84,14 @@ class JobService {
       );
     }
 
-    return job;
+    const unviewedByJobId =
+      await jobApplicationRepository.countUnviewedByJobIds([job._id]);
+
+    const jobData = job.toObject();
+    jobData.unviewedApplicationsCount =
+      unviewedByJobId.get(String(job._id)) ?? 0;
+
+    return jobData;
   }
 
   /**

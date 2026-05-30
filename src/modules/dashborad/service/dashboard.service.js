@@ -84,6 +84,10 @@ class DashboardService {
   async getDoctorsCountByDepartment() {
     return DashboardRepository.getDoctorsCountByDepartment();
   }
+
+  async getSidebarCounts() {
+    return DashboardRepository.getUnviewedSidebarCounts();
+  }
 }
 
 export default new DashboardService();

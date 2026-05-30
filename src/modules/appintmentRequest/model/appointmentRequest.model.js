@@ -100,6 +100,14 @@ const appointmentRequestSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    isViewed: {
+      type: Boolean,
+      default: false
+    },
+    requestType:{
+      type:String,
+      enum:['doctor unavailability request','first time visitor request'],
+    }
   },
   { timestamps: true },
 );
@@ -107,6 +115,8 @@ const appointmentRequestSchema = new mongoose.Schema(
 appointmentRequestSchema.index({ createdAt: -1 });
 appointmentRequestSchema.index({ phone: 1 });
 appointmentRequestSchema.index({ status: 1 });
+appointmentRequestSchema.index({ isViewed: 1 });
+appointmentRequestSchema.index({ requestType: 1 });
 
 const AppointmentRequest = mongoose.model(
   'AppointmentRequest',

@@ -58,8 +58,6 @@ const appointmentBookingRecordSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
- 
- 
 
   paciRequestId: {
     type: String,
@@ -90,7 +88,10 @@ const appointmentBookingRecordSchema = new mongoose.Schema({
   department: {
     type: String,
   },
-
+  isViewed: {
+    type: Boolean,
+    default: false
+  }
 },
   { timestamps: true },
 );
@@ -98,6 +99,7 @@ const appointmentBookingRecordSchema = new mongoose.Schema({
 appointmentBookingRecordSchema.index({ createdAt: -1 });
 appointmentBookingRecordSchema.index({ phone: 1 });
 appointmentBookingRecordSchema.index({ date: 1, time: 1 });
+appointmentBookingRecordSchema.index({ isViewed: 1 });
 
 const AppointmentBookingRecord = mongoose.model(
   'AppointmentBookingRecord',

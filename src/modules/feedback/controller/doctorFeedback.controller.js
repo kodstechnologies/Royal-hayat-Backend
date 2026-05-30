@@ -8,7 +8,9 @@ import {
     getDoctorFeedbacksByDoctorIdService,
     updateDoctorFeedbackService,
     deleteDoctorFeedbackService,
+    getFeedbackCounts,
 } from "../service/doctorFeedback.service.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 
 const handleError = (res, error) => {
     const statusCode =
@@ -141,3 +143,16 @@ export const deleteDoctorFeedback = async (req, res) => {
         return handleError(res, error);
     }
 };
+
+
+export const getFeedbackCountsForAll = asyncHandler(async (req, res) => {
+
+    const counts = await getFeedbackCounts();
+
+    res.status(httpStatus.OK).json({
+        success: true,
+        message: 'Feedback counts fetched successfully',
+        data: counts,
+    });
+
+});

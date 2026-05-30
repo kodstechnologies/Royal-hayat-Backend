@@ -38,8 +38,14 @@ const hospitalFeedbackSchema = new mongoose.Schema({
         enum: ["patient", "admin"],
         default: "patient"
     },
+    isViewed: {
+        type: Boolean,
+        default: false
+    }
 
 }, { timestamps: true });
+
+hospitalFeedbackSchema.index({ isViewed: 1 });
 
 const HospitalFeedback = mongoose.model(
     "HospitalFeedback",

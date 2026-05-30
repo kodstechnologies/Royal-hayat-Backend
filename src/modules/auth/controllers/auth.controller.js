@@ -1,7 +1,14 @@
+import mongoose from 'mongoose';
 import asyncHandler from '../../../utils/asyncHandler.js';
 import ApiResponse from '../../../utils/ApiResponse.js';
+import ApiError from '../../../utils/ApiError.js';
 import authService from '../services/auth.service.js';
 import User from '../models/user.model.js';
+
+const ALLOWED_MANAGED_ROLES = ['sub_admin', 'call_center'];
+
+const normalizeRole = (role) =>
+  String(role || '').trim().toLowerCase().replace(/\s+/g, '_');
 
 const cookieOptions = {
   httpOnly: true,
@@ -32,7 +39,15 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     .cookie('accessToken', accessToken, cookieOptions)
     .cookie('refreshToken', refreshToken, cookieOptions)
     .json(ApiResponse.success(
-      { _id: user._id, name: user.name, email: user.email, role: user.role, accessToken },
+      {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        accessToken,
+        permissions: user.permissions || [],
+        isActive: user.isActive !== false,
+      },
       'Login successful'
     ));
 });
@@ -58,17 +73,24 @@ export const getMe = asyncHandler(async (req, res) => {
         name: req.user.name,
         email: req.user.email,
         role: req.user.role,
+        permissions: req.user.permissions || [],
+        isActive: req.user.isActive !== false,
       },
       'User fetched successfully'
     )
   );
 });
 
-export const createSubadmin = async (
-  req,
-  res
-) => {
-  try {
+export const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({ role: { $ne: 'admin' } })
+    .select('-password -refreshToken')
+    .sort({ createdAt: -1 });
+
+  res.json(ApiResponse.success(users, 'Users fetched successfully'));
+});
+
+export const createSubadmin =
+  asyncHandler(async (req, res) => {
 
     const {
       name,
@@ -78,53 +100,191 @@ export const createSubadmin = async (
       permissions,
     } = req.body;
 
-    const allowedRoles = [
-      
-      // 'doctor',
-      // 'nurse',
-      // 'receptionist',
-      'call_center',
-      // 'customer_support',
-    ];
+    const normalizedRole =
+      normalizeRole(role);
 
-    // Role validation
-    if (!allowedRoles.includes(role)) {
-      console.log("------",role)
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid role',
-      });
+    // Prevent admin creation
+    if (normalizedRole === 'admin') {
+
+      throw new ApiError(
+        400,
+        'Admin role cannot be created'
+      );
     }
 
     const existingUser =
-      await User.findOne({ email });
+      await User.findOne({
+        email: String(email)
+          .trim()
+          .toLowerCase(),
+      });
 
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email already exists',
-      });
+
+      throw new ApiError(
+        400,
+        'Email already exists'
+      );
     }
 
     const subadmin = await User.create({
-      name,
-      email,
+      name: String(name).trim(),
+
+      email: String(email)
+        .trim()
+        .toLowerCase(),
+
       password,
-      role,
-      permissions,
+
+      role: normalizedRole,
+
+      permissions:
+        Array.isArray(permissions)
+          ? permissions
+          : [],
     });
 
-    return res.status(201).json({
-      success: true,
-      message: 'User created successfully',
-      data: subadmin,
-    });
+    const safeUser =
+      await User.findById(subadmin._id)
+        .select('-password -refreshToken');
 
-  } catch (error) {
+    res.status(201).json(
+      ApiResponse.success(
+        safeUser,
+        'User created successfully'
+      )
+    );
+  });
 
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+export const updateUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, 'Invalid user ID');
   }
-};
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  if (user.role === 'admin') {
+    throw new ApiError(403, 'Cannot modify admin user');
+  }
+
+  const { name, email, password, role, permissions, isActive } = req.body;
+
+  if (name !== undefined) {
+    user.name = String(name).trim();
+  }
+
+  if (email !== undefined) {
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const duplicate = await User.findOne({
+      email: normalizedEmail,
+      _id: { $ne: id },
+    });
+
+    if (duplicate) {
+      throw new ApiError(400, 'Email already exists');
+    }
+
+    user.email = normalizedEmail;
+  }
+
+  if (role !== undefined) {
+    const normalizedRole = normalizeRole(role);
+
+    if (!ALLOWED_MANAGED_ROLES.includes(normalizedRole)) {
+      throw new ApiError(
+        400,
+        `Invalid role. Allowed roles: ${ALLOWED_MANAGED_ROLES.join(', ')}`,
+      );
+    }
+
+    user.role = normalizedRole;
+  }
+
+  if (permissions !== undefined) {
+    user.permissions = Array.isArray(permissions) ? permissions : [];
+  }
+
+  if (isActive !== undefined) {
+    user.isActive = Boolean(isActive);
+  }
+
+  if (password !== undefined && String(password).trim()) {
+    user.password = password;
+  }
+
+  await user.save();
+
+  const safeUser = await User.findById(id).select('-password -refreshToken');
+
+  res.json(ApiResponse.success(safeUser, 'User updated successfully'));
+});
+
+export const updateUserStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { isActive } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, 'Invalid user ID');
+  }
+
+  if (String(req.user._id) === String(id) && isActive === false) {
+    throw new ApiError(400, 'You cannot deactivate your own account');
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  if (user.role === 'admin') {
+    throw new ApiError(403, 'Cannot change status of admin user');
+  }
+
+  user.isActive = Boolean(isActive);
+
+  if (!user.isActive) {
+    user.refreshToken = null;
+  }
+
+  await user.save();
+
+  const safeUser = await User.findById(id).select('-password -refreshToken');
+  const statusLabel = user.isActive ? 'active' : 'inactive';
+
+  res.json(
+    ApiResponse.success(
+      safeUser,
+      `User marked as ${statusLabel} successfully`,
+    ),
+  );
+});
+
+export const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, 'Invalid user ID');
+  }
+
+  if (String(req.user._id) === String(id)) {
+    throw new ApiError(400, 'You cannot delete your own account');
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  if (user.role === 'admin') {
+    throw new ApiError(403, 'Cannot delete admin user');
+  }
+
+  await User.findByIdAndDelete(id);
+
+  res.json(ApiResponse.success(null, 'User deleted successfully'));
+});

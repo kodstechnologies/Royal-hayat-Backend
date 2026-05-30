@@ -1,6 +1,7 @@
 // repositories/doctorFeedback.repository.js
 
 import DoctorFeedback from "../model/DoctorFeedback.model.js";
+import HospitalFeedback from "../model/HospitalFeedback.model.js";
 
 const doctorPopulate = {
     path: "doctor",
@@ -56,3 +57,29 @@ export const deleteDoctorFeedbackRepo =
 
         return await DoctorFeedback.findByIdAndDelete(feedbackId);
     };
+
+export const getFeedbackCountsRepo = async () => {
+
+    const [
+        doctorFeedbackCount,
+        hospitalFeedbackCount
+    ] = await Promise.all([
+
+        DoctorFeedback.countDocuments({
+            isViewed: false
+        }),
+
+        HospitalFeedback.countDocuments({
+            isViewed: false
+        })
+
+    ]);
+
+    return {
+        total: doctorFeedbackCount + hospitalFeedbackCount,
+
+        doctorFeedbacks: doctorFeedbackCount,
+
+        hospitalFeedbacks: hospitalFeedbackCount
+    };
+};

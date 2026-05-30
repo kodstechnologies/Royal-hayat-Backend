@@ -93,9 +93,13 @@ const medicalRecordRequestSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    emailIdToShare:{
-        type:String,
-        
+    isViewed: {
+        type: Boolean,
+        default: false
+    },
+    emailIdToShare: {
+        type: String,
+
     }
 
 }, { timestamps: true });
@@ -110,6 +114,8 @@ medicalRecordRequestSchema.index({
 medicalRecordRequestSchema.index({
     patientFileNo: 1
 });
+
+medicalRecordRequestSchema.index({ isViewed: 1 });
 
 
 // conditional validations

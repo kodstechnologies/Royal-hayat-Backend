@@ -10,6 +10,7 @@ import {
     getDoctorFeedbackByIdRepo,
     updateDoctorFeedbackRepo,
     deleteDoctorFeedbackRepo,
+    getFeedbackCountsRepo,
 } from "../repository/doctorFeedback.repository.js";
 
 const resolveDoctorObjectId = async (doctorIdOrMongoId) => {
@@ -77,4 +78,9 @@ export const deleteDoctorFeedbackService = async (doctorId, feedbackId) => {
     }
 
     await deleteDoctorFeedbackRepo(resolvedFeedbackId);
+};
+export const getFeedbackCounts = async () => {
+
+    return await getFeedbackCountsRepo();
+
 };

@@ -27,11 +27,11 @@ export const PERMISSIONS = {
   SUBSPECIALITY_VIEW: 'subspeciality.view',
   SUBSPECIALITY_VIEW_ALL: 'subspeciality.view.all',
 
-  APPOINTMENT_REQUEST: 'appointment.request',
-  APPOINTMENT_BOOKING: 'appointment.booking',
-  APPOINTMENT_CANCEL: 'appointment.cancel',
-  APPOINTMENT_VIEW: 'appointment.view',
-  APPOINTMENT_VIEW_ALL: 'appointment.view.all',
+  APPOINTMENT_REQUEST_CREATE: 'appointment.request.create',
+  // APPOINTMENT_BOOKING: 'appointment.booking',
+  // APPOINTMENT_CANCEL: 'appointment.cancel',
+  APPOINTMENT_REQUEST_VIEW: 'appointment.request.view',
+  APPOINTMENT_REQUEST_VIEW_ALL: 'appointment.request.view.all',
 
   APPOINTMENT_REQUEST_ACCEPT: 'appointment.request.accept',
   APPOINTMENT_REQUEST_REJECT: 'appointment.request.reject',
