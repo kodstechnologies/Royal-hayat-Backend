@@ -15,14 +15,14 @@ import { PERMISSIONS } from '../../../constants/permission.js';
 const router = Router();
 
 const appointmentRequestListPermissions = [
-  PERMISSIONS.APPOINTMENT_REQUEST_VIEW_ALL,
+
   PERMISSIONS.APPOINTMENT_REQUEST_VIEW,
  
 ];
 
 const appointmentRequestViewPermissions = [
   PERMISSIONS.APPOINTMENT_REQUEST_VIEW,
-  PERMISSIONS.APPOINTMENT_REQUEST_VIEW_ALL,
+
 
 ];
 
@@ -32,14 +32,14 @@ router.post('/', createAppointmentRequest);
 router.get(
   '/',
   verifyJWT,
-  checkPermission(appointmentRequestListPermissions),
+  checkPermission( PERMISSIONS.APPOINTMENT_REQUEST_VIEW),
   getAllAppointmentRequests,
 );
 
 router.patch(
   '/accept/:id',
   verifyJWT,
-  checkPermission(PERMISSIONS.APPOINTMENT_REQUEST_ACCEPT),
+  checkPermission([PERMISSIONS.APPOINTMENT_REQUEST_ACCEPT, PERMISSIONS.APPOINTMENT_REQUEST_VIEW]),
   acceptAppointmentRequest,
 );
 
@@ -48,7 +48,8 @@ router.patch(
   verifyJWT,
   checkPermission([
    
-    PERMISSIONS.APPOINTMENT_REQUEST_REJECT,
+    PERMISSIONS.APPOINTMENT_REQUEST_REJECT, 
+    PERMISSIONS.APPOINTMENT_REQUEST_VIEW,
   ]),
   cancelAppointmentRequest,
 );
@@ -64,8 +65,8 @@ router.put(
   '/:id',
   verifyJWT,
   checkPermission([
-    PERMISSIONS.APPOINTMENT_VIEW_ALL,
- 
+    PERMISSIONS.APPOINTMENT_REQUEST_VIEW,
+    PERMISSIONS.APPOINTMENT_REQUEST_ACCEPT,
   ]),
   updateAppointmentRequest,
 );
@@ -73,7 +74,7 @@ router.put(
 router.delete(
   '/:id',
   verifyJWT,
-  checkPermission(PERMISSIONS.APPOINTMENT_CANCEL),
+  checkPermission([PERMISSIONS.APPOINTMENT_REQUEST_REJECT, PERMISSIONS.APPOINTMENT_REQUEST_VIEW]),
   deleteAppointmentRequest,
 );
 

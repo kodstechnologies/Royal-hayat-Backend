@@ -4,6 +4,14 @@ import mongoose from "mongoose";
 
 const medicalRecordRequestSchema = new mongoose.Schema({
 
+    mrrId: {
+        type: String,
+        unique: true,
+        sparse: true,
+        trim: true,
+        index: true,
+    },
+
     patientFullName: {
         type: String,
         required: true,
@@ -117,10 +125,42 @@ medicalRecordRequestSchema.index({
 
 medicalRecordRequestSchema.index({ isViewed: 1 });
 
+medicalRecordRequestSchema.index({ mrrId: 1 });
+
+/**
+ * AUTO MRR ID on create
+ * FORMAT => MRR-000001
+ */
+medicalRecordRequestSchema.pre("validate", async function (next) {
+    if (this.mrrId) {
+        return next();
+    }
+
+    try {
+        const latest = await this.constructor
+            .findOne({ mrrId: { $regex: /^MRR-/ } })
+            .sort({ createdAt: -1 })
+            .select("mrrId")
+            .lean();
+
+        let nextSequence = 1;
+
+        if (latest?.mrrId) {
+            const match = latest.mrrId.match(/^MRR-(\d+)$/);
+            if (match) {
+                nextSequence = parseInt(match[1], 10) + 1;
+            }
+        }
+
+        this.mrrId = `MRR-${String(nextSequence).padStart(6, "0")}`;
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
 // conditional validations
 medicalRecordRequestSchema.pre("validate", function (next) {
-
     if (
         this.specificAuthorization ===
         "Discharge Summary with a specific date of service"

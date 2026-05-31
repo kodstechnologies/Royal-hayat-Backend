@@ -9,7 +9,8 @@ import {
     getAllHospitalFeedbacks,
     getHospitalFeedbackById,
     updateHospitalFeedback,
-    deleteHospitalFeedback
+    deleteHospitalFeedback,
+    markHospitalFeedbackViewed,
 } from "../controller/hospitalFeedback.controller.js";
 
 
@@ -23,6 +24,11 @@ router.post(
 router.get(
     "/all",
     getAllHospitalFeedbacks
+);
+
+router.patch(
+    "/view/:id",
+    markHospitalFeedbackViewed
 );
 
 // GET BY ID

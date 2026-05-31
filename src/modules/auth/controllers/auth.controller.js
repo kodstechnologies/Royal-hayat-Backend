@@ -5,10 +5,32 @@ import ApiError from '../../../utils/ApiError.js';
 import authService from '../services/auth.service.js';
 import User from '../models/user.model.js';
 
-const ALLOWED_MANAGED_ROLES = ['sub_admin', 'call_center'];
+const RESERVED_ROLES = ['admin'];
 
 const normalizeRole = (role) =>
   String(role || '').trim().toLowerCase().replace(/\s+/g, '_');
+
+/** Any custom role from user-management; only `admin` is reserved. */
+const assertManagedRole = (role) => {
+  const normalized = normalizeRole(role);
+
+  if (!normalized) {
+    throw new ApiError(400, 'Role is required');
+  }
+
+  if (RESERVED_ROLES.includes(normalized)) {
+    throw new ApiError(400, 'Admin role cannot be assigned to managed users');
+  }
+
+  if (!/^[a-z][a-z0-9_]{0,49}$/.test(normalized)) {
+    throw new ApiError(
+      400,
+      'Role must start with a letter and contain only letters, numbers, and underscores',
+    );
+  }
+
+  return normalized;
+};
 
 const cookieOptions = {
   httpOnly: true,
@@ -100,17 +122,7 @@ export const createSubadmin =
       permissions,
     } = req.body;
 
-    const normalizedRole =
-      normalizeRole(role);
-
-    // Prevent admin creation
-    if (normalizedRole === 'admin') {
-
-      throw new ApiError(
-        400,
-        'Admin role cannot be created'
-      );
-    }
+    const normalizedRole = assertManagedRole(role);
 
     const existingUser =
       await User.findOne({
@@ -193,16 +205,7 @@ export const updateUser = asyncHandler(async (req, res) => {
   }
 
   if (role !== undefined) {
-    const normalizedRole = normalizeRole(role);
-
-    if (!ALLOWED_MANAGED_ROLES.includes(normalizedRole)) {
-      throw new ApiError(
-        400,
-        `Invalid role. Allowed roles: ${ALLOWED_MANAGED_ROLES.join(', ')}`,
-      );
-    }
-
-    user.role = normalizedRole;
+    user.role = assertManagedRole(role);
   }
 
   if (permissions !== undefined) {

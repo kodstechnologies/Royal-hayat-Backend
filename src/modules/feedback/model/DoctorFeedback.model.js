@@ -52,6 +52,7 @@ const doctorFeedbackSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 doctorFeedbackSchema.index({ isViewed: 1 });
+doctorFeedbackSchema.index({ isViewed: 1, addedBy: 1 });
 
 const DoctorFeedback = mongoose.model(
     "DoctorFeedback",

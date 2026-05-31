@@ -9,6 +9,7 @@ import {
     updateDoctorFeedbackService,
     deleteDoctorFeedbackService,
     getFeedbackCounts,
+    markDoctorFeedbackViewedService,
 } from "../service/doctorFeedback.service.js";
 import asyncHandler from "../../../utils/asyncHandler.js";
 
@@ -155,4 +156,14 @@ export const getFeedbackCountsForAll = asyncHandler(async (req, res) => {
         data: counts,
     });
 
+});
+
+export const markDoctorFeedbackViewed = asyncHandler(async (req, res) => {
+    const feedback = await markDoctorFeedbackViewedService(req.params.feedbackId);
+
+    res.status(httpStatus.OK).json({
+        success: true,
+        message: "Doctor feedback marked as viewed",
+        data: feedback,
+    });
 });

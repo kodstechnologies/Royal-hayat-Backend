@@ -5,7 +5,8 @@ import {
   getJobApplicationsSchema,
   updateJobApplicationSchema,
   jobApplicationIdSchema,
-  jobIdParamSchema
+  jobIdParamSchema,
+  getApplicationsByJobIdQuerySchema
 } from '../validators/jobApplication.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
@@ -131,24 +132,39 @@ const deleteJobApplication = asyncHandler(async (req, res) => {
 });
 
 const getApplicationsByJobId = asyncHandler(async (req, res) => {
-  const { error, value } = jobIdParamSchema.validate(req.params, {
+  const paramsValidation = jobIdParamSchema.validate(req.params, {
     abortEarly: false
   });
-  if (error) {
+  if (paramsValidation.error) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      error.details.map((d) => d.message).join(', ')
+      paramsValidation.error.details.map((d) => d.message).join(', ')
     );
   }
 
-  const applications = await jobApplicationService.getApplicationsByJobId(
-    value.jobId
-  );
+  const queryValidation = getApplicationsByJobIdQuerySchema.validate(req.query, {
+    abortEarly: false
+  });
+  if (queryValidation.error) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      queryValidation.error.details.map((d) => d.message).join(', ')
+    );
+  }
+
+  const { applications, counts } =
+    await jobApplicationService.getApplicationsByJobId(
+      paramsValidation.value.jobId,
+      queryValidation.value
+    );
 
   res.status(200).json({
     success: true,
     message: 'Applications for job fetched successfully',
-    data: applications
+    data: applications,
+    meta: {
+      counts
+    }
   });
 });
 

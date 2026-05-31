@@ -21,6 +21,14 @@ export const getHospitalFeedbackByIdRepo =
         return await HospitalFeedback.findById(id);
     };
 
+export const markHospitalFeedbackViewedRepo = async (id) => {
+    return await HospitalFeedback.findByIdAndUpdate(
+        id,
+        { isViewed: true },
+        { new: true }
+    );
+};
+
 export const updateHospitalFeedbackRepo =
     async (id, payload) => {
 

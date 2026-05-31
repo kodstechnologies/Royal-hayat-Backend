@@ -155,6 +155,8 @@ jobSchema.index({ title: 1 });
 
 jobSchema.index({ arabicTitle: 1 });
 
+jobSchema.index({ title: 'text', jobId: 'text', arabicTitle: 'text' });
+
 jobSchema.index({ classification: 1 });
 
 jobSchema.index({ location: 1 });

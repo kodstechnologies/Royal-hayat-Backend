@@ -11,6 +11,7 @@ import {
     updateDoctorFeedbackRepo,
     deleteDoctorFeedbackRepo,
     getFeedbackCountsRepo,
+    markDoctorFeedbackViewedRepo,
 } from "../repository/doctorFeedback.repository.js";
 
 const resolveDoctorObjectId = async (doctorIdOrMongoId) => {
@@ -83,4 +84,16 @@ export const getFeedbackCounts = async () => {
 
     return await getFeedbackCountsRepo();
 
+};
+
+export const markDoctorFeedbackViewedService = async (feedbackId) => {
+    const resolvedFeedbackId = resolveFeedbackId(feedbackId);
+
+    const feedback = await markDoctorFeedbackViewedRepo(resolvedFeedbackId);
+
+    if (!feedback) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Doctor feedback not found");
+    }
+
+    return feedback;
 };

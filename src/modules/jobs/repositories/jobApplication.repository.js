@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import JobApplication from '../models/jobApplication.model.js';
 
 class JobApplicationRepository {
@@ -87,10 +88,45 @@ class JobApplicationRepository {
     return await JobApplication.exists({ _id: id });
   }
 
-  async findByJobId(jobId) {
-    return await JobApplication.find({ jobId })
+  async findByJobId(jobId, filters = {}) {
+    const query = { jobId };
+
+    if (filters.status) {
+      query.status = filters.status;
+    }
+
+    return await JobApplication.find(query)
       .populate('jobId', 'title classification location type')
       .sort({ appliedDate: -1 });
+  }
+
+  async getStatusCountsByJobId(jobId) {
+    const grouped = await JobApplication.aggregate([
+      { $match: { jobId: new mongoose.Types.ObjectId(jobId) } },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const counts = {
+      pending: 0,
+      reviewed: 0
+    };
+
+    grouped.forEach((item) => {
+      if (item._id === 'pending' || item._id === 'reviewed') {
+        counts[item._id] = item.count;
+      }
+    });
+
+    return {
+      all: counts.pending + counts.reviewed,
+      pending: counts.pending,
+      reviewed: counts.reviewed
+    };
   }
 
   async findByEmail(email) {

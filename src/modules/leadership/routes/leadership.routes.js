@@ -11,6 +11,9 @@ import {
 } from "../controllers/leadership.controller.js";
 
 import validate from "../../../middlewares/validate.js";
+import { verifyJWT } from "../../../middlewares/authMiddleware.js";
+import checkPermission from "../../../middlewares/checkPermission.js";
+import { PERMISSIONS } from "../../../constants/permission.js";
 
 import {
   createLeadershipValidator,
@@ -22,31 +25,35 @@ import { uploadToS3 } from "../../../utils/uploadToS3.js";
 
 const router = express.Router();
 
-// Create
+// Public — website
+router.get("/", getAllLeadership);
+router.get("/:id", getLeadershipById);
+
 router.post(
   "/",
+  verifyJWT,
+  checkPermission(PERMISSIONS.LEADERSHIP_CREATE),
   upload.single("image"),
   validate(createLeadershipValidator),
   uploadToS3("leadership", { image: "image" }),
-  createLeadership
+  createLeadership,
 );
 
-// Get All
-router.get("/", getAllLeadership);
-
-// Get By ID
-router.get("/:id", getLeadershipById);
-
-// Update
 router.put(
   "/:id",
+  verifyJWT,
+  checkPermission([PERMISSIONS.LEADERSHIP_UPDATE, PERMISSIONS.LEADERSHIP_VIEW]),
   upload.single("image"),
   validate(updateLeadershipValidator),
   uploadToS3("leadership", { image: "image" }),
-  updateLeadership
+  updateLeadership,
 );
 
-// Delete
-router.delete("/:id", deleteLeadership);
+router.delete(
+  "/:id",
+  verifyJWT,
+  checkPermission([PERMISSIONS.LEADERSHIP_DELETE, PERMISSIONS.LEADERSHIP_VIEW]),
+  deleteLeadership,
+);
 
 export default router;

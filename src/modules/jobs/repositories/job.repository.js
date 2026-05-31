@@ -1,6 +1,9 @@
 import Job from '../models/job.model.js';
 import jobApplicationRepository from './jobApplication.repository.js';
 
+const escapeRegex = (value = '') =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 class JobRepository {
 
   /**
@@ -44,6 +47,7 @@ class JobRepository {
     } = filters;
 
     const query = {};
+    const andConditions = [];
 
     /**
      * ACTIVE FILTER
@@ -57,7 +61,7 @@ class JobRepository {
      */
     if (classification) {
       query.classification = {
-        $regex: classification,
+        $regex: escapeRegex(classification),
         $options: 'i',
       };
     }
@@ -66,21 +70,23 @@ class JobRepository {
      * LOCATION FILTER
      */
     if (location) {
-      query.$or = [
-        {
-          location: {
-            $regex: location,
-            $options: 'i',
+      const locationPattern = escapeRegex(location);
+      andConditions.push({
+        $or: [
+          {
+            location: {
+              $regex: locationPattern,
+              $options: 'i',
+            },
           },
-        },
-
-        {
-          arabicLocation: {
-            $regex: location,
-            $options: 'i',
+          {
+            arabicLocation: {
+              $regex: locationPattern,
+              $options: 'i',
+            },
           },
-        },
-      ];
+        ],
+      });
     }
 
     /**
@@ -91,66 +97,36 @@ class JobRepository {
     }
 
     /**
-     * SEARCH FILTER
+     * SEARCH FILTER — job ID and title (English + Arabic title)
      */
     if (search) {
-      query.$or = [
-        {
-          title: {
-            $regex: search,
-            $options: 'i',
+      const searchPattern = escapeRegex(search.trim());
+      andConditions.push({
+        $or: [
+          {
+            jobId: {
+              $regex: searchPattern,
+              $options: 'i',
+            },
           },
-        },
+          {
+            title: {
+              $regex: searchPattern,
+              $options: 'i',
+            },
+          },
+          {
+            arabicTitle: {
+              $regex: searchPattern,
+              $options: 'i',
+            },
+          },
+        ],
+      });
+    }
 
-        {
-          arabicTitle: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          description: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          arabicDescription: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          location: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          arabicLocation: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          jobId: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          classification: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-      ];
+    if (andConditions.length > 0) {
+      query.$and = andConditions;
     }
 
     /**

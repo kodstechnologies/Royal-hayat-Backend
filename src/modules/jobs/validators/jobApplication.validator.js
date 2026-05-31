@@ -34,11 +34,16 @@ const jobIdParamSchema = Joi.object({
   jobId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required()
 });
 
+const getApplicationsByJobIdQuerySchema = Joi.object({
+  status: Joi.string().valid('pending', 'reviewed').optional()
+});
+
 export {
   applyJobApplicationSchema,
   createJobApplicationSchema,
   getJobApplicationsSchema,
   updateJobApplicationSchema,
   jobApplicationIdSchema,
-  jobIdParamSchema
+  jobIdParamSchema,
+  getApplicationsByJobIdQuerySchema
 };

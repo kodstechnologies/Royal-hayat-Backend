@@ -57,6 +57,7 @@ const updateJobSchema = Joi.object({
 const getJobsSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
+  search: Joi.string().trim().min(1).max(100).optional(),
   classification: Joi.string().trim().optional(),
   location: Joi.string().trim().optional(),
   type: Joi.string().valid('Full-time', 'Part-time', 'Contract').optional(),

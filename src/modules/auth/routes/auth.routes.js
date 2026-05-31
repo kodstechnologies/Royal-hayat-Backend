@@ -39,20 +39,20 @@ router.get('/me', verifyJWT, getMe);
 router.get(
   '/users',
   verifyJWT,
-  checkPermission([PERMISSIONS.USER_VIEW_ALL, PERMISSIONS.USER_VIEW]),
+  checkPermission(PERMISSIONS.USER_VIEW),
   getAllUsers,
 );
 router.post(
   '/subadmin',
   verifyJWT,
-  checkPermission([PERMISSIONS.USER_CREATE]),
+  checkPermission([PERMISSIONS.USER_CREATE, PERMISSIONS.USER_VIEW]),
   createSubadmin,
 );
 
 router.patch(
   '/users/:id/status',
   verifyJWT,
-  checkPermission([PERMISSIONS.USER_UPDATE]),
+  checkPermission([PERMISSIONS.USER_UPDATE, PERMISSIONS.USER_VIEW]),
   validate(updateUserStatusSchema),
   updateUserStatus,
 );
@@ -60,7 +60,7 @@ router.patch(
 router.put(
   '/users/:id',
   verifyJWT,
-  checkPermission([PERMISSIONS.USER_UPDATE]),
+  checkPermission([PERMISSIONS.USER_UPDATE, PERMISSIONS.USER_VIEW]),
   validate(updateUserSchema),
   updateUser,
 );
@@ -68,7 +68,7 @@ router.put(
 router.delete(
   '/users/:id',
   verifyJWT,
-  checkPermission([PERMISSIONS.USER_DELETE]),
+  checkPermission([PERMISSIONS.USER_DELETE, PERMISSIONS.USER_VIEW]),
   deleteUser,
 );
 

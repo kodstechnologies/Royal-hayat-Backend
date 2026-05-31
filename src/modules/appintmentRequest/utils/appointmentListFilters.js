@@ -4,6 +4,29 @@ import ApiError from '../../../utils/ApiError.js';
 const VALID_STATUS = ['received', 'accepted', 'cancelled'];
 const DEFAULT_STATUS_QUERY = 'pending';
 
+export const APPOINTMENT_REQUEST_TYPES = {
+  DOCTOR_UNAVAILABILITY: 'doctor unavailability request',
+  FIRST_TIME_VISITOR: 'first time visitor request',
+};
+
+const VALID_REQUEST_TYPES = Object.values(APPOINTMENT_REQUEST_TYPES);
+
+export const normalizeRequestType = (value) => {
+  const raw = String(value).trim();
+  const key = raw.toLowerCase();
+
+  const aliases = {
+    'doctor unavailability request': APPOINTMENT_REQUEST_TYPES.DOCTOR_UNAVAILABILITY,
+    doctor_unavailability_request: APPOINTMENT_REQUEST_TYPES.DOCTOR_UNAVAILABILITY,
+    'doctor-unavailability-request': APPOINTMENT_REQUEST_TYPES.DOCTOR_UNAVAILABILITY,
+    'first time visitor request': APPOINTMENT_REQUEST_TYPES.FIRST_TIME_VISITOR,
+    first_time_visitor_request: APPOINTMENT_REQUEST_TYPES.FIRST_TIME_VISITOR,
+    'first-time-visitor-request': APPOINTMENT_REQUEST_TYPES.FIRST_TIME_VISITOR,
+  };
+
+  return aliases[key] ?? raw;
+};
+
 const trimQuery = (value) => {
   if (value === undefined || value === null) return '';
   return String(value).trim();
@@ -36,10 +59,11 @@ const normalizeStatus = (raw) => {
  * - department
  * - doctor / doctors
  * - status (appointment requests only; default: pending -> received)
+ * - requestType (appointment requests only)
  */
 export const buildAppointmentListFilter = (
   query = {},
-  { includeStatus = false } = {},
+  { includeStatus = false, includeRequestType = false } = {},
 ) => {
   const filter = {};
 
@@ -82,7 +106,21 @@ export const buildAppointmentListFilter = (
     }
   }
 
+  if (includeRequestType) {
+    const requestTypeParam = trimQuery(query.requestType);
+    if (requestTypeParam) {
+      const normalized = normalizeRequestType(requestTypeParam);
+      if (!VALID_REQUEST_TYPES.includes(normalized)) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          `requestType must be one of ${VALID_REQUEST_TYPES.join(', ')}`,
+        );
+      }
+      filter.requestType = normalized;
+    }
+  }
+
   return filter;
 };
 
-export { VALID_STATUS, DEFAULT_STATUS_QUERY };
+export { VALID_STATUS, DEFAULT_STATUS_QUERY, VALID_REQUEST_TYPES };

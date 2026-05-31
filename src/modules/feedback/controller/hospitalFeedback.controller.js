@@ -1,11 +1,14 @@
 // controllers/hospitalFeedback.controller.js
 
+import httpStatus from "http-status";
+import asyncHandler from "../../../utils/asyncHandler.js";
 import {
     createHospitalFeedbackService,
     getAllHospitalFeedbacksService,
     getHospitalFeedbackByIdService,
     updateHospitalFeedbackService,
-    deleteHospitalFeedbackService
+    deleteHospitalFeedbackService,
+    markHospitalFeedbackViewedService,
 } from "../service/hospitalFeedback.service.js";
 
 
@@ -200,3 +203,13 @@ export const deleteHospitalFeedback =
             });
         }
     };
+
+export const markHospitalFeedbackViewed = asyncHandler(async (req, res) => {
+    const feedback = await markHospitalFeedbackViewedService(req.params.id);
+
+    res.status(httpStatus.OK).json({
+        success: true,
+        message: "Hospital feedback marked as viewed",
+        data: feedback,
+    });
+});

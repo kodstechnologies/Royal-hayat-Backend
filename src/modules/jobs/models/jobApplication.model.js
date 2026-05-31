@@ -43,7 +43,7 @@ const jobApplicationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'reviewed', 'shortlisted', 'rejected', 'hired'],
+    enum: ['pending', 'reviewed',],
     default: 'pending'
   },
   isViewed: {
@@ -64,6 +64,8 @@ const jobApplicationSchema = new mongoose.Schema({
 // Note: applicationId unique index is defined on the field itself via `unique: true`
 jobApplicationSchema.index({ jobId: 1 });
 jobApplicationSchema.index({ status: 1 });
+jobApplicationSchema.index({ jobId: 1, status: 1 });
+jobApplicationSchema.index({ jobId: 1, status: 1, appliedDate: -1 });
 jobApplicationSchema.index({ appliedDate: -1 });
 jobApplicationSchema.index({ email: 1 });
 jobApplicationSchema.index({ isViewed: 1 });

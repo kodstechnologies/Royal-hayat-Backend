@@ -310,8 +310,8 @@ class DashboardRepository {
       appointmentBookingRecords,
     ] = await Promise.all([
       Enquiry.countDocuments(UNVIEWED_FILTER),
-      DoctorFeedback.countDocuments(UNVIEWED_FILTER),
-      HospitalFeedback.countDocuments(UNVIEWED_FILTER),
+      DoctorFeedback.countDocuments({ ...UNVIEWED_FILTER, addedBy: "patient" }),
+      HospitalFeedback.countDocuments({ ...UNVIEWED_FILTER, addedBy: "patient" }),
       JobApplication.countDocuments(UNVIEWED_FILTER),
       MedicalRecordRequest.countDocuments(UNVIEWED_FILTER),
       AppointmentRequest.countDocuments(UNVIEWED_FILTER),

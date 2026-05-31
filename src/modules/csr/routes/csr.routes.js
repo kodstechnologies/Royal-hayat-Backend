@@ -9,6 +9,9 @@ import {
 } from "../controllers/csr.controller.js";
 
 import validate from "../../../middlewares/validate.js";
+import { verifyJWT } from "../../../middlewares/authMiddleware.js";
+import checkPermission from "../../../middlewares/checkPermission.js";
+import { PERMISSIONS } from "../../../constants/permission.js";
 
 import {
   createCSRValidator,
@@ -20,31 +23,35 @@ import { uploadToS3 } from "../../../utils/uploadToS3.js";
 
 const router = express.Router();
 
-// Create
+// Public — website
+router.get("/", getAllCSR);
+router.get("/:id", getCSRById);
+
 router.post(
   "/",
+  verifyJWT,
+  checkPermission(PERMISSIONS.CSR_CREATE),
   upload.array("images"),
   uploadToS3("csr", { images: "images" }, { arrayTargets: ["images"] }),
   validate(createCSRValidator),
-  createCSR
+  createCSR,
 );
 
-// Get All
-router.get("/", getAllCSR);
-
-// Get By ID
-router.get("/:id", getCSRById);
-
-// Update
 router.put(
   "/:id",
+  verifyJWT,
+  checkPermission([PERMISSIONS.CSR_UPDATE, PERMISSIONS.CSR_VIEW]),
   upload.array("images"),
   uploadToS3("csr", { images: "images" }, { arrayTargets: ["images"] }),
   validate(updateCSRValidator),
-  updateCSR
+  updateCSR,
 );
 
-// Delete
-router.delete("/:id", deleteCSR);
+router.delete(
+  "/:id",
+  verifyJWT,
+  checkPermission([PERMISSIONS.CSR_DELETE, PERMISSIONS.CSR_VIEW]),
+  deleteCSR,
+);
 
 export default router;

@@ -46,6 +46,7 @@ const hospitalFeedbackSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 hospitalFeedbackSchema.index({ isViewed: 1 });
+hospitalFeedbackSchema.index({ isViewed: 1, addedBy: 1 });
 
 const HospitalFeedback = mongoose.model(
     "HospitalFeedback",

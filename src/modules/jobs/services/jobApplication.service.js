@@ -103,14 +103,22 @@ class JobApplicationService {
     return await jobApplicationRepository.deleteById(id);
   }
 
-  async getApplicationsByJobId(jobId) {
+  async getApplicationsByJobId(jobId, filters = {}) {
     // Check if job exists
     const job = await jobService.getJobById(jobId);
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job not found');
     }
 
-    return await jobApplicationRepository.findByJobId(jobId);
+    const [applications, counts] = await Promise.all([
+      jobApplicationRepository.findByJobId(jobId, filters),
+      jobApplicationRepository.getStatusCountsByJobId(jobId)
+    ]);
+
+    return {
+      applications,
+      counts
+    };
   }
 
   async getApplicationsByEmail(email) {

@@ -11,6 +11,7 @@ import {
     updateDoctorFeedback,
     deleteDoctorFeedback,
     getFeedbackCountsForAll,
+    markDoctorFeedbackViewed,
 } from "../controller/doctorFeedback.controller.js";
 
 // CREATE (body.doctorId)
@@ -20,6 +21,8 @@ router.post("/create", createDoctorFeedback);
 router.get("/all", getAllDoctorFeedbacks);
 
 router.get("/counts", getFeedbackCountsForAll);
+
+router.patch("/view/:feedbackId", markDoctorFeedbackViewed);
 
 // GET BY doctorId (business id)
 router.get("/:doctorId", getDoctorFeedbackById);

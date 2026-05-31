@@ -13,55 +13,51 @@ import { PERMISSIONS } from '../../../constants/permission.js';
 
 const router = Router();
 
-const appointmentBookingListPermissions = [
-  PERMISSIONS.APPOINTMENT_BOOKING_VIEW_ALL,
-  PERMISSIONS.APPOINTMENT_BOOKING_VIEW,
-  PERMISSIONS.APPOINTMENT_VIEW_ALL,
-  PERMISSIONS.APPOINTMENT_VIEW,
-];
 
-const appointmentBookingViewPermissions = [
+const appointmentBookingManagePermissions = [
   PERMISSIONS.APPOINTMENT_BOOKING_VIEW,
-  PERMISSIONS.APPOINTMENT_BOOKING_VIEW_ALL,
-  PERMISSIONS.APPOINTMENT_VIEW,
-  PERMISSIONS.APPOINTMENT_VIEW_ALL,
+  PERMISSIONS.APPOINTMENT_REQUEST_ACCEPT,
+  PERMISSIONS.APPOINTMENT_REQUEST_REJECT,
 ];
 
 router.use(verifyJWT);
 
 router.post(
   '/',
-  checkPermission(PERMISSIONS.APPOINTMENT_BOOKING),
+
   createAppointmentBookingRecord,
 );
 
 router.get(
   '/',
-  checkPermission(appointmentBookingListPermissions),
+  checkPermission( PERMISSIONS.APPOINTMENT_BOOKING_VIEW),
   getAllAppointmentBookingRecords,
 );
 
 router.get(
   '/counts',
-  checkPermission(appointmentBookingListPermissions),
+  
   getAppointmentCounts,
 );
 
 router.get(
   '/:id',
-  checkPermission(appointmentBookingViewPermissions),
+  checkPermission( PERMISSIONS.APPOINTMENT_BOOKING_VIEW),
   getAppointmentBookingRecordById,
 );
 
 router.put(
   '/:id',
-  checkPermission(PERMISSIONS.APPOINTMENT_BOOKING),
+  checkPermission(appointmentBookingManagePermissions),
   updateAppointmentBookingRecord,
 );
 
 router.delete(
   '/:id',
-  checkPermission(PERMISSIONS.APPOINTMENT_CANCEL),
+  checkPermission([
+    PERMISSIONS.APPOINTMENT_REQUEST_REJECT,
+    PERMISSIONS.APPOINTMENT_BOOKING_VIEW,
+  ]),
   deleteAppointmentBookingRecord,
 );
 

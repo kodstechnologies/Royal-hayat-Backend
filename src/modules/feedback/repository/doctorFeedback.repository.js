@@ -58,6 +58,19 @@ export const deleteDoctorFeedbackRepo =
         return await DoctorFeedback.findByIdAndDelete(feedbackId);
     };
 
+const UNVIEWED_PATIENT_FILTER = {
+    isViewed: false,
+    addedBy: "patient",
+};
+
+export const markDoctorFeedbackViewedRepo = async (feedbackId) => {
+    return await DoctorFeedback.findByIdAndUpdate(
+        feedbackId,
+        { isViewed: true },
+        { new: true }
+    );
+};
+
 export const getFeedbackCountsRepo = async () => {
 
     const [
@@ -65,13 +78,9 @@ export const getFeedbackCountsRepo = async () => {
         hospitalFeedbackCount
     ] = await Promise.all([
 
-        DoctorFeedback.countDocuments({
-            isViewed: false
-        }),
+        DoctorFeedback.countDocuments(UNVIEWED_PATIENT_FILTER),
 
-        HospitalFeedback.countDocuments({
-            isViewed: false
-        })
+        HospitalFeedback.countDocuments(UNVIEWED_PATIENT_FILTER)
 
     ]);
 

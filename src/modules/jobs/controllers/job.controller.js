@@ -68,7 +68,6 @@ const getAllJobs = asyncHandler(async (req, res) => {
   }
 
   const result = await jobService.getAllJobs(value);
-  console.log("all jobs",result);
 
   res.status(200).json({
     success: true,

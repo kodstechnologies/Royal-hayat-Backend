@@ -23,7 +23,7 @@ router.use(verifyJWT);
 
 router.post(
   "/",
-  checkPermission(PERMISSIONS.ACHIEVEMENT_CREATE),
+  checkPermission([PERMISSIONS.ACHIEVEMENT_CREATE, PERMISSIONS.ACHIEVEMENT_VIEW]),
   upload.single("image"),
   validate(createAchievementValidator),
   uploadToS3("achievements", { image: "image" }),
@@ -32,22 +32,22 @@ router.post(
 
 router.get(
   "/",
-  checkPermission(PERMISSIONS.ACHIEVEMENT_VIEW_ALL),
+  checkPermission(PERMISSIONS.ACHIEVEMENT_VIEW  ),
   getAllAchievements
 );
 
 router.get(
   "/:id",
-  checkPermission([
+  checkPermission(
     PERMISSIONS.ACHIEVEMENT_VIEW,
-    PERMISSIONS.ACHIEVEMENT_VIEW_ALL,
-  ]),
+
+  ),
   getAchievementById
 );
 
 router.put(
   "/:id",
-  checkPermission(PERMISSIONS.ACHIEVEMENT_UPDATE),
+  checkPermission([PERMISSIONS.ACHIEVEMENT_UPDATE, PERMISSIONS.ACHIEVEMENT_VIEW]),
   upload.single("image"),
   validate(updateAchievementValidator),
   uploadToS3("achievements", { image: "image" }),
@@ -56,7 +56,7 @@ router.put(
 
 router.delete(
   "/:id",
-  checkPermission(PERMISSIONS.ACHIEVEMENT_DELETE),
+  checkPermission([PERMISSIONS.ACHIEVEMENT_DELETE, PERMISSIONS.ACHIEVEMENT_VIEW]),
   deleteAchievement
 );
 

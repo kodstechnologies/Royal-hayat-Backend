@@ -1,11 +1,14 @@
 // services/hospitalFeedback.service.js
 
+import httpStatus from "http-status";
+import ApiError from "../../../utils/ApiError.js";
 import {
     createHospitalFeedbackRepo,
     getAllHospitalFeedbacksRepo,
     getHospitalFeedbackByIdRepo,
     updateHospitalFeedbackRepo,
-    deleteHospitalFeedbackRepo
+    deleteHospitalFeedbackRepo,
+    markHospitalFeedbackViewedRepo,
 } from "../repository/hospitalFeedback.repository.js";
 
 export const createHospitalFeedbackService =
@@ -40,3 +43,13 @@ export const deleteHospitalFeedbackService =
 
         return await deleteHospitalFeedbackRepo(id);
     };
+
+export const markHospitalFeedbackViewedService = async (id) => {
+    const feedback = await markHospitalFeedbackViewedRepo(id);
+
+    if (!feedback) {
+        throw new ApiError(httpStatus.NOT_FOUND, "Hospital feedback not found");
+    }
+
+    return feedback;
+};
