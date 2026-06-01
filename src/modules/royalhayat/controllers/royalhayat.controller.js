@@ -123,7 +123,6 @@ const initializeAppointmentFlow = asyncHandler(async (req, res) => {
     );
   }
 
-  // Get token first (this will cache it)
   const token = await royalHayatService.getAuthToken();
   
   // Then validate patient

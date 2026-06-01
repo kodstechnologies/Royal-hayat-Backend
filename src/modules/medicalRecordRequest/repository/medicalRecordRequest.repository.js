@@ -1,4 +1,3 @@
-// repositories/medicalRecordRequest.repository.js
 
 import MedicalRecordRequest from "../model/medicalRecordRequest.model.js";
 

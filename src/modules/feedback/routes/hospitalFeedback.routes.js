@@ -13,7 +13,6 @@ import {
     markHospitalFeedbackViewed,
 } from "../controller/hospitalFeedback.controller.js";
 
-
 // CREATE
 router.post(
     "/create",

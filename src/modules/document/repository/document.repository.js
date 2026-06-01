@@ -1,4 +1,3 @@
-// repositories/document.repository.js
 
 import Documents from "../model/document.model.js";
 

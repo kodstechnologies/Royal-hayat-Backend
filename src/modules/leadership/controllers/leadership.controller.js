@@ -1,11 +1,9 @@
-// controllers/leadership.controller.js
 
 import asyncHandler from '../../../utils/asyncHandler.js';
 import httpStatus from "http-status";
 
 import LeadershipService from "../services/leadership.services.js";
 
-// Create
 export const createLeadership = asyncHandler(
   async (req, res) => {
     const leadership =
@@ -22,7 +20,6 @@ export const createLeadership = asyncHandler(
   }
 );
 
-// Get All
 export const getAllLeadership = asyncHandler(
   async (req, res) => {
     const leadership =
@@ -36,7 +33,6 @@ export const getAllLeadership = asyncHandler(
   }
 );
 
-// Get By ID
 export const getLeadershipById = asyncHandler(
   async (req, res) => {
     const leadership =
@@ -51,7 +47,6 @@ export const getLeadershipById = asyncHandler(
   }
 );
 
-// Update
 export const updateLeadership = asyncHandler(
   async (req, res) => {
     const updatedLeadership =
@@ -69,7 +64,6 @@ export const updateLeadership = asyncHandler(
   }
 );
 
-// Delete
 export const deleteLeadership = asyncHandler(
   async (req, res) => {
     await LeadershipService.deleteLeadership(

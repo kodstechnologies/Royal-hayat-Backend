@@ -12,9 +12,6 @@ import ApiError from '../../../utils/ApiError.js';
 
 import httpStatus from 'http-status';
 
-/**
- * Normalize subspeciality ids
- */
 function normalizeSubspecialityIds(value) {
   if (!Array.isArray(value)) return [];
 
@@ -29,9 +26,6 @@ function normalizeSubspecialityIds(value) {
   ];
 }
 
-/**
- * Ensure subspecialities exist
- */
 async function assertSubspecialitiesExist(
   ids
 ) {
@@ -50,9 +44,6 @@ async function assertSubspecialitiesExist(
   }
 }
 
-/**
- * Replace linked CustomExplainantion docs
- */
 async function replaceCustomExplainantionsForDepartment(
   departmentId,
   items

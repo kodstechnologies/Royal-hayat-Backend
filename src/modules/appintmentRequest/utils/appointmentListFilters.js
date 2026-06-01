@@ -52,15 +52,6 @@ const normalizeStatus = (raw) => {
   return status;
 };
 
-/**
- * Query params:
- * - fromDate / dateFrom, toDate / dateTo  -> filters `date` (string, yyyy-MM-dd recommended)
- * - fromTime / timeFrom, toTime / timeTo  -> filters `time`
- * - department
- * - doctor / doctors
- * - status (appointment requests only; default: pending -> received)
- * - requestType (appointment requests only)
- */
 export const buildAppointmentListFilter = (
   query = {},
   { includeStatus = false, includeRequestType = false } = {},

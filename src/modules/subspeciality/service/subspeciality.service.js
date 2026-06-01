@@ -27,11 +27,6 @@ async function assertCustomDocsExist(ids) {
   }
 }
 
-/**
- * Resolve array of:
- * - ObjectId strings
- * - inline custom subspeciality bodies
- */
 async function resolveCustomSubspecialityItems(
   items
 ) {
@@ -40,12 +35,10 @@ async function resolveCustomSubspecialityItems(
   await assertCustomDocsExist(existingIds);
 
   for (const item of items) {
-    // Existing ObjectId
     if (typeof item === 'string') {
       ids.push(item);
     }
 
-    // New inline object
     else {
       const doc =
         await CustomSubspeciality.create({
@@ -186,7 +179,6 @@ class SubspecialityService {
 
     const payload = {};
 
-    // English Name
     if (
       updateData.name !== undefined
     ) {
@@ -214,7 +206,6 @@ class SubspecialityService {
       payload.name = trimmed;
     }
 
-    // Arabic Name
     if (
       updateData.arabicName !==
       undefined
@@ -223,7 +214,6 @@ class SubspecialityService {
         updateData.arabicName.trim();
     }
 
-    // English Description
     if (
       updateData.description !==
       undefined
@@ -232,7 +222,6 @@ class SubspecialityService {
         updateData.description.trim();
     }
 
-    // Arabic Description
     if (
       updateData.arabicDescription !==
       undefined

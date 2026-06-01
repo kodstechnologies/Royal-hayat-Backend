@@ -1,4 +1,3 @@
-// repositories/hospitalFeedback.repository.js
 
 import HospitalFeedback from "../model/HospitalFeedback.model.js";
 

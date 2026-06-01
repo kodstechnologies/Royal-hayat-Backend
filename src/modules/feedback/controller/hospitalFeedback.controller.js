@@ -1,4 +1,3 @@
-// controllers/hospitalFeedback.controller.js
 
 import httpStatus from "http-status";
 import asyncHandler from "../../../utils/asyncHandler.js";
@@ -10,7 +9,6 @@ import {
     deleteHospitalFeedbackService,
     markHospitalFeedbackViewedService,
 } from "../service/hospitalFeedback.service.js";
-
 
 // CREATE
 export const createHospitalFeedback =
@@ -75,7 +73,6 @@ export const createHospitalFeedback =
         }
     };
 
-
 // GET ALL
 export const getAllHospitalFeedbacks =
     async (req, res) => {
@@ -98,7 +95,6 @@ export const getAllHospitalFeedbacks =
             });
         }
     };
-
 
 // GET BY ID
 export const getHospitalFeedbackById =
@@ -133,7 +129,6 @@ export const getHospitalFeedbackById =
             });
         }
     };
-
 
 // UPDATE
 export const updateHospitalFeedback =
@@ -177,7 +172,6 @@ export const updateHospitalFeedback =
             });
         }
     };
-
 
 // DELETE
 export const deleteHospitalFeedback =

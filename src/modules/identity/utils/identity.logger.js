@@ -19,7 +19,6 @@ export const identityLogJson = (tag, message, obj) => {
   }
 };
 
-/** Log every HTTP hit to identity / callback routes (before handlers). */
 export const logIdentityHttp = (routeLabel) => (req, res, next) => {
   identityLog('http', `→ ${routeLabel} ${req.method} ${req.originalUrl}`);
   identityLog('http', `ip=${req.ip} forwarded-for=${req.headers['x-forwarded-for'] || '-'}`);

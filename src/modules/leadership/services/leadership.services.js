@@ -1,4 +1,3 @@
-// services/leadership.service.js
 
 import httpStatus from "http-status";
 import mongoose from "mongoose";
@@ -13,8 +12,8 @@ import {
 import { uploadToS3 } from "../../../utils/s3Upload.js";
 
 import { getFileUrl } from "../../../utils/s3Fetch.js";
+import toPlainObject from "../../../utils/toPlainObject.js";
 
-/** Remove S3 upload middleware fields before Joi validation. */
 const stripUploadFields = (data = {}) => {
   const { image, imageKey, ...fields } = data;
   return { fields, imageKey };
@@ -23,7 +22,7 @@ const stripUploadFields = (data = {}) => {
 const attachSignedImage = async (leadership) => {
   if (!leadership) return null;
 
-  const doc = leadership.toObject ? leadership.toObject() : leadership;
+  const doc = toPlainObject(leadership);
 
   if (!doc.image) {
     return doc;
@@ -39,7 +38,6 @@ const attachSignedImage = async (leadership) => {
 
 class LeadershipService {
 
-  // Create
   async createLeadership(data, file) {
     const { fields, imageKey } = stripUploadFields(data);
 
@@ -72,7 +70,6 @@ class LeadershipService {
     return attachSignedImage(created);
   }
 
-  // Get All
   async getAllLeadership() {
 
     const leadershipList =
@@ -85,7 +82,6 @@ class LeadershipService {
     return updatedLeadership;
   }
 
-  // Get By ID
   async getLeadershipById(id) {
 
     if (
@@ -123,7 +119,6 @@ class LeadershipService {
     return attachSignedImage(leadership);
   }
 
-  // Update
   async updateLeadership(
     id,
     data,
@@ -197,7 +192,6 @@ class LeadershipService {
     return attachSignedImage(updatedLeadership);
   }
 
-  // Delete
   async deleteLeadership(id) {
 
     if (

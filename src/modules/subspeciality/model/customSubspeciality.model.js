@@ -2,19 +2,16 @@ import mongoose from 'mongoose';
 
 const customSubspecialitySchema = new mongoose.Schema(
   {
-    // English Heading
     subHeading: {
       type: String,
       trim: true,
     },
 
-    // Arabic Heading
     arabicSubHeading: {
       type: String,
       trim: true,
     },
 
-    // English Explanations
     explanations: [
       {
         type: String,
@@ -22,7 +19,6 @@ const customSubspecialitySchema = new mongoose.Schema(
       },
     ],
 
-    // Arabic Explanations
     arabicExplanations: [
       {
         type: String,

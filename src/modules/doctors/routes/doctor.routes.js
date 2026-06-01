@@ -21,9 +21,7 @@ router.get('/specialties', getSpecialties);
 router.get('/department/:department', getDoctorsByDepartment);
 router.get('/subspeciality/:subspecialityId', getDoctorsBySubspeciality);
 // router.get('/subspeciality/:subspecialityId', ()=>{
-//   console.log("entered route---------------------");
 // });
-
 
 // Admin routes (add middleware later for authentication)
 router.post('/', upload.single("image"), createDoctor);

@@ -1,8 +1,5 @@
 import Department from '../models/department.model.js';
 
-/**
- * Populate subspecialities
- */
 const populateSubspecialities = {
   path: 'subspecialities',
 
@@ -26,9 +23,6 @@ const populateSubspecialities = {
   },
 };
 
-/**
- * Populate custom explanations
- */
 const populateCustomExplainantions = {
   path: 'customExplainantions',
 

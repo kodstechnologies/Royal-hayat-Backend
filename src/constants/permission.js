@@ -6,13 +6,10 @@ export const PERMISSIONS = {
   DOCTOR_DELETE: 'doctor.delete',
   DOCTOR_VIEW: 'doctor.view',
 
-
-
   CATAGORY_CREATE: 'catagory.create',
   CATAGORY_UPDATE: 'catagory.update',
   CATAGORY_DELETE: 'catagory.delete',
   CATAGORY_VIEW: 'catagory.view',
-
 
   // Blogs
   DEPARTMENT: 'department.create',
@@ -26,19 +23,15 @@ export const PERMISSIONS = {
   SUBSPECIALITY_DELETE: 'subspeciality.delete',
   SUBSPECIALITY_VIEW: 'subspeciality.view',
 
-
   APPOINTMENT_REQUEST_CREATE: 'appointment.request.create',
   // APPOINTMENT_BOOKING: 'appointment.booking',
   // APPOINTMENT_CANCEL: 'appointment.cancel',
   APPOINTMENT_REQUEST_VIEW: 'appointment.request.view',
 
-
   APPOINTMENT_REQUEST_ACCEPT: 'appointment.request.accept',
   APPOINTMENT_REQUEST_REJECT: 'appointment.request.reject',
 
-
   APPOINTMENT_BOOKING_VIEW: 'appointment.booking.view',
-
 
   // Users
   USER_CREATE: 'user.create',
@@ -46,7 +39,6 @@ export const PERMISSIONS = {
   USER_DELETE: 'user.delete',
   USER_VIEW: 'user.view',
  
-
 
   CALL_CENTER_VIEW_ALL: 'call.center.view.all',
   CALL_CENTER_CREATE: 'call.center.create',
@@ -82,8 +74,6 @@ export const PERMISSIONS = {
   FEEDBACK_UPDATE: 'feedback.update',
   FEEDBACK_DELETE: 'feedback.delete',
 
-
-
   ACHIEVEMENT_VIEW: 'achievement.view',
   ACHIEVEMENT_CREATE: 'achievement.create',
   ACHIEVEMENT_UPDATE: 'achievement.update',
@@ -94,7 +84,6 @@ export const PERMISSIONS = {
   CSR_CREATE: 'csr.create',
   CSR_UPDATE: 'csr.update',
   CSR_DELETE: 'csr.delete',
-
 
   LEADERSHIP_VIEW: 'leadership.view',
   LEADERSHIP_CREATE: 'leadership.create',

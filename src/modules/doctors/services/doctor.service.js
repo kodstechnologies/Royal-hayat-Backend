@@ -43,7 +43,6 @@ class DoctorService {
       });
 
       // if (existingDoctor) {
-      //   throw new ApiError(httpStatus.BAD_REQUEST, 'Doctor with this name and specialty already exists');
       // }
 
       const subs = normalizeDoctorSubspecialityIds(doctorData.subspecialities || []);

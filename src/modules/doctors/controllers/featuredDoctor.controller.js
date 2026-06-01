@@ -1,4 +1,3 @@
-// controllers/featuredDoctors.controller.js
 
 import asyncHandler from "../../../utils/asyncHandler.js";
 import httpStatus from "http-status";
@@ -21,7 +20,6 @@ export const createFeaturedDoctor = asyncHandler(
   }
 );
 
-// Get Featured Doctors
 export const getFeaturedDoctors = asyncHandler(
   async (req, res) => {
     const featuredDoctors =

@@ -112,7 +112,6 @@ const medicalRecordRequestSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-
 // compound indexes
 medicalRecordRequestSchema.index({
     patientFullName: 1,
@@ -127,10 +126,6 @@ medicalRecordRequestSchema.index({ isViewed: 1 });
 
 medicalRecordRequestSchema.index({ mrrId: 1 });
 
-/**
- * AUTO MRR ID on create
- * FORMAT => MRR-000001
- */
 medicalRecordRequestSchema.pre("validate", async function (next) {
     if (this.mrrId) {
         return next();

@@ -1,4 +1,3 @@
-// services/medicalRecordRequest.service.js
 import nodemailer from "nodemailer";
 
 import {
@@ -105,7 +104,6 @@ export const shareMedicalRecordRequestViaEmailService =
             request.passportOrGovernmentId
         );
 
-        // transporter
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -114,14 +112,12 @@ export const shareMedicalRecordRequestViaEmailService =
             },
         });
 
-        // html template
         const htmlContent =
             medicalRecordRequestEmailTemplate(
                 request,
                 passportFileUrl
             );
 
-        // send mail
         await transporter.sendMail({
             from: "royalehayat.dev@gmail.com",
             to: emailId,

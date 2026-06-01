@@ -17,7 +17,6 @@ import path from 'path';
 
 const OID = /^[0-9a-fA-F]{24}$/i;
 
-/** Multipart: JSON array string, repeated fields, or single ObjectId. */
 function coerceDoctorSubspecialitiesField(formData) {
   if (formData.subspecialities === undefined) return;
   const raw = formData.subspecialities;

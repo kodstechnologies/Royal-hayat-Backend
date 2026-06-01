@@ -1,8 +1,5 @@
 import Joi from 'joi';
 
-/**
- * COMMON
- */
 const optionalTrimmedString =
   Joi.string()
     .trim()
@@ -12,9 +9,6 @@ const optionalTrimmedString =
 const objectIdPattern =
   /^[0-9a-fA-F]{24}$/;
 
-/**
- * CUSTOM EXPLANATION
- */
 const customExplainantionItemSchema =
   Joi.object({
     // ENGLISH
@@ -45,9 +39,6 @@ const customExplainantionItemSchema =
         .default([]),
   });
 
-/**
- * CREATE
- */
 const createDepartmentSchema =
   Joi.object({
     departmentId: Joi.string()
@@ -147,9 +138,6 @@ const createDepartmentSchema =
       .default(0),
   });
 
-/**
- * UPDATE
- */
 const updateDepartmentSchema =
   Joi.object({
     departmentId:
@@ -247,9 +235,6 @@ const updateDepartmentSchema =
       .optional(),
   }).min(1);
 
-/**
- * GET LIST
- */
 const getDepartmentsSchema =
   Joi.object({
     page: Joi.number()
@@ -288,9 +273,6 @@ const getDepartmentsSchema =
         .default('asc'),
   });
 
-/**
- * PARAM ID
- */
 const departmentIdSchema =
   Joi.object({
     id: Joi.string()

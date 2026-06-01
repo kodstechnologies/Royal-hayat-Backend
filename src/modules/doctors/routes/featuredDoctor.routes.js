@@ -24,7 +24,6 @@ router.post(
   createFeaturedDoctor
 );
 
-// Get Featured Doctors
 router.get("/", getFeaturedDoctors);
 
 // Edit Featured Doctor

@@ -46,7 +46,6 @@ const getAllCatagories = asyncHandler(async (req, res) => {
   });
 });
 
-/** All categories with nested departments and doctors per department */
 const getCatagoriesWithDepartmentsAndDoctors = asyncHandler(async (req, res) => {
   const data = await catagoryService.getCatagoriesWithDepartmentsAndDoctors();
 

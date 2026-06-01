@@ -1,4 +1,3 @@
-// controllers/doctorFeedback.controller.js
 
 import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";
@@ -144,7 +143,6 @@ export const deleteDoctorFeedback = async (req, res) => {
         return handleError(res, error);
     }
 };
-
 
 export const getFeedbackCountsForAll = asyncHandler(async (req, res) => {
 

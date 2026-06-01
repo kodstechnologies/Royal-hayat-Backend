@@ -169,11 +169,6 @@ jobSchema.index({ isActive: 1 });
 
 jobSchema.index({ postedDate: -1 });
 
-/**
- * AUTO JOB ID
- * FORMAT => YYYYMM-XXXXXX
- * Example => 202605-000001
- */
 jobSchema.pre(
   'validate',
   async function (next) {

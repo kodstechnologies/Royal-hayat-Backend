@@ -23,7 +23,6 @@ const appointmentRequestListPermissions = [
 const appointmentRequestViewPermissions = [
   PERMISSIONS.APPOINTMENT_REQUEST_VIEW,
 
-
 ];
 
 // Public — patient / website booking flow

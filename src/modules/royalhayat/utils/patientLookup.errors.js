@@ -11,10 +11,6 @@ export const PATIENT_LOOKUP_CODES = {
   UNKNOWN: 'PATIENT_LOOKUP_FAILED'
 };
 
-/**
- * Classify TrakCare WebAppointment patient lookup failures (GET /WEBAPP/patient).
- * Status strings documented by RHH integration team.
- */
 const classifyPatientStatus = (statusText, body = {}) => {
   const text = String(statusText || body?.status || '').toLowerCase();
 

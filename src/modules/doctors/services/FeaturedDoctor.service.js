@@ -1,4 +1,3 @@
-// services/featuredDoctors.service.js
 
 import mongoose from "mongoose";
 import httpStatus from "http-status";
@@ -35,7 +34,6 @@ class FeaturedDoctorsService {
     );
   }
 
-  // Get Featured Doctors
   async getFeaturedDoctors() {
     return await FeaturedDoctorsRepository.getFeaturedDoctors();
   }

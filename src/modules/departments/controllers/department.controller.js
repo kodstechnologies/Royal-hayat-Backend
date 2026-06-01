@@ -19,12 +19,6 @@ import fs from 'fs-extra';
 
 const OID = /^[0-9a-fA-F]{24}$/i;
 
-/**
- * Multipart may send:
- * - JSON string
- * - repeated fields
- * - single id
- */
 function coerceSubspecialitiesField(
   formData
 ) {
@@ -105,16 +99,6 @@ function coerceSubspecialitiesField(
   }
 }
 
-/**
- * Multipart:
- * customExplainantions as JSON string
- *
- * Supports:
- * - subHeading
- * - explaination
- * - arabicSubHeading
- * - arabicExplaination
- */
 function coerceCustomExplainantionsField(
   formData
 ) {
@@ -159,9 +143,6 @@ function coerceCustomExplainantionsField(
   }
 }
 
-/**
- * CREATE
- */
 const createDepartment =
   asyncHandler(
     async (req, res) => {
@@ -323,9 +304,6 @@ const createDepartment =
     }
   );
 
-/**
- * GET ALL
- */
 const getAllDepartments =
   asyncHandler(
     async (req, res) => {
@@ -374,9 +352,6 @@ const getAllDepartments =
     }
   );
 
-/**
- * GET BY ID
- */
 const getDepartmentById =
   asyncHandler(
     async (req, res) => {
@@ -416,9 +391,6 @@ const getDepartmentById =
     }
   );
 
-/**
- * UPDATE
- */
 const updateDepartment =
   asyncHandler(
     async (req, res) => {
@@ -605,9 +577,6 @@ const updateDepartment =
     }
   );
 
-/**
- * DELETE
- */
 const deleteDepartment =
   asyncHandler(
     async (req, res) => {

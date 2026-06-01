@@ -1,11 +1,9 @@
-// controllers/workCulture.controller.js
 
 import asyncHandler from '../../../utils/asyncHandler.js';
 import httpStatus from "http-status";
 
 import WorkCultureService from "../services/workCulture.service.js";
 
-// Create
 export const createWorkCulture = asyncHandler(
   async (req, res) => {
     const workCulture =
@@ -22,7 +20,6 @@ export const createWorkCulture = asyncHandler(
   }
 );
 
-// Get All
 export const getAllWorkCultures = asyncHandler(
   async (req, res) => {
     const workCultures =
@@ -36,7 +33,6 @@ export const getAllWorkCultures = asyncHandler(
   }
 );
 
-// Get By ID
 export const getWorkCultureById = asyncHandler(
   async (req, res) => {
     const workCulture =
@@ -51,7 +47,6 @@ export const getWorkCultureById = asyncHandler(
   }
 );
 
-// Update
 export const updateWorkCulture = asyncHandler(
   async (req, res) => {
     const updatedWorkCulture =
@@ -69,7 +64,6 @@ export const updateWorkCulture = asyncHandler(
   }
 );
 
-// Delete
 export const deleteWorkCulture = asyncHandler(
   async (req, res) => {
     await WorkCultureService.deleteWorkCulture(

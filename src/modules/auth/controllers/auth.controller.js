@@ -10,7 +10,6 @@ const RESERVED_ROLES = ['admin'];
 const normalizeRole = (role) =>
   String(role || '').trim().toLowerCase().replace(/\s+/g, '_');
 
-/** Any custom role from user-management; only `admin` is reserved. */
 const assertManagedRole = (role) => {
   const normalized = normalizeRole(role);
 

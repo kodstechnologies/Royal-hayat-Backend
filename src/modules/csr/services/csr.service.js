@@ -1,4 +1,3 @@
-// services/csr.service.js
 
 import httpStatus from "http-status";
 import mongoose from "mongoose";
@@ -16,7 +15,6 @@ import {
 
 class CSRService {
 
-  // Create
   async createCSR(data, files) {
 
     if (!files || files.length === 0) {
@@ -26,7 +24,6 @@ class CSRService {
       );
     }
 
-    // validate only text fields
     const { error, value } =
       createCSRValidator.validate(
         data,
@@ -51,7 +48,6 @@ class CSRService {
       const uploaded =
         await uploadToS3(file);
 
-      // STORE DIRECT URL
       uploadedImages.push(
         uploaded.url
       );
@@ -67,13 +63,11 @@ class CSRService {
     );
   }
 
-  // Get All
   async getAllCSR() {
 
     return await CSRRepository.getAllCSR();
   }
 
-  // Get By ID
   async getCSRById(id) {
 
     if (
@@ -106,7 +100,6 @@ class CSRService {
     return csr;
   }
 
-  // Update
   async updateCSR(id, data, files) {
 
     if (
@@ -136,7 +129,6 @@ class CSRService {
       throw err;
     }
 
-    // validate only text fields
     const { error, value } =
       updateCSRValidator.validate(
         data,
@@ -185,7 +177,6 @@ class CSRService {
     );
   }
 
-  // Delete
   async deleteCSR(id) {
 
     if (

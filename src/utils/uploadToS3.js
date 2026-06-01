@@ -1,14 +1,6 @@
 import { putObject } from "./putObject.js";
 import ApiError from "./ApiError.js";
 
-/**
- * Middleware: upload multer files to S3 and attach URLs to req.body.
- *
- * @param {string} folder          - S3 folder/prefix
- * @param {Object} fieldMap        - maps multer fieldname → req.body key  e.g. { file: "file", img: "img" }
- * @param {Object} options
- * @param {string[]} options.arrayTargets - fieldnames that should accumulate as arrays
- */
 export const uploadToS3 =
   (folder = "uploads", fieldMap = { img: "img" }, options = {}) =>
   async (req, res, next) => {

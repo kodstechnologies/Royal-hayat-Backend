@@ -1,4 +1,3 @@
-// services/workCulture.service.js
 
 import httpStatus from "http-status";
 import mongoose from "mongoose";
@@ -28,7 +27,6 @@ const attachSignedImages = async (workCulture) => {
 };
 
 class WorkCultureService {
-  // Create
   async createWorkCulture(data, files) {
 
     if (!files || files.length === 0) {
@@ -37,7 +35,6 @@ class WorkCultureService {
       );
     }
 
-    // validate only text fields
     const { error, value } =
       createWorkCultureValidator.validate(
         data,
@@ -75,7 +72,6 @@ class WorkCultureService {
       .createWorkCulture(payload);
   }
 
-  // Get All
   async getAllWorkCultures() {
     const workCultures =
       await WorkCultureRepository.getAllWorkCultures();
@@ -87,9 +83,7 @@ class WorkCultureService {
     return updatedWorkCultures;
   }
 
-  // Get By ID
   async getWorkCultureById(id) {
-    console.log("id---",id)
     if (!mongoose.Types.ObjectId.isValid(id)) {
       const err = new Error("Invalid Work Culture ID");
       err.statusCode = httpStatus.BAD_REQUEST;
@@ -108,7 +102,6 @@ class WorkCultureService {
     return attachSignedImages(workCulture);
   }
 
-  // Update
   async updateWorkCulture(id, data, files) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -138,7 +131,6 @@ class WorkCultureService {
       throw err;
     }
 
-    // validate only text fields
     const { error, value } =
       updateWorkCultureValidator.validate(
         data,
@@ -194,7 +186,6 @@ class WorkCultureService {
     return attachSignedImages(updatedWorkCulture);
   }
 
-  // Delete
   async deleteWorkCulture(id) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       const err = new Error("Invalid Work Culture ID");
