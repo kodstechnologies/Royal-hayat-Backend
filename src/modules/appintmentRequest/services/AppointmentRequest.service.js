@@ -7,6 +7,7 @@ import {
   normalizeRequestType,
   VALID_REQUEST_TYPES,
 } from '../utils/appointmentListFilters.js';
+import { sendAppointmentRequestNotificationEmail } from '../../../utils/appointmentRequestNotificationMail.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 const VALID_STATUS = ['received', 'accepted', 'cancelled'];
@@ -250,10 +251,21 @@ class AppointmentRequestService {
     const payload = sanitizePayload(body);
     validateCreate(payload);
 
-    return appointmentRequestRepository.create({
+    const created = await appointmentRequestRepository.create({
       ...payload,
       status: 'received',
     });
+
+    try {
+      await sendAppointmentRequestNotificationEmail(created);
+    } catch (mailError) {
+      console.error(
+        'Appointment request notification email failed:',
+        mailError?.message || mailError,
+      );
+    }
+
+    return created;
   }
 
   async getAllAppointmentRequests(query) {

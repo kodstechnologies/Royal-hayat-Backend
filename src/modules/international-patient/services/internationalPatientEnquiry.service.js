@@ -1,11 +1,23 @@
 import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";
 import internationalPatientEnquiryRepository from "../repository/internationalPatientEnquiry.repository.js";
+import { sendInternationalPatientEnquiryNotificationEmail } from "../../../utils/internationalPatientEnquiryNotificationMail.js";
 
 class InternationalPatientEnquiryService {
   async createEnquiry(data) {
     try {
-      return await internationalPatientEnquiryRepository.create(data);
+      const enquiry = await internationalPatientEnquiryRepository.create(data);
+
+      try {
+        await sendInternationalPatientEnquiryNotificationEmail(enquiry);
+      } catch (mailError) {
+        console.error(
+          "International patient enquiry notification email failed:",
+          mailError?.message || mailError,
+        );
+      }
+
+      return enquiry;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
