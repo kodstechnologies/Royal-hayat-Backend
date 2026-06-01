@@ -16,6 +16,20 @@ class JobRepository {
     return await Job.findById(id).select('-isViewed');
   }
 
+  /** Set isActive=false for active jobs whose closingDate is before today (start of day). */
+  async deactivateExpiredJobs() {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    return await Job.updateMany(
+      {
+        isActive: true,
+        closingDate: { $exists: true, $ne: null, $lt: startOfToday },
+      },
+      { $set: { isActive: false } },
+    );
+  }
+
   async findAll(filters = {}) {
     const {
       page = 1,

@@ -48,12 +48,15 @@ class JobService {
   async getAllJobs(
     filters = {}
   ) {
+    await jobRepository.deactivateExpiredJobs();
+
     return await jobRepository.findAll(
       filters
     );
   }
 
   async getJobById(id) {
+    await jobRepository.deactivateExpiredJobs();
 
     const job =
       await jobRepository.findById(id);
