@@ -18,11 +18,18 @@ const chatLimiter = rateLimit({
 
 router.get('/health', (req, res) => {
   const key = process.env.GEMINI_API_KEY?.trim();
+  const keyFormat = !key
+    ? 'missing'
+    : /^AIza[\w-]+$/i.test(key)
+      ? 'AIza'
+      : /^AQ\.[\w.-]+$/i.test(key)
+        ? 'AQ'
+        : 'unknown';
   res.json({
     success: true,
     data: {
       configured: Boolean(key),
-      keyLooksLikeAiStudio: /^AIza[\w-]+$/i.test(key || ''),
+      keyFormat,
       model: (process.env.GEMINI_CHAT_MODEL || 'gemini-2.5-flash').trim(),
     },
   });

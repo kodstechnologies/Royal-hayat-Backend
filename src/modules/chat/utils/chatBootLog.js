@@ -5,8 +5,13 @@ function maskKey(key) {
   return `${s.slice(0, 4)}…${s.slice(-4)} (${s.length} chars)`;
 }
 
-function looksLikeAiStudioKey(key) {
-  return /^AIza[\w-]+$/i.test(String(key || '').trim());
+/** Google AI Studio keys: legacy AIza… or newer AQ.… (both valid for native Gemini REST). */
+function getKeyFormat(key) {
+  const s = String(key || '').trim();
+  if (!s) return 'missing';
+  if (/^AIza[\w-]+$/i.test(s)) return 'AIza';
+  if (/^AQ\.[\w.-]+$/i.test(s)) return 'AQ';
+  return 'unknown';
 }
 
 /**
@@ -14,17 +19,17 @@ function looksLikeAiStudioKey(key) {
  */
 export function logChatBootConfig() {
   const key = process.env.GEMINI_API_KEY?.trim();
+  const keyFormat = getKeyFormat(key);
   const primary = (process.env.GEMINI_CHAT_MODEL || 'gemini-2.5-flash').trim();
   const fallbacks = (process.env.GEMINI_CHAT_MODEL_FALLBACKS || '')
     .split(',')
     .map((m) => m.trim())
     .filter(Boolean);
 
-  console.log('[chat][boot] GEMINI_API_KEY=', maskKey(key));
-  if (key && !looksLikeAiStudioKey(key)) {
+  console.log('[chat][boot] GEMINI_API_KEY=', maskKey(key), `format=${keyFormat}`);
+  if (keyFormat === 'unknown') {
     console.warn(
-      '[chat][boot] API key format is unusual (Google AI Studio keys usually start with AIza).',
-      'Create or verify at https://aistudio.google.com/apikey',
+      '[chat][boot] API key format not recognized (expected AIza… or AQ.… from https://aistudio.google.com/apikey).',
     );
   }
   if (!key) {
