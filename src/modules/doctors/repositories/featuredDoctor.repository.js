@@ -12,7 +12,8 @@ class FeaturedDoctorsRepository {
   async getFeaturedDoctors() {
     return await FeaturedDoctor.find()
       .populate("doctor")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
   }
 
   // Get By ID

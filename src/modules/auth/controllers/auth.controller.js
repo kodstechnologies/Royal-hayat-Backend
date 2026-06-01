@@ -106,7 +106,8 @@ export const getMe = asyncHandler(async (req, res) => {
 export const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find({ role: { $ne: 'admin' } })
     .select('-password -refreshToken')
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .lean();
 
   res.json(ApiResponse.success(users, 'Users fetched successfully'));
 });

@@ -59,4 +59,6 @@ const leadershipSchema = new mongoose.Schema(
   }
 );
 
+leadershipSchema.index({ createdAt: -1 });
+
 export default mongoose.model("Leadership", leadershipSchema);

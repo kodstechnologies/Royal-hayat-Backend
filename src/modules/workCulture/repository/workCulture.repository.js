@@ -10,7 +10,7 @@ class WorkCultureRepository {
 
   // Get All
   async getAllWorkCultures() {
-    return await WorkCulture.find().sort({ createdAt: -1 });
+    return await WorkCulture.find().sort({ createdAt: -1 }).lean();
   }
 
   // Get By ID

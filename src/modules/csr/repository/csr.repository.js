@@ -8,7 +8,7 @@ class CSRRepository {
 
   // Get All
   async getAllCSR() {
-    return await CSR.find().sort({ createdAt: -1 });
+    return await CSR.find().sort({ createdAt: -1 }).lean();
   }
 
   // Get By ID

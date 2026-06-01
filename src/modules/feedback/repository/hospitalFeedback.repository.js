@@ -12,7 +12,8 @@ export const getAllHospitalFeedbacksRepo =
     async () => {
 
         return await HospitalFeedback.find()
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
     };
 
 export const getHospitalFeedbackByIdRepo =

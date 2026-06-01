@@ -19,6 +19,10 @@ const catagorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+catagorySchema.index({ name: 1 });
+catagorySchema.index({ arabicName: 1 });
+catagorySchema.index({ createdAt: -1 });
+
 const Catagory = mongoose.model('Catagory', catagorySchema);
 
 export default Catagory;

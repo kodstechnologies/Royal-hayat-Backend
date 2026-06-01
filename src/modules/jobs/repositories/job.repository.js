@@ -139,14 +139,11 @@ class JobRepository {
         ? -1
         : 1;
 
-    const jobs =
-      await Job.find(query)
-
-        .sort(sort)
-
-        .limit(limit * 1)
-
-        .skip((page - 1) * limit);
+    const jobs = await Job.find(query)
+      .sort(sort)
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .lean();
 
     const jobIds = jobs.map((job) => job._id);
     const [unviewedByJobId, totalUnviewedApplications] = await Promise.all([
@@ -154,12 +151,11 @@ class JobRepository {
       jobApplicationRepository.countAllUnviewed(),
     ]);
 
-    const jobsWithUnviewedCounts = jobs.map((job) => {
-      const jobObject = job.toObject();
-      jobObject.unviewedApplicationsCount =
-        unviewedByJobId.get(String(job._id)) ?? 0;
-      return jobObject;
-    });
+    const jobsWithUnviewedCounts = jobs.map((job) => ({
+      ...job,
+      unviewedApplicationsCount:
+        unviewedByJobId.get(String(job._id)) ?? 0,
+    }));
 
     const total =
       await Job.countDocuments(

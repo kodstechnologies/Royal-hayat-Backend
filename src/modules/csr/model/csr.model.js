@@ -52,4 +52,6 @@ const csrSchema = new mongoose.Schema(
   }
 );
 
+csrSchema.index({ createdAt: -1 });
+
 export default mongoose.model("CSR", csrSchema);

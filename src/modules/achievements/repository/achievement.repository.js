@@ -6,7 +6,7 @@ class AchievementRepository {
   }
 
   async findAll(filter = {}, sort = { createdAt: -1 }) {
-    return await Achievement.find(filter).sort(sort);
+    return await Achievement.find(filter).sort(sort).lean();
   }
 
   async findById(id) {

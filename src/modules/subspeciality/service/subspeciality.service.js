@@ -11,12 +11,15 @@ function normalizeExplanations(value) {
     .filter(Boolean);
 }
 
-async function assertCustomDocExists(id) {
-  const ok = await CustomSubspeciality.exists({
-    _id: id,
+async function assertCustomDocsExist(ids) {
+  const uniqueIds = [...new Set(ids.map(String))];
+  if (uniqueIds.length === 0) return;
+
+  const count = await CustomSubspeciality.countDocuments({
+    _id: { $in: uniqueIds },
   });
 
-  if (!ok) {
+  if (count !== uniqueIds.length) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       'Linked custom subspeciality not found'
@@ -33,12 +36,12 @@ async function resolveCustomSubspecialityItems(
   items
 ) {
   const ids = [];
+  const existingIds = items.filter((item) => typeof item === 'string');
+  await assertCustomDocsExist(existingIds);
 
   for (const item of items) {
     // Existing ObjectId
     if (typeof item === 'string') {
-      await assertCustomDocExists(item);
-
       ids.push(item);
     }
 
@@ -272,10 +275,10 @@ class SubspecialityService {
         payload.customSubspecialities =
           [];
 
-        for (const cid of existingIds) {
-          await CustomSubspeciality.findByIdAndDelete(
-            cid
-          );
+        if (existingIds.length > 0) {
+          await CustomSubspeciality.deleteMany({
+            _id: { $in: existingIds },
+          });
         }
       }
 
@@ -292,10 +295,10 @@ class SubspecialityService {
             newIds
           );
 
-        for (const cid of toDelete) {
-          await CustomSubspeciality.findByIdAndDelete(
-            cid
-          );
+        if (toDelete.length > 0) {
+          await CustomSubspeciality.deleteMany({
+            _id: { $in: toDelete },
+          });
         }
 
         payload.customSubspecialities =
@@ -361,10 +364,10 @@ class SubspecialityService {
       id
     );
 
-    for (const cid of customIds) {
-      await CustomSubspeciality.findByIdAndDelete(
-        cid
-      );
+    if (customIds.length > 0) {
+      await CustomSubspeciality.deleteMany({
+        _id: { $in: customIds },
+      });
     }
   }
 }

@@ -10,7 +10,7 @@ class LeadershipRepository {
 
   // Get All
   async getAllLeadership() {
-    return await Leadership.find().sort({ createdAt: -1 });
+    return await Leadership.find().sort({ createdAt: -1 }).lean();
   }
 
   // Get By ID

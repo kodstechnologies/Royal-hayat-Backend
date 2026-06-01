@@ -42,7 +42,6 @@ export const getFileUrl = async (key) => {
 
     try {
         const cleanKey = extractKey(key);
-        console.log("🚀 Generating signed URL for clean key:", cleanKey);
 
         const command = new GetObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME,

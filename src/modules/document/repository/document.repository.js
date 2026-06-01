@@ -7,7 +7,7 @@ export const createDocumentRepo = async (payload) => {
 };
 
 export const getAllDocumentsRepo = async () => {
-    return await Documents.find().sort({ createdAt: -1 });
+    return await Documents.find().sort({ createdAt: -1 }).lean();
 };
 
 export const getDocumentByIdRepo = async (id) => {

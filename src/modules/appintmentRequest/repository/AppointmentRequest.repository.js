@@ -9,7 +9,8 @@ class AppointmentRequestRepository {
     return AppointmentRequest.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
   }
 
   async countDocuments(filter) {

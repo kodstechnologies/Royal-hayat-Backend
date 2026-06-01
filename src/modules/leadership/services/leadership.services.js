@@ -78,23 +78,9 @@ class LeadershipService {
     const leadershipList =
       await LeadershipRepository.getAllLeadership();
 
-    const updatedLeadership =
-      await Promise.all(
-        leadershipList.map(
-          async (item) => {
-
-            const signedImage =
-              await getFileUrl(
-                item.image
-              );
-
-            return {
-              ...item.toObject(),
-              image: signedImage,
-            };
-          }
-        )
-      );
+    const updatedLeadership = await Promise.all(
+      leadershipList.map((item) => attachSignedImage(item)),
+    );
 
     return updatedLeadership;
   }
@@ -134,15 +120,7 @@ class LeadershipService {
       throw err;
     }
 
-    const signedImage =
-      await getFileUrl(
-        leadership.image
-      );
-
-    return {
-      ...leadership.toObject(),
-      image: signedImage,
-    };
+    return attachSignedImage(leadership);
   }
 
   // Update

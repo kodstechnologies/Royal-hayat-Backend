@@ -13,6 +13,19 @@ import {
 import { uploadToS3 } from "../../../utils/s3Upload.js";
 
 import { getMultipleFileUrls } from "../../../utils/s3Fetch.js";
+import toPlainObject from "../../../utils/toPlainObject.js";
+
+const attachSignedImages = async (workCulture) => {
+  if (!workCulture) return null;
+
+  const doc = toPlainObject(workCulture);
+  const signedImages = await getMultipleFileUrls(doc.images || []);
+
+  return {
+    ...doc,
+    images: signedImages,
+  };
+};
 
 class WorkCultureService {
   // Create
@@ -68,16 +81,7 @@ class WorkCultureService {
       await WorkCultureRepository.getAllWorkCultures();
 
     const updatedWorkCultures = await Promise.all(
-      workCultures.map(async (item) => {
-        const signedImages = await getMultipleFileUrls(
-          item.images || []
-        );
-
-        return {
-          ...item.toObject(),
-          images: signedImages,
-        };
-      })
+      workCultures.map((item) => attachSignedImages(item)),
     );
 
     return updatedWorkCultures;
@@ -101,14 +105,7 @@ class WorkCultureService {
       throw err;
     }
 
-    const signedImages = await getMultipleFileUrls(
-      workCulture.images || []
-    );
-
-    return {
-      ...workCulture.toObject(),
-      images: signedImages,
-    };
+    return attachSignedImages(workCulture);
   }
 
   // Update
@@ -194,15 +191,7 @@ class WorkCultureService {
         payload
       );
 
-    const signedImages =
-      await getMultipleFileUrls(
-        updatedWorkCulture.images || []
-      );
-
-    return {
-      ...updatedWorkCulture.toObject(),
-      images: signedImages,
-    };
+    return attachSignedImages(updatedWorkCulture);
   }
 
   // Delete

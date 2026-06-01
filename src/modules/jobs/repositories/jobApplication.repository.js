@@ -57,7 +57,8 @@ class JobApplicationRepository {
       .populate('jobId', 'title classification location type')
       .sort(sort)
       .limit(limit * 1)
-      .skip((page - 1) * limit);
+      .skip((page - 1) * limit)
+      .lean();
 
     const total = await JobApplication.countDocuments(query);
 
@@ -97,7 +98,8 @@ class JobApplicationRepository {
 
     return await JobApplication.find(query)
       .populate('jobId', 'title classification location type')
-      .sort({ appliedDate: -1 });
+      .sort({ appliedDate: -1 })
+      .lean();
   }
 
   async getStatusCountsByJobId(jobId) {

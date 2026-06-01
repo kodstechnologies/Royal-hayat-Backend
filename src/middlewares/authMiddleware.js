@@ -11,7 +11,9 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   if (!token) throw new ApiError(401, 'Unauthorized: No token provided');
 
   const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  const user = await User.findById(decoded._id).select('-password -refreshToken');
+  const user = await User.findById(decoded._id)
+    .select('name email role permissions isActive')
+    .lean();
 
   if (!user) throw new ApiError(401, 'Invalid token: User not found');
 
