@@ -25,6 +25,7 @@ import HospitalFeedbacks from "../modules/feedback/routes/hospitalFeedback.route
 import achievementRoutes from "../modules/achievements/routes/achievement.routes.js"
 import featuredDoctorRoutes from "../modules/doctors/routes/featuredDoctor.routes.js"
 import dashboardRoutes from "../modules/dashborad/routes/dashboard.route.js"
+import chatRoutes from '../modules/chat/routes/chat.routes.js';
 
 const router = Router();
 
@@ -32,6 +33,7 @@ router.use('/api/v1/auth', authRoutes);
 router.use('/api/v1/doctors', doctorRoutes);
 router.use('/api/v1/featured-doctors', featuredDoctorRoutes);
 router.use('/api/v1/enquiries', enquiryRoutes);
+router.use('/api/v1/chat', chatRoutes);
 router.use('/api/v1/departments', departmentRoutes);
 router.use('/api/v1/jobs', jobRoutes);
 router.use('/api/v1/job-applications', jobApplicationRoutes);
