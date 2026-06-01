@@ -9,7 +9,10 @@ import {
 
 import { uploadToS3 } from "../../../utils/s3Upload.js";
 import { getFileUrl } from "../../../utils/s3Fetch.js";
-import { medicalRecordRequestEmailTemplate } from "../../../utils/shareViaMail.js";
+import {
+    medicalRecordRequestEmailTemplate,
+    resolveEmailSubject,
+} from "../../../utils/shareViaMail.js";
 import toPlainObject from "../../../utils/toPlainObject.js";
 
 export const createMedicalRecordRequestService = async (
@@ -94,10 +97,34 @@ export const shareMedicalRecordRequestViaEmailService =
             );
         }
 
-        const { emailId } = body;
+        const { emailId, languages } = body;
 
-        if (!emailId) {
+        if (!emailId?.trim()) {
             throw new Error("emailId is required");
+        }
+
+        const normalizedLanguages = Array.isArray(languages) && languages.length > 0
+            ? [...new Set(languages.filter((lang) => lang === "en" || lang === "ar"))]
+            : ["en"];
+
+        if (normalizedLanguages.length === 0) {
+            throw new Error("At least one language (en or ar) is required");
+        }
+
+        const recipients = emailId
+            .split(",")
+            .map((email) => email.trim())
+            .filter(Boolean);
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const invalid = recipients.find((email) => !emailRegex.test(email));
+
+        if (recipients.length === 0) {
+            throw new Error("At least one valid email address is required");
+        }
+
+        if (invalid) {
+            throw new Error(`Invalid email address: ${invalid}`);
         }
 
         const passportFileUrl = await getFileUrl(
@@ -112,22 +139,24 @@ export const shareMedicalRecordRequestViaEmailService =
             },
         });
 
-        const htmlContent =
-            medicalRecordRequestEmailTemplate(
-                request,
-                passportFileUrl
-            );
+        const htmlContent = medicalRecordRequestEmailTemplate(
+            request,
+            passportFileUrl,
+            normalizedLanguages,
+        );
+
+        const subject = resolveEmailSubject(normalizedLanguages);
+        const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER || "royalehayat.dev@gmail.com";
 
         await transporter.sendMail({
-            from: "royalehayat.dev@gmail.com",
-            to: emailId,
-            subject: "Medical Record Request Details",
+            from: fromAddress,
+            to: recipients.join(", "),
+            subject,
             html: htmlContent,
         });
 
         return {
             success: true,
-            message:
-                "Medical record request shared successfully",
+            message: `Medical record request shared successfully to ${recipients.length} recipient(s)`,
         };
     };
