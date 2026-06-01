@@ -112,4 +112,16 @@ export const PERMISSIONS = {
   DOCUMENT_CREATE: 'document.create',
   DOCUMENT_UPDATE: 'document.update',
   DOCUMENT_DELETE: 'document.delete',
+
+  // Al Safwa enrollments
+  AL_SAFWA_VIEW: 'al.safwa.view',
+  AL_SAFWA_CREATE: 'al.safwa.create',
+  AL_SAFWA_UPDATE: 'al.safwa.update',
+  AL_SAFWA_DELETE: 'al.safwa.delete',
+
+  // International patient enquiries
+  INTERNATIONAL_PATIENT_VIEW: 'international.patient.view',
+  INTERNATIONAL_PATIENT_CREATE: 'international.patient.create',
+  INTERNATIONAL_PATIENT_UPDATE: 'international.patient.update',
+  INTERNATIONAL_PATIENT_DELETE: 'international.patient.delete',
 };

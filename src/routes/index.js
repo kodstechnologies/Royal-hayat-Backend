@@ -25,6 +25,8 @@ import HospitalFeedbacks from "../modules/feedback/routes/hospitalFeedback.route
 import achievementRoutes from "../modules/achievements/routes/achievement.routes.js"
 import featuredDoctorRoutes from "../modules/doctors/routes/featuredDoctor.routes.js"
 import dashboardRoutes from "../modules/dashborad/routes/dashboard.route.js"
+import alSafwaRoutes from "../modules/al-safwa/routes/alSafwa.route.js"
+import internationalPatientEnquiryRoutes from "../modules/international-patient/routes/internationalPatientEnquiry.route.js"
 
 const router = Router();
 
@@ -52,5 +54,7 @@ router.use("/api/v1/doctor-feedback",DoctorFeedbacks)
 router.use("/api/v1/hospital-feedback",HospitalFeedbacks)
 router.use("/api/v1/achievements", achievementRoutes)
 router.use("/api/v1/dashboard", dashboardRoutes)
+router.use("/api/v1/al-safwa", alSafwaRoutes)
+router.use("/api/v1/international-patient-enquiries", internationalPatientEnquiryRoutes)
 
 export default router;
