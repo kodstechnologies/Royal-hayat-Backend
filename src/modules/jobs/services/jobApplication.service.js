@@ -3,6 +3,7 @@ import jobService from './job.service.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 import { putObject } from '../../../utils/putObject.js';
+import { sendJobApplicationNotificationEmail } from '../../../utils/jobApplicationNotificationMail.js';
 
 class JobApplicationService {
   async createJobApplication(applicationData, resumeFile) {
@@ -64,6 +65,15 @@ class JobApplicationService {
     await jobService.incrementApplicationsCount(
       payload.jobId
     );
+
+    try {
+      await sendJobApplicationNotificationEmail(application, job);
+    } catch (mailError) {
+      console.error(
+        'Job application notification email failed:',
+        mailError?.message || mailError,
+      );
+    }
 
     return application;
   }
