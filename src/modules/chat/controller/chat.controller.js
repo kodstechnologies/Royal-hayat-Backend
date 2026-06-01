@@ -74,6 +74,11 @@ export const postChatStream = asyncHandler(async (req, res) => {
   const startedAt = Date.now();
   const meta = requestMeta(req, value);
 
+  const lastUser = [...value.messages].reverse().find((m) => m.role === 'user');
+  console.log(
+    `[chat][stream] start lang=${value.lang} ip=${meta.clientIp || '-'} session=${meta.sessionId ? 'yes' : 'no'} q="${String(lastUser?.content || '').slice(0, 80)}"`,
+  );
+
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
@@ -118,6 +123,10 @@ export const postChatStream = asyncHandler(async (req, res) => {
       ...meta,
     });
 
+    console.error(
+      `[chat][stream] failed code=${code} status=${err?.statusCode || '-'} msg=${message}`,
+      err instanceof Error && err.meta ? { meta: err.meta } : '',
+    );
     writeSse(res, { type: 'error', code, message });
   }
 

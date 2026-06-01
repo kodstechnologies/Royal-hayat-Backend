@@ -124,9 +124,11 @@ function throwAfterAllModelsFailed(attempts) {
 function getApiKey() {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
+    console.error('[chat] GEMINI_API_KEY is missing — set it in .env or the ENV_FILE deploy secret');
     throw new ApiError(
       httpStatus.SERVICE_UNAVAILABLE,
       'Chat assistant is temporarily unavailable. Please call +965 2536 0000.',
+      { code: CHAT_ERROR_CODES.SERVICE_UNAVAILABLE, reason: 'missing_api_key' },
     );
   }
   return apiKey;

@@ -35,6 +35,13 @@ app.use(cookieParser());
 
 app.use((req, res, next) => {
   const path = req.path || req.url || '';
+  const isChatTraffic = path.startsWith('/api/v1/chat');
+  if (isChatTraffic) {
+    const ts = new Date().toISOString();
+    console.log(`[chat][http] ${ts} ${req.method} ${req.originalUrl} ip=${req.ip}`);
+    return next();
+  }
+
   const isIdentityTraffic =
     path === '/api/callback' || path.startsWith('/api/v1/identity');
   if (!isIdentityTraffic) return next();

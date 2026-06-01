@@ -16,6 +16,18 @@ const chatLimiter = rateLimit({
   },
 });
 
+router.get('/health', (req, res) => {
+  const key = process.env.GEMINI_API_KEY?.trim();
+  res.json({
+    success: true,
+    data: {
+      configured: Boolean(key),
+      keyLooksLikeAiStudio: /^AIza[\w-]+$/i.test(key || ''),
+      model: (process.env.GEMINI_CHAT_MODEL || 'gemini-2.5-flash').trim(),
+    },
+  });
+});
+
 router.post('/', chatLimiter, postChat);
 router.post('/stream', chatLimiter, postChatStream);
 

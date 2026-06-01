@@ -63,23 +63,29 @@ export function logChatExchange({
     modelsAttempted: modelsAttempted.length > 0 ? modelsAttempted : undefined,
   };
 
+  const consoleLine = {
+    success: payload.success,
+    lang: payload.lang,
+    model: payload.model,
+    latencyMs: payload.latencyMs,
+    stream: payload.stream,
+    question: payload.lastUserMessage?.slice(0, 120),
+    reply: payload.assistantReply?.slice(0, 120),
+    errorCode: payload.errorCode,
+    modelsAttempted: payload.modelsAttempted,
+  };
+
   setImmediate(async () => {
     try {
       await ChatLog.create(payload);
 
-      if (process.env.CHAT_LOG_TO_CONSOLE === 'true') {
-        console.log('[chat][log]', {
-          success: payload.success,
-          lang: payload.lang,
-          model: payload.model,
-          latencyMs: payload.latencyMs,
-          question: payload.lastUserMessage,
-          reply: payload.assistantReply?.slice(0, 200),
-          errorCode: payload.errorCode,
-        });
+      if (!payload.success) {
+        console.error('[chat][error]', consoleLine);
+      } else if (process.env.CHAT_LOG_TO_CONSOLE === 'true') {
+        console.log('[chat][ok]', consoleLine);
       }
     } catch (err) {
-      console.error('[chat][log] failed to save:', err.message);
+      console.error('[chat][log] failed to save:', err.message, consoleLine);
     }
   });
 }
