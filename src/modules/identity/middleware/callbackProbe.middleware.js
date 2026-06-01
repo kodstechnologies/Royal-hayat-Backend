@@ -1,7 +1,3 @@
-/**
- * Logs every request that reaches the Sharper callback URL (any HTTP method).
- * If you never see [CALLBACK URL HIT] in pm2 logs after PACI approval, Sharper is not calling this URL.
- */
 export const callbackProbe = (req, res, next) => {
   const ts = new Date().toISOString();
   console.log('');

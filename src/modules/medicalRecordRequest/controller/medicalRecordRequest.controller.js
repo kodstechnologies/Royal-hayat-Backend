@@ -1,4 +1,3 @@
-// controllers/medicalRecordRequest.controller.js
 import httpStatus from "http-status";
 
 import {

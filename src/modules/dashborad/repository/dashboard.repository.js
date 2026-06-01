@@ -5,6 +5,8 @@ import DoctorFeedback from "../../feedback/model/DoctorFeedback.model.js";
 import HospitalFeedback from "../../feedback/model/HospitalFeedback.model.js";
 import Enquiry from "../../enquiry/models/enquiry.model.js";
 import JobApplication from "../../jobs/models/jobApplication.model.js";
+import AlSafwa from "../../al-safwa/model/alSafwa.model.js";
+import InternationalPatientEnquiry from "../../international-patient/model/internationalPatientEnquiry.js";
 import Doctor from "../../doctors/models/doctor.model.js";
 import Department from "../../departments/models/department.model.js";
 
@@ -308,6 +310,8 @@ class DashboardRepository {
       medicalRecordRequests,
       appointmentRequests,
       appointmentBookingRecords,
+      alSafwaEnrollments,
+      internationalPatientEnquiries,
     ] = await Promise.all([
       Enquiry.countDocuments(UNVIEWED_FILTER),
       DoctorFeedback.countDocuments({ ...UNVIEWED_FILTER, addedBy: "patient" }),
@@ -316,6 +320,11 @@ class DashboardRepository {
       MedicalRecordRequest.countDocuments(UNVIEWED_FILTER),
       AppointmentRequest.countDocuments(UNVIEWED_FILTER),
       AppointmentBookingRecord.countDocuments(UNVIEWED_FILTER),
+      AlSafwa.countDocuments({ ...UNVIEWED_FILTER, isActive: true }),
+      InternationalPatientEnquiry.countDocuments({
+        ...UNVIEWED_FILTER,
+        isActive: true,
+      }),
     ]);
 
     return {
@@ -326,6 +335,8 @@ class DashboardRepository {
       medicalRecordRequests,
       appointmentRequests,
       appointmentBookingRecords,
+      alSafwaEnrollments,
+      internationalPatientEnquiries,
     };
   }
 

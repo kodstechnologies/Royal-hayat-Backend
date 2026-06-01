@@ -67,13 +67,11 @@ const achievementSchema = new mongoose.Schema(
   }
 );
 
-// Common query indexes
 achievementSchema.index({ visibilityStatus: 1, createdAt: -1 });
 achievementSchema.index({ employeeId: 1 });
 achievementSchema.index({ employeeID: 1 });
 achievementSchema.index({ createdAt: -1 });
 
-// Text search index for list/search screens
 achievementSchema.index({
   employeeName: "text",
   employeeNameArabic: "text",

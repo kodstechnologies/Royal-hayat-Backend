@@ -9,7 +9,6 @@ const departmentSchema = new mongoose.Schema(
       maxlength: 50,
     },
 
-    // ENGLISH NAME
     name: {
       type: String,
       required: true,
@@ -17,7 +16,6 @@ const departmentSchema = new mongoose.Schema(
       maxlength: 100,
     },
 
-    // ARABIC NAME
     arabicName: {
       type: String,
       required: true,
@@ -25,7 +23,6 @@ const departmentSchema = new mongoose.Schema(
       maxlength: 100,
     },
 
-    // ENGLISH DESCRIPTION
     description: {
       type: String,
       required: true,
@@ -34,7 +31,6 @@ const departmentSchema = new mongoose.Schema(
       maxlength: 1000,
     },
 
-    // ARABIC DESCRIPTION
     arabicDescription: {
       type: String,
       required: true,
@@ -61,9 +57,6 @@ const departmentSchema = new mongoose.Schema(
       trim: true,
     },
 
-    /**
-     * Rich multilingual sections
-     */
     customExplainantions: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -71,7 +64,6 @@ const departmentSchema = new mongoose.Schema(
       },
     ],
 
-    // ENGLISH SUBSPECIALTIES
     subSpecialties: [
       {
         type: String,
@@ -80,7 +72,6 @@ const departmentSchema = new mongoose.Schema(
       },
     ],
 
-    // ARABIC SUBSPECIALTIES
     arabicSubSpecialties: [
       {
         type: String,
@@ -111,8 +102,6 @@ const departmentSchema = new mongoose.Schema(
     },
   }
 );
-
-// INDEXES
 
 departmentSchema.index({ name: 1 });
 

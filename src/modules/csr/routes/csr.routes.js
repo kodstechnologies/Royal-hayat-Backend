@@ -23,7 +23,6 @@ import { uploadToS3 } from "../../../utils/uploadToS3.js";
 
 const router = express.Router();
 
-// Public — website
 router.get("/", getAllCSR);
 router.get("/:id", getCSRById);
 

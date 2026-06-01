@@ -1,4 +1,3 @@
-// controllers/document.controller.js
 
 import {
     createDocumentService,

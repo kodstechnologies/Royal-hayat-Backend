@@ -1,4 +1,3 @@
-// controllers/doctorFeedback.controller.js
 
 import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";
@@ -23,7 +22,6 @@ const handleError = (res, error) => {
     });
 };
 
-// CREATE — body.doctorId (or legacy body.doctor)
 export const createDoctorFeedback = async (req, res) => {
     try {
         const { addedBy } = req.query;
@@ -60,7 +58,6 @@ export const createDoctorFeedback = async (req, res) => {
     }
 };
 
-// GET ALL
 export const getAllDoctorFeedbacks = async (req, res) => {
     try {
         const feedbacks = await getAllDoctorFeedbacksService();
@@ -74,7 +71,6 @@ export const getAllDoctorFeedbacks = async (req, res) => {
     }
 };
 
-// GET BY doctorId (business id, not feedback MongoDB _id)
 export const getDoctorFeedbackById = async (req, res) => {
     try {
         const feedbacks = await getDoctorFeedbacksByDoctorIdService(
@@ -90,7 +86,6 @@ export const getDoctorFeedbackById = async (req, res) => {
     }
 };
 
-// UPDATE — :doctorId in path, feedbackId in body
 export const updateDoctorFeedback = async (req, res) => {
     try {
         const feedbackId = req.body.feedbackId ?? req.query.feedbackId;
@@ -129,7 +124,6 @@ export const updateDoctorFeedback = async (req, res) => {
     }
 };
 
-// DELETE — :doctorId in path, feedbackId in body or query
 export const deleteDoctorFeedback = async (req, res) => {
     try {
         const feedbackId = req.body.feedbackId ?? req.query.feedbackId;
@@ -144,7 +138,6 @@ export const deleteDoctorFeedback = async (req, res) => {
         return handleError(res, error);
     }
 };
-
 
 export const getFeedbackCountsForAll = asyncHandler(async (req, res) => {
 

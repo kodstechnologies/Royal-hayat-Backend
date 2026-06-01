@@ -36,9 +36,6 @@ function sleep(ms) {
 }
 
 function extractDoctorsFromTs(tsSource) {
-  // Very lightweight extraction from the static array in doctorsWithClinicCodes.ts.
-  // We rely on stable formatting: `id: '...'`, `name: '...'`, `providerCode: '...'`,
-  // and `clinicCode`/`departmentClinicCode`.
   const ids = [...tsSource.matchAll(/^\s{4}id:\s*'([^']+)'/gm)].map((m) => m[1]);
   const docs = [];
 
@@ -129,7 +126,6 @@ async function main() {
         return { ...base, ok: false, skipped: true, reason: "Missing providerCode or specialitycode", slotCount: 0 };
       }
 
-      // small spacing to avoid hammering upstream / local rate limit
       if (delayMs > 0) await sleep(delayMs);
 
       try {

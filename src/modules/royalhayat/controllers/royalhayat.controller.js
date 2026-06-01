@@ -113,7 +113,6 @@ const getAuthToken = asyncHandler(async (req, res) => {
   });
 });
 
-// New endpoint for book appointment flow
 const initializeAppointmentFlow = asyncHandler(async (req, res) => {
   const { error, value } = patientSchema.validate(req.body, { abortEarly: false });
   if (error) {
@@ -123,10 +122,8 @@ const initializeAppointmentFlow = asyncHandler(async (req, res) => {
     );
   }
 
-  // Get token first (this will cache it)
   const token = await royalHayatService.getAuthToken();
   
-  // Then validate patient
   const patientResult = await royalHayatService.getPatient(value);
 
   res.status(httpStatus.OK).json({

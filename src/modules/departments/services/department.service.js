@@ -12,9 +12,6 @@ import ApiError from '../../../utils/ApiError.js';
 
 import httpStatus from 'http-status';
 
-/**
- * Normalize subspeciality ids
- */
 function normalizeSubspecialityIds(value) {
   if (!Array.isArray(value)) return [];
 
@@ -29,9 +26,6 @@ function normalizeSubspecialityIds(value) {
   ];
 }
 
-/**
- * Ensure subspecialities exist
- */
 async function assertSubspecialitiesExist(
   ids
 ) {
@@ -50,9 +44,6 @@ async function assertSubspecialitiesExist(
   }
 }
 
-/**
- * Replace linked CustomExplainantion docs
- */
 async function replaceCustomExplainantionsForDepartment(
   departmentId,
   items
@@ -72,9 +63,6 @@ async function replaceCustomExplainantionsForDepartment(
       []
     ).map((x) => String(x));
 
-  /**
-   * Delete old linked docs
-   */
   if (oldIds.length > 0) {
     await CustomExplainantion.deleteMany(
       {
@@ -89,13 +77,9 @@ async function replaceCustomExplainantionsForDepartment(
 
   if (list.length === 0) return [];
 
-  /**
-   * Create new docs
-   */
   const docs =
     await CustomExplainantion.insertMany(
       list.map((item) => ({
-        // ENGLISH
 
         subHeading:
           typeof item.subHeading ===
@@ -113,8 +97,6 @@ async function replaceCustomExplainantionsForDepartment(
             )
             .filter(Boolean)
           : [],
-
-        // ARABIC
 
         arabicSubHeading:
           typeof item.arabicSubHeading ===
@@ -140,15 +122,9 @@ async function replaceCustomExplainantionsForDepartment(
 }
 
 class DepartmentService {
-  /**
-   * CREATE
-   */
   async createDepartment(
     departmentData
   ) {
-    /**
-     * DUPLICATE CHECK
-     */
     const duplicate =
       await Department.findOne({
         $or: [
@@ -171,9 +147,6 @@ class DepartmentService {
       );
     }
 
-    /**
-     * CATEGORY CHECK
-     */
     const catagoryExists =
       await Catagory.exists({
         _id: departmentData.catagory,
@@ -186,9 +159,6 @@ class DepartmentService {
       );
     }
 
-    /**
-     * SUBSPECIALITY CHECK
-     */
     const subspecialities =
       normalizeSubspecialityIds(
         departmentData.subspecialities
@@ -207,9 +177,6 @@ class DepartmentService {
       ...rest
     } = departmentData;
 
-    /**
-     * CREATE DEPARTMENT
-     */
     const created =
       await departmentRepository.create(
         {
@@ -222,9 +189,6 @@ class DepartmentService {
         }
       );
 
-    /**
-     * CREATE CUSTOM EXPLANATIONS
-     */
     const newIds =
       await replaceCustomExplainantionsForDepartment(
         created._id,
@@ -248,9 +212,6 @@ class DepartmentService {
     );
   }
 
-  /**
-   * GET ALL
-   */
   async getAllDepartments(
     filters = {}
   ) {
@@ -259,9 +220,6 @@ class DepartmentService {
     );
   }
 
-  /**
-   * GET BY ID
-   */
   async getDepartmentById(id) {
     const department =
       await departmentRepository.findById(
@@ -278,16 +236,10 @@ class DepartmentService {
     return department;
   }
 
-  /**
-   * UPDATE
-   */
   async updateDepartment(
     id,
     updateData
   ) {
-    /**
-     * CHECK EXISTS
-     */
     const existingDepartment =
       await departmentRepository.exists(
         id
@@ -304,9 +256,6 @@ class DepartmentService {
       ...updateData,
     };
 
-    /**
-     * REPLACE CUSTOM EXPLANATIONS
-     */
     if (
       Object.prototype.hasOwnProperty.call(
         updateData,
@@ -334,9 +283,6 @@ class DepartmentService {
       };
     }
 
-    /**
-     * DUPLICATE NAME CHECK
-     */
     if (
       data.name ||
       data.arabicName
@@ -374,9 +320,6 @@ class DepartmentService {
       }
     }
 
-    /**
-     * DUPLICATE DEPARTMENT ID CHECK
-     */
     if (data.departmentId) {
       const departmentIdExists =
         await Department.findOne({
@@ -396,9 +339,6 @@ class DepartmentService {
       }
     }
 
-    /**
-     * CATEGORY CHECK
-     */
     if (data.catagory) {
       const catagoryExists =
         await Catagory.exists({
@@ -413,9 +353,6 @@ class DepartmentService {
       }
     }
 
-    /**
-     * SUBSPECIALITIES UPDATE
-     */
     let payload = data;
 
     if (
@@ -457,13 +394,7 @@ class DepartmentService {
     );
   }
 
-  /**
-   * DELETE
-   */
   async deleteDepartment(id) {
-    /**
-     * CHECK EXISTS
-     */
     const existingDepartment =
       await departmentRepository.exists(
         id
@@ -476,9 +407,6 @@ class DepartmentService {
       );
     }
 
-    /**
-     * GET LINKED CUSTOM IDS
-     */
     const dept =
       await Department.findById(id)
         .select(
@@ -492,17 +420,11 @@ class DepartmentService {
         []
       ).map((x) => String(x));
 
-    /**
-     * DELETE DEPARTMENT
-     */
     const deleted =
       await departmentRepository.deleteById(
         id
       );
 
-    /**
-     * DELETE LINKED CUSTOM DOCS
-     */
     if (ceIds.length > 0) {
       await CustomExplainantion.deleteMany(
         {

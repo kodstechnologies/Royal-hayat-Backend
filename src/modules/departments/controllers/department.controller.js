@@ -19,12 +19,6 @@ import fs from 'fs-extra';
 
 const OID = /^[0-9a-fA-F]{24}$/i;
 
-/**
- * Multipart may send:
- * - JSON string
- * - repeated fields
- * - single id
- */
 function coerceSubspecialitiesField(
   formData
 ) {
@@ -37,9 +31,6 @@ function coerceSubspecialitiesField(
   const raw =
     formData.subspecialities;
 
-  /**
-   * ARRAY
-   */
   if (Array.isArray(raw)) {
     formData.subspecialities = [
       ...new Set(
@@ -54,9 +45,6 @@ function coerceSubspecialitiesField(
     return;
   }
 
-  /**
-   * STRING
-   */
   if (typeof raw === 'string') {
     const t = raw.trim();
 
@@ -67,9 +55,6 @@ function coerceSubspecialitiesField(
       return;
     }
 
-    /**
-     * JSON ARRAY
-     */
     if (t.startsWith('[')) {
       try {
         const parsed =
@@ -97,24 +82,11 @@ function coerceSubspecialitiesField(
       }
     }
 
-    /**
-     * SINGLE ID
-     */
     formData.subspecialities =
       OID.test(t) ? [t] : [];
   }
 }
 
-/**
- * Multipart:
- * customExplainantions as JSON string
- *
- * Supports:
- * - subHeading
- * - explaination
- * - arabicSubHeading
- * - arabicExplaination
- */
 function coerceCustomExplainantionsField(
   formData
 ) {
@@ -159,15 +131,9 @@ function coerceCustomExplainantionsField(
   }
 }
 
-/**
- * CREATE
- */
 const createDepartment =
   asyncHandler(
     async (req, res) => {
-      /**
-       * FILE UPLOAD
-       */
       let imageUrl = '';
 
       if (req.file) {
@@ -181,16 +147,10 @@ const createDepartment =
           imageUrl =
             result.url;
 
-          /**
-           * REMOVE TEMP FILE
-           */
           await fs.remove(
             req.file.path
           );
         } catch (error) {
-          /**
-           * REMOVE TEMP FILE ON ERROR
-           */
           if (
             req.file &&
             req.file.path
@@ -207,18 +167,12 @@ const createDepartment =
         }
       }
 
-      /**
-       * FORM DATA
-       */
       const formData = {
         ...req.body,
 
         image: imageUrl,
       };
 
-      /**
-       * ENGLISH SUBSPECIALTIES
-       */
       if (
         formData.subSpecialties &&
         typeof formData.subSpecialties ===
@@ -229,9 +183,6 @@ const createDepartment =
         ];
       }
 
-      /**
-       * ARABIC SUBSPECIALTIES
-       */
       if (
         formData.arabicSubSpecialties &&
         typeof formData.arabicSubSpecialties ===
@@ -243,9 +194,6 @@ const createDepartment =
           ];
       }
 
-      /**
-       * COERCE MULTIPART FIELDS
-       */
       coerceSubspecialitiesField(
         formData
       );
@@ -254,9 +202,6 @@ const createDepartment =
         formData
       );
 
-      /**
-       * BOOLEAN
-       */
       if (
         formData.isActive !==
         undefined
@@ -268,9 +213,6 @@ const createDepartment =
           true;
       }
 
-      /**
-       * ORDER
-       */
       if (
         formData.order !==
         undefined
@@ -281,9 +223,6 @@ const createDepartment =
           ) || 0;
       }
 
-      /**
-       * VALIDATE
-       */
       const {
         error,
         value,
@@ -304,9 +243,6 @@ const createDepartment =
         );
       }
 
-      /**
-       * CREATE
-       */
       const department =
         await departmentService.createDepartment(
           value
@@ -323,9 +259,6 @@ const createDepartment =
     }
   );
 
-/**
- * GET ALL
- */
 const getAllDepartments =
   asyncHandler(
     async (req, res) => {
@@ -374,9 +307,6 @@ const getAllDepartments =
     }
   );
 
-/**
- * GET BY ID
- */
 const getDepartmentById =
   asyncHandler(
     async (req, res) => {
@@ -416,15 +346,9 @@ const getDepartmentById =
     }
   );
 
-/**
- * UPDATE
- */
 const updateDepartment =
   asyncHandler(
     async (req, res) => {
-      /**
-       * VALIDATE ID
-       */
       const {
         error: idError,
         value: idValue,
@@ -445,9 +369,6 @@ const updateDepartment =
         );
       }
 
-      /**
-       * FILE UPLOAD
-       */
       let imageUrl =
         req.body.image;
 
@@ -462,16 +383,10 @@ const updateDepartment =
           imageUrl =
             result.url;
 
-          /**
-           * REMOVE TEMP FILE
-           */
           await fs.remove(
             req.file.path
           );
         } catch (error) {
-          /**
-           * REMOVE TEMP FILE ON ERROR
-           */
           if (
             req.file &&
             req.file.path
@@ -488,18 +403,12 @@ const updateDepartment =
         }
       }
 
-      /**
-       * FORM DATA
-       */
       const formData = {
         ...req.body,
 
         image: imageUrl,
       };
 
-      /**
-       * ENGLISH SUBSPECIALTIES
-       */
       if (
         formData.subSpecialties &&
         typeof formData.subSpecialties ===
@@ -510,9 +419,6 @@ const updateDepartment =
         ];
       }
 
-      /**
-       * ARABIC SUBSPECIALTIES
-       */
       if (
         formData.arabicSubSpecialties &&
         typeof formData.arabicSubSpecialties ===
@@ -524,9 +430,6 @@ const updateDepartment =
           ];
       }
 
-      /**
-       * COERCE MULTIPART FIELDS
-       */
       coerceSubspecialitiesField(
         formData
       );
@@ -535,9 +438,6 @@ const updateDepartment =
         formData
       );
 
-      /**
-       * BOOLEAN
-       */
       if (
         formData.isActive !==
         undefined
@@ -549,9 +449,6 @@ const updateDepartment =
           true;
       }
 
-      /**
-       * ORDER
-       */
       if (
         formData.order !==
         undefined
@@ -562,9 +459,6 @@ const updateDepartment =
           ) || 0;
       }
 
-      /**
-       * VALIDATE
-       */
       const {
         error: dataError,
         value: dataValue,
@@ -585,9 +479,6 @@ const updateDepartment =
         );
       }
 
-      /**
-       * UPDATE
-       */
       const department =
         await departmentService.updateDepartment(
           idValue.id,
@@ -605,9 +496,6 @@ const updateDepartment =
     }
   );
 
-/**
- * DELETE
- */
 const deleteDepartment =
   asyncHandler(
     async (req, res) => {

@@ -1,4 +1,3 @@
-// services/medicalRecordRequest.service.js
 import nodemailer from "nodemailer";
 
 import {
@@ -11,6 +10,7 @@ import {
 import { uploadToS3 } from "../../../utils/s3Upload.js";
 import { getFileUrl } from "../../../utils/s3Fetch.js";
 import { medicalRecordRequestEmailTemplate } from "../../../utils/shareViaMail.js";
+import toPlainObject from "../../../utils/toPlainObject.js";
 
 export const createMedicalRecordRequestService = async (
     body,
@@ -48,7 +48,7 @@ export const getAllMedicalRecordRequestsService =
                     );
 
                 return {
-                    ...request.toObject(),
+                    ...toPlainObject(request),
                     passportOrGovernmentId: fileUrl
                 };
             })
@@ -72,7 +72,7 @@ export const getMedicalRecordRequestByIdService =
         );
 
         return {
-            ...request.toObject(),
+            ...toPlainObject(request),
             passportOrGovernmentId: fileUrl
         };
     };
@@ -104,7 +104,6 @@ export const shareMedicalRecordRequestViaEmailService =
             request.passportOrGovernmentId
         );
 
-        // transporter
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -113,14 +112,12 @@ export const shareMedicalRecordRequestViaEmailService =
             },
         });
 
-        // html template
         const htmlContent =
             medicalRecordRequestEmailTemplate(
                 request,
                 passportFileUrl
             );
 
-        // send mail
         await transporter.sendMail({
             from: "royalehayat.dev@gmail.com",
             to: emailId,

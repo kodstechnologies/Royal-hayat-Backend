@@ -1,4 +1,3 @@
-// services/hospitalFeedback.service.js
 
 import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";

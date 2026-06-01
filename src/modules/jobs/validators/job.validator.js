@@ -9,7 +9,6 @@ const createJobSchema = Joi.object({
   type: Joi.string().valid('Full-time', 'Part-time', 'Contract').required(),
   responsibilities: Joi.array().items(Joi.string().trim().max(500)).min(1).required(),
   requirements: Joi.array().items(Joi.string().trim().max(500)).min(1).required(),
-  // Arabic fields — optional
   arabicTitle: Joi.string().trim().max(200).optional().allow(''),
   arabicDescription: Joi.string().trim().max(2000).optional().allow(''),
   arabicLocation: Joi.string().trim().max(100).optional().allow(''),
@@ -35,7 +34,6 @@ const updateJobSchema = Joi.object({
   type: Joi.string().valid('Full-time', 'Part-time', 'Contract').optional(),
   responsibilities: Joi.array().items(Joi.string().trim().max(500)).min(1).optional(),
   requirements: Joi.array().items(Joi.string().trim().max(500)).min(1).optional(),
-  // Arabic fields — optional
   arabicTitle: Joi.string().trim().max(200).optional().allow(''),
   arabicDescription: Joi.string().trim().max(2000).optional().allow(''),
   arabicLocation: Joi.string().trim().max(100).optional().allow(''),

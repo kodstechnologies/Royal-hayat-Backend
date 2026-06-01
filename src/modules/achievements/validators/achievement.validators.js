@@ -33,7 +33,6 @@ export const createAchievementValidator = Joi.object({
 
   visibilityStatus: Joi.string().valid("show", "hide").default("show"),
 
-  // Upload middleware/form-data compatibility
   image: Joi.any().optional(),
   imageKey: Joi.string().optional(),
 }).or("employeeId", "employeeID");
@@ -58,7 +57,6 @@ export const updateAchievementValidator = Joi.object({
 
   visibilityStatus: Joi.string().valid("show", "hide").optional(),
 
-  // Upload middleware/form-data compatibility
   image: Joi.any().optional(),
   imageKey: Joi.string().optional(),
 }).min(1);

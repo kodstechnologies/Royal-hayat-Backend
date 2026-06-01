@@ -26,7 +26,6 @@ const appointmentBookingRecordSchema = new mongoose.Schema({
     trim: true,
   },
 
-
   dob: {
     type: Date,
   },

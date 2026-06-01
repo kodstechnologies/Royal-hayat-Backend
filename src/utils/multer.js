@@ -9,16 +9,13 @@ const multerOptions = {
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
-      // images
       "image/jpeg",
       "image/jpg",
       "image/png",
       "image/webp",
-      // videos
       "video/mp4",
       "video/webm",
       "video/quicktime",
-      // documents
       "application/pdf",
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -34,7 +31,6 @@ const multerOptions = {
 
 export const upload = multer(multerOptions);
 
-/** Accept multipart text fields + files (use instead of .fields() when the app sends both). */
 export const uploadAny = multer(multerOptions).any();
 
 const flattenUploadedFiles = (files) => {
@@ -43,7 +39,6 @@ const flattenUploadedFiles = (files) => {
   return Object.values(files).flat();
 };
 
-/** Reject file parts whose field names are not in the allowlist. */
 export const restrictUploadedFileFields =
   (allowedFieldNames = []) =>
   (req, res, next) => {

@@ -10,7 +10,6 @@ const RESERVED_ROLES = ['admin'];
 const normalizeRole = (role) =>
   String(role || '').trim().toLowerCase().replace(/\s+/g, '_');
 
-/** Any custom role from user-management; only `admin` is reserved. */
 const assertManagedRole = (role) => {
   const normalized = normalizeRole(role);
 
@@ -106,7 +105,8 @@ export const getMe = asyncHandler(async (req, res) => {
 export const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find({ role: { $ne: 'admin' } })
     .select('-password -refreshToken')
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .lean();
 
   res.json(ApiResponse.success(users, 'Users fetched successfully'));
 });

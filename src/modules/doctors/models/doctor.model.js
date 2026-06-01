@@ -44,13 +44,11 @@ const doctorSchema = new mongoose.Schema({
   }],
   initials: {
     type: String,
-    // required: true,
     trim: true,
     uppercase: true
   },
   color: {
     type: String,
-    // required: true,
     trim: true
   },
   symptoms: [{
@@ -75,7 +73,6 @@ const doctorSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes for better performance
 doctorSchema.index({ doctorId: 1 });
 doctorSchema.index({ name: 1 });
 doctorSchema.index({ department: 1 });
@@ -83,7 +80,6 @@ doctorSchema.index({ subspecialities: 1 });
 doctorSchema.index({ specialty: 1 });
 doctorSchema.index({ isActive: 1 });
 
-// Text search index
 doctorSchema.index({
   name: 'text',
   nameAr: 'text',

@@ -7,9 +7,6 @@ const isMongoObjectId = (value) =>
     mongoose.Types.ObjectId.isValid(value) &&
     String(new mongoose.Types.ObjectId(value)) === String(value);
 
-/**
- * Resolve a Doctor document from business doctorId or legacy MongoDB _id.
- */
 export const resolveDoctorByDoctorId = async (doctorIdOrMongoId) => {
     if (!doctorIdOrMongoId || typeof doctorIdOrMongoId !== "string") {
         throw new ApiError(httpStatus.BAD_REQUEST, "doctorId is required");

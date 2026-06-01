@@ -13,7 +13,6 @@ import { PERMISSIONS } from '../../../constants/permission.js';
 
 const router = Router();
 
-// Public — website / doctor listings
 router.get('/', getAllCatagories);
 router.get('/with-departments-doctors', getCatagoriesWithDepartmentsAndDoctors);
 router.get('/:id', getCatagoryById);

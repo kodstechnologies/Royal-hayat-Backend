@@ -16,14 +16,12 @@ import { PERMISSIONS } from '../../../constants/permission.js';
 
 const router = Router();
 
-// Public routes
 router.get('/', getAllJobs);
 router.get('/locations', getLocations);
 router.get('/types', getTypes);
 router.post('/apply', upload.single('resume'), createJobApplication);
 router.get('/:id', getJobById);
 
-// Admin routes
 router.post(
   '/',
   verifyJWT,

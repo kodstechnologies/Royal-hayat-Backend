@@ -13,7 +13,6 @@ import { PERMISSIONS } from '../../../constants/permission.js';
 
 const router = Router();
 
-
 const appointmentBookingManagePermissions = [
   PERMISSIONS.APPOINTMENT_BOOKING_VIEW,
   PERMISSIONS.APPOINTMENT_REQUEST_ACCEPT,

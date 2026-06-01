@@ -1,4 +1,3 @@
-// repositories/doctorFeedback.repository.js
 
 import DoctorFeedback from "../model/DoctorFeedback.model.js";
 import HospitalFeedback from "../model/HospitalFeedback.model.js";
@@ -21,7 +20,8 @@ export const getAllDoctorFeedbacksRepo =
 
         return await DoctorFeedback.find()
             .populate(doctorPopulate)
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
     };
 
 export const getDoctorFeedbacksByDoctorIdRepo =
@@ -29,7 +29,8 @@ export const getDoctorFeedbacksByDoctorIdRepo =
 
         return await DoctorFeedback.find({ doctor: doctorObjectId })
             .populate(doctorPopulate)
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
     };
 
 export const getDoctorFeedbackByIdRepo =

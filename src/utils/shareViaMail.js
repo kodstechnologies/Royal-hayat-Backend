@@ -1,4 +1,3 @@
-// utils/shareViaMail.js
 
 const formatDate = (value) => {
   if (!value) return "N/A";

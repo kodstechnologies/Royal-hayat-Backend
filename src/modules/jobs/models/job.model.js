@@ -7,12 +7,9 @@ const jobSchema = new mongoose.Schema(
       unique: true,
       trim: true,
 
-      // FORMAT => YYYYMM-XXXXXX
-      // Example => 202605-000001
       match: /^\d{6}-\d{6}$/,
     },
 
-    // ENGLISH TITLE
     title: {
       type: String,
       required: true,
@@ -20,7 +17,6 @@ const jobSchema = new mongoose.Schema(
       maxlength: 200,
     },
 
-    // ARABIC TITLE
     arabicTitle: {
       type: String,
       required: false,
@@ -28,7 +24,6 @@ const jobSchema = new mongoose.Schema(
       maxlength: 200,
     },
 
-    // ENGLISH DESCRIPTION
     description: {
       type: String,
       required: true,
@@ -37,7 +32,6 @@ const jobSchema = new mongoose.Schema(
       maxlength: 2000,
     },
 
-    // ARABIC DESCRIPTION
     arabicDescription: {
       type: String,
       required: false,
@@ -52,7 +46,6 @@ const jobSchema = new mongoose.Schema(
       maxlength: 100,
     },
 
-    // LOCATION ENGLISH
     location: {
       type: String,
       required: true,
@@ -60,7 +53,6 @@ const jobSchema = new mongoose.Schema(
       maxlength: 100,
     },
 
-    // LOCATION ARABIC
     arabicLocation: {
       type: String,
       required: false,
@@ -78,7 +70,6 @@ const jobSchema = new mongoose.Schema(
       ],
     },
 
-    // ENGLISH RESPONSIBILITIES
     responsibilities: [
       {
         type: String,
@@ -87,7 +78,6 @@ const jobSchema = new mongoose.Schema(
       },
     ],
 
-    // ARABIC RESPONSIBILITIES
     arabicResponsibilities: [
       {
         type: String,
@@ -96,7 +86,6 @@ const jobSchema = new mongoose.Schema(
       },
     ],
 
-    // ENGLISH REQUIREMENTS
     requirements: [
       {
         type: String,
@@ -105,7 +94,6 @@ const jobSchema = new mongoose.Schema(
       },
     ],
 
-    // ARABIC REQUIREMENTS
     arabicRequirements: [
       {
         type: String,
@@ -150,7 +138,6 @@ const jobSchema = new mongoose.Schema(
   }
 );
 
-// INDEXES
 jobSchema.index({ title: 1 });
 
 jobSchema.index({ arabicTitle: 1 });
@@ -169,11 +156,6 @@ jobSchema.index({ isActive: 1 });
 
 jobSchema.index({ postedDate: -1 });
 
-/**
- * AUTO JOB ID
- * FORMAT => YYYYMM-XXXXXX
- * Example => 202605-000001
- */
 jobSchema.pre(
   'validate',
   async function (next) {
@@ -191,7 +173,6 @@ jobSchema.pre(
 
     const prefix = `${year}${month}`;
 
-    // Find latest job for current month
     const latest =
       await this.constructor.findOne({
         jobId: {

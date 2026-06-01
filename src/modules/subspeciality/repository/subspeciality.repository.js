@@ -47,7 +47,6 @@ class SubspecialityRepository {
 
     const query = {};
 
-    // Search English + Arabic fields
     if (search) {
       query.$or = [
         {
@@ -147,7 +146,6 @@ class SubspecialityRepository {
     });
   }
 
-  // Check duplicate English OR Arabic name
   async existsByName(
     name,
     arabicName,

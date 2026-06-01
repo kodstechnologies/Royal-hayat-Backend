@@ -1,11 +1,9 @@
-// controllers/csr.controller.js
 
 import asyncHandler from '../../../utils/asyncHandler.js';
 import httpStatus from "http-status";
 
 import CSRService from "../services/csr.service.js";
 
-// Create CSR
 export const createCSR = asyncHandler(async (req, res) => {
   const csr = await CSRService.createCSR(
     req.body,
@@ -19,7 +17,6 @@ export const createCSR = asyncHandler(async (req, res) => {
   });
 });
 
-// Get All CSR
 export const getAllCSR = asyncHandler(async (req, res) => {
   const csr = await CSRService.getAllCSR();
 
@@ -30,7 +27,6 @@ export const getAllCSR = asyncHandler(async (req, res) => {
   });
 });
 
-// Get CSR By ID
 export const getCSRById = asyncHandler(async (req, res) => {
   const csr = await CSRService.getCSRById(req.params.id);
 
@@ -40,7 +36,6 @@ export const getCSRById = asyncHandler(async (req, res) => {
   });
 });
 
-// Update CSR
 export const updateCSR = asyncHandler(async (req, res) => {
   const updatedCSR = await CSRService.updateCSR(
     req.params.id,
@@ -55,7 +50,6 @@ export const updateCSR = asyncHandler(async (req, res) => {
   });
 });
 
-// Delete CSR
 export const deleteCSR = asyncHandler(async (req, res) => {
   await CSRService.deleteCSR(req.params.id);
 

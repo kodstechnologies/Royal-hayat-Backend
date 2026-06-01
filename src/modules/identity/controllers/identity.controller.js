@@ -10,13 +10,9 @@ import { dataParamsSchema, startIdentitySchema, statusParamsSchema } from '../va
 
 import { identityLog, identityLogJson } from '../utils/identity.logger.js';
 
-
-
 const startIdentityVerification = asyncHandler(async (req, res) => {
 
   identityLog('start', 'controller: validating start request');
-
-
 
   const { error, value } = startIdentitySchema.validate(req.body, { abortEarly: false });
 
@@ -34,15 +30,11 @@ const startIdentityVerification = asyncHandler(async (req, res) => {
 
   }
 
-
-
   identityLog('start', `controller: civilId=${value.civilId} calling service`);
 
   const result = await identityService.startIdentityVerification(value);
 
   identityLogJson('start', 'controller: success response', result);
-
-
 
   res.status(httpStatus.OK).json({
 
@@ -55,8 +47,6 @@ const startIdentityVerification = asyncHandler(async (req, res) => {
   });
 
 });
-
-
 
 const getIdentityStatus = asyncHandler(async (req, res) => {
 
@@ -74,15 +64,11 @@ const getIdentityStatus = asyncHandler(async (req, res) => {
 
   }
 
-
-
   identityLog('status', `controller: operationId=${value.operationId}`);
 
   const result = await identityService.getIdentityStatus(value.operationId);
 
   identityLogJson('status', 'controller: result', result);
-
-
 
   res.status(httpStatus.OK).json({
 
@@ -95,8 +81,6 @@ const getIdentityStatus = asyncHandler(async (req, res) => {
   });
 
 });
-
-
 
 const getIdentityData = asyncHandler(async (req, res) => {
 
@@ -114,11 +98,7 @@ const getIdentityData = asyncHandler(async (req, res) => {
 
   }
 
-
-
   const result = await identityService.getIdentityData(value.civilId);
-
-
 
   res.status(httpStatus.OK).json({
 
@@ -131,8 +111,6 @@ const getIdentityData = asyncHandler(async (req, res) => {
   });
 
 });
-
-
 
 const identityCallback = asyncHandler(async (req, res) => {
   console.log('[CALLBACK URL HIT] controller handler running — will process and emit socket');
@@ -153,8 +131,6 @@ const identityCallback = asyncHandler(async (req, res) => {
   });
 });
 
-
-
 export {
 
   startIdentityVerification,
@@ -166,5 +142,4 @@ export {
   identityCallback
 
 };
-
 

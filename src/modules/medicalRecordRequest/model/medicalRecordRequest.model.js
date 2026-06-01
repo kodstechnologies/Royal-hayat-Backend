@@ -1,4 +1,3 @@
-// models/medicalRecordRequest.model.js
 
 import mongoose from "mongoose";
 
@@ -112,8 +111,6 @@ const medicalRecordRequestSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-
-// compound indexes
 medicalRecordRequestSchema.index({
     patientFullName: 1,
     civilId: 1
@@ -127,10 +124,6 @@ medicalRecordRequestSchema.index({ isViewed: 1 });
 
 medicalRecordRequestSchema.index({ mrrId: 1 });
 
-/**
- * AUTO MRR ID on create
- * FORMAT => MRR-000001
- */
 medicalRecordRequestSchema.pre("validate", async function (next) {
     if (this.mrrId) {
         return next();
@@ -159,7 +152,6 @@ medicalRecordRequestSchema.pre("validate", async function (next) {
     }
 });
 
-// conditional validations
 medicalRecordRequestSchema.pre("validate", function (next) {
     if (
         this.specificAuthorization ===

@@ -94,7 +94,6 @@ const appointmentRequestSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['received', 'accepted', 'cancelled'],
-      // default: 'received',
     },
     note: {
       type: String,

@@ -1,4 +1,3 @@
-// services/document.service.js
 
 import {
     createDocumentRepo,
@@ -10,6 +9,7 @@ import {
 
 import { uploadToS3 } from "../../../utils/s3Upload.js";
 import { getFileUrl } from "../../../utils/s3Fetch.js";
+import toPlainObject from "../../../utils/toPlainObject.js";
 
 export const createDocumentService = async (body, file) => {
 
@@ -40,7 +40,7 @@ export const getAllDocumentsService = async () => {
             const signedUrl = await getFileUrl(doc.file);
 
             return {
-                ...doc.toObject(),
+                ...toPlainObject(doc),
                 file: signedUrl
             };
         })
@@ -60,7 +60,7 @@ export const getDocumentByIdService = async (id) => {
     const signedUrl = await getFileUrl(document.file);
 
     return {
-        ...document.toObject(),
+        ...toPlainObject(document),
         file: signedUrl
     };
 };

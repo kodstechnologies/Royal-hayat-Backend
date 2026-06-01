@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 const customExplainantionSchema =
     new mongoose.Schema(
         {
-            // ENGLISH
             subHeading: {
                 type: String,
                 trim: true,
@@ -16,7 +15,6 @@ const customExplainantionSchema =
                 },
             ],
 
-            // ARABIC
             arabicSubHeading: {
                 type: String,
                 trim: true,

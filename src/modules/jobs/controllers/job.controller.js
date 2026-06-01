@@ -61,7 +61,6 @@ const createJob = asyncHandler(async (req, res) => {
 });
 
 const getAllJobs = asyncHandler(async (req, res) => {
-  // Validate query parameters
   const { error, value } = getJobsSchema.validate(req.query, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
@@ -78,7 +77,6 @@ const getAllJobs = asyncHandler(async (req, res) => {
 });
 
 const getJobById = asyncHandler(async (req, res) => {
-  // Validate job ID
   const { error, value } = jobIdSchema.validate(req.params, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
@@ -94,7 +92,6 @@ const getJobById = asyncHandler(async (req, res) => {
 });
 
 const updateJob = asyncHandler(async (req, res) => {
-  // Validate job ID
   const { error: idError, value: idValue } = jobIdSchema.validate(req.params, { abortEarly: false });
   if (idError) {
     throw new ApiError(httpStatus.BAD_REQUEST, idError.details.map(d => d.message).join(", "));
@@ -117,7 +114,6 @@ const updateJob = asyncHandler(async (req, res) => {
 });
 
 const deleteJob = asyncHandler(async (req, res) => {
-  // Validate job ID
   const { error, value } = jobIdSchema.validate(req.params, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));

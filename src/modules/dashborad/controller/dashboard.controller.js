@@ -54,7 +54,6 @@ export const getDoctorsCountByDepartment = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const getSidebarCounts = asyncHandler(async (req, res) => {
   const counts = await DashboardService.getSidebarCounts();
 

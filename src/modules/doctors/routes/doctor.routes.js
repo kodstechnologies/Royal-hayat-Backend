@@ -14,18 +14,12 @@ import upload from "../../../utils/multer.js";
 
 const router = Router();
 
-// Public routes
 router.get('/', getAllDoctors);
 router.get('/departments', getDepartments);
 router.get('/specialties', getSpecialties);
 router.get('/department/:department', getDoctorsByDepartment);
 router.get('/subspeciality/:subspecialityId', getDoctorsBySubspeciality);
-// router.get('/subspeciality/:subspecialityId', ()=>{
-//   console.log("entered route---------------------");
-// });
 
-
-// Admin routes (add middleware later for authentication)
 router.post('/', upload.single("image"), createDoctor);
 router.put('/:id', upload.single("image"), updateDoctor);
 router.delete('/:id', deleteDoctor);

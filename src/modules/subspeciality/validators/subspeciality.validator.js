@@ -2,12 +2,8 @@ import Joi from 'joi';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 
-/**
- * Create/update linked CustomSubspeciality
- */
 const customSubspecialityBodySchema =
   Joi.object({
-    // English
     subHeading: Joi.string()
       .trim()
       .allow('')
@@ -21,7 +17,6 @@ const customSubspecialityBodySchema =
       )
       .optional(),
 
-    // Arabic
     arabicSubHeading: Joi.string()
       .trim()
       .allow('')
@@ -56,9 +51,6 @@ const customSubspecialitiesArray =
     .max(50)
     .optional();
 
-/**
- * Full replace of linked custom blocks
- */
 const customSubspecialitiesUpdateField =
   Joi.alternatives()
     .try(
@@ -67,12 +59,8 @@ const customSubspecialitiesUpdateField =
     )
     .optional();
 
-/**
- * CREATE
- */
 const createSubspecialitySchema =
   Joi.object({
-    // English
     name: Joi.string()
       .trim()
       .min(1)
@@ -85,7 +73,6 @@ const createSubspecialitySchema =
       .max(5000)
       .required(),
 
-    // Arabic
     arabicName: Joi.string()
       .trim()
       .min(1)
@@ -102,12 +89,8 @@ const createSubspecialitySchema =
       customSubspecialitiesArray,
   });
 
-/**
- * UPDATE
- */
 const updateSubspecialitySchema =
   Joi.object({
-    // English
     name: Joi.string()
       .trim()
       .min(1)
@@ -120,7 +103,6 @@ const updateSubspecialitySchema =
       .max(5000)
       .optional(),
 
-    // Arabic
     arabicName: Joi.string()
       .trim()
       .min(1)
@@ -137,9 +119,6 @@ const updateSubspecialitySchema =
       customSubspecialitiesUpdateField,
   }).min(1);
 
-/**
- * GET LIST
- */
 const getSubspecialitiesSchema =
   Joi.object({
     page: Joi.number()
@@ -173,9 +152,6 @@ const getSubspecialitiesSchema =
       .default('desc'),
   });
 
-/**
- * PARAM ID
- */
 const subspecialityIdSchema =
   Joi.object({
     id: Joi.string()

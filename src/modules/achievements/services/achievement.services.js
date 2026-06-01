@@ -9,8 +9,8 @@ import {
 } from "../validators/achievement.validators.js";
 import { uploadToS3 as uploadFileToS3 } from "../../../utils/s3Upload.js";
 import { getFileUrl } from "../../../utils/s3Fetch.js";
+import toPlainObject from "../../../utils/toPlainObject.js";
 
-/** Remove S3 upload middleware fields before Joi validation. */
 const stripUploadFields = (data = {}) => {
   const { image, imageKey, ...fields } = data;
   return { fields, imageKey };
@@ -35,7 +35,7 @@ const normalizeAchievementFields = (fields = {}) => {
 const attachSignedImage = async (achievement) => {
   if (!achievement) return null;
 
-  const doc = achievement.toObject ? achievement.toObject() : achievement;
+  const doc = toPlainObject(achievement);
 
   if (!doc.image) {
     return doc;

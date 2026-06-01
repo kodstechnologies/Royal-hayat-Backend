@@ -11,12 +11,15 @@ function normalizeExplanations(value) {
     .filter(Boolean);
 }
 
-async function assertCustomDocExists(id) {
-  const ok = await CustomSubspeciality.exists({
-    _id: id,
+async function assertCustomDocsExist(ids) {
+  const uniqueIds = [...new Set(ids.map(String))];
+  if (uniqueIds.length === 0) return;
+
+  const count = await CustomSubspeciality.countDocuments({
+    _id: { $in: uniqueIds },
   });
 
-  if (!ok) {
+  if (count !== uniqueIds.length) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       'Linked custom subspeciality not found'
@@ -24,29 +27,21 @@ async function assertCustomDocExists(id) {
   }
 }
 
-/**
- * Resolve array of:
- * - ObjectId strings
- * - inline custom subspeciality bodies
- */
 async function resolveCustomSubspecialityItems(
   items
 ) {
   const ids = [];
+  const existingIds = items.filter((item) => typeof item === 'string');
+  await assertCustomDocsExist(existingIds);
 
   for (const item of items) {
-    // Existing ObjectId
     if (typeof item === 'string') {
-      await assertCustomDocExists(item);
-
       ids.push(item);
     }
 
-    // New inline object
     else {
       const doc =
         await CustomSubspeciality.create({
-          // English
           subHeading:
             item.subHeading?.trim() ||
             undefined,
@@ -55,7 +50,6 @@ async function resolveCustomSubspecialityItems(
             item.explanations
           ),
 
-          // Arabic
           arabicSubHeading:
             item.arabicSubHeading?.trim() ||
             undefined,
@@ -94,7 +88,6 @@ class SubspecialityService {
     const trimmedArabicName =
       data.arabicName.trim();
 
-    // Duplicate check
     const nameTaken =
       await subspecialityRepository.existsByName(
         trimmedName,
@@ -121,13 +114,11 @@ class SubspecialityService {
 
     return await subspecialityRepository.create(
       {
-        // English
         name: trimmedName,
 
         description:
           data.description.trim(),
 
-        // Arabic
         arabicName: trimmedArabicName,
 
         arabicDescription:
@@ -183,7 +174,6 @@ class SubspecialityService {
 
     const payload = {};
 
-    // English Name
     if (
       updateData.name !== undefined
     ) {
@@ -211,7 +201,6 @@ class SubspecialityService {
       payload.name = trimmed;
     }
 
-    // Arabic Name
     if (
       updateData.arabicName !==
       undefined
@@ -220,7 +209,6 @@ class SubspecialityService {
         updateData.arabicName.trim();
     }
 
-    // English Description
     if (
       updateData.description !==
       undefined
@@ -229,7 +217,6 @@ class SubspecialityService {
         updateData.description.trim();
     }
 
-    // Arabic Description
     if (
       updateData.arabicDescription !==
       undefined
@@ -238,7 +225,6 @@ class SubspecialityService {
         updateData.arabicDescription.trim();
     }
 
-    // Custom subspecialities
     if (
       updateData.customSubspecialities !==
       undefined
@@ -263,7 +249,6 @@ class SubspecialityService {
       const raw =
         updateData.customSubspecialities;
 
-      // Remove all
       if (
         raw === null ||
         (Array.isArray(raw) &&
@@ -272,14 +257,13 @@ class SubspecialityService {
         payload.customSubspecialities =
           [];
 
-        for (const cid of existingIds) {
-          await CustomSubspeciality.findByIdAndDelete(
-            cid
-          );
+        if (existingIds.length > 0) {
+          await CustomSubspeciality.deleteMany({
+            _id: { $in: existingIds },
+          });
         }
       }
 
-      // Replace
       else if (Array.isArray(raw)) {
         const newIds =
           await resolveCustomSubspecialityItems(
@@ -292,10 +276,10 @@ class SubspecialityService {
             newIds
           );
 
-        for (const cid of toDelete) {
-          await CustomSubspeciality.findByIdAndDelete(
-            cid
-          );
+        if (toDelete.length > 0) {
+          await CustomSubspeciality.deleteMany({
+            _id: { $in: toDelete },
+          });
         }
 
         payload.customSubspecialities =
@@ -361,10 +345,10 @@ class SubspecialityService {
       id
     );
 
-    for (const cid of customIds) {
-      await CustomSubspeciality.findByIdAndDelete(
-        cid
-      );
+    if (customIds.length > 0) {
+      await CustomSubspeciality.deleteMany({
+        _id: { $in: customIds },
+      });
     }
   }
 }

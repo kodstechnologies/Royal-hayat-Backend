@@ -10,11 +10,9 @@ import upload from "../../../utils/multer.js";
 
 const router = Router();
   
-// Public routes
 router.get('/', getAllDepartments);
 router.get('/:id', getDepartmentById);
 
-// Admin routes (add middleware later for authentication)
 router.post('/', upload.single("image"), createDepartment);
 router.put('/:id', upload.single("image"), updateDepartment);
 router.delete('/:id', deleteDepartment);

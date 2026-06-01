@@ -1,24 +1,19 @@
-// repositories/workCulture.repository.js
 
 import WorkCulture from "../models/workCulture.model.js";
 
 class WorkCultureRepository {
-  // Create
   async createWorkCulture(data) {
     return await WorkCulture.create(data);
   }
 
-  // Get All
   async getAllWorkCultures() {
-    return await WorkCulture.find().sort({ createdAt: -1 });
+    return await WorkCulture.find().sort({ createdAt: -1 }).lean();
   }
 
-  // Get By ID
   async getWorkCultureById(id) {
     return await WorkCulture.findById(id);
   }
 
-  // Update
   async updateWorkCulture(id, data) {
     return await WorkCulture.findByIdAndUpdate(id, data, {
       new: true,
@@ -26,7 +21,6 @@ class WorkCultureRepository {
     });
   }
 
-  // Delete
   async deleteWorkCulture(id) {
     return await WorkCulture.findByIdAndDelete(id);
   }

@@ -1,4 +1,3 @@
-// repositories/medicalRecordRequest.repository.js
 
 import MedicalRecordRequest from "../model/medicalRecordRequest.model.js";
 
@@ -8,7 +7,8 @@ export const createMedicalRecordRequestRepo = async (payload) => {
 
 export const getAllMedicalRecordRequestsRepo = async () => {
     return await MedicalRecordRequest.find()
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .lean();
 };
 
 export const getMedicalRecordRequestByIdRepo = async (id) => {

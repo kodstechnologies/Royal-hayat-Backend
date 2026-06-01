@@ -16,7 +16,6 @@ export const initSocket = (httpServer) => {
       origin: corsOrigins.length ? corsOrigins : true,
       credentials: true
     },
-    // Under /api so nginx `location /api` proxies Socket.IO (root /socket.io often is not proxied).
     path: '/api/socket.io'
   });
 

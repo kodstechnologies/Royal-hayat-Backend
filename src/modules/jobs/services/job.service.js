@@ -7,15 +7,8 @@ import httpStatus from 'http-status';
 
 class JobService {
 
-  /**
-   * CREATE JOB
-   */
   async createJob(jobData) {
 
-    /**
-     * CHECK TITLE
-     * ENGLISH + ARABIC
-     */
     const arabicTitle =
       jobData.arabicTitle?.trim() || undefined;
 
@@ -32,9 +25,6 @@ class JobService {
       );
     }
 
-    /**
-     * CHECK JOB ID
-     */
     if (jobData.jobId) {
 
       const existingJobId =
@@ -50,17 +40,11 @@ class JobService {
       }
     }
 
-    /**
-     * CREATE
-     */
     return await jobRepository.create(
       jobData
     );
   }
 
-  /**
-   * GET ALL JOBS
-   */
   async getAllJobs(
     filters = {}
   ) {
@@ -69,9 +53,6 @@ class JobService {
     );
   }
 
-  /**
-   * GET JOB BY ID
-   */
   async getJobById(id) {
 
     const job =
@@ -94,17 +75,11 @@ class JobService {
     return jobData;
   }
 
-  /**
-   * UPDATE JOB
-   */
   async updateJob(
     id,
     updateData
   ) {
 
-    /**
-     * CHECK EXISTS
-     */
     const existingJob =
       await jobRepository.exists(id);
 
@@ -115,9 +90,6 @@ class JobService {
       );
     }
 
-    /**
-     * CHECK TITLE
-     */
     const arabicTitle =
       updateData.arabicTitle?.trim() || undefined;
 
@@ -138,9 +110,6 @@ class JobService {
       }
     }
 
-    /**
-     * CHECK JOB ID
-     */
     if (updateData.jobId) {
 
       const existing =
@@ -168,23 +137,14 @@ class JobService {
       }
     }
 
-    /**
-     * UPDATE
-     */
     return await jobRepository.updateById(
       id,
       updateData
     );
   }
 
-  /**
-   * DELETE JOB
-   */
   async deleteJob(id) {
 
-    /**
-     * CHECK EXISTS
-     */
     const existingJob =
       await jobRepository.exists(id);
 
@@ -200,30 +160,18 @@ class JobService {
     );
   }
 
-  /**
-   * GET LOCATIONS
-   */
   async getLocations() {
     return await jobRepository.getLocations();
   }
 
-  /**
-   * GET ARABIC LOCATIONS
-   */
   async getArabicLocations() {
     return await jobRepository.getArabicLocations();
   }
 
-  /**
-   * GET TYPES
-   */
   async getTypes() {
     return await jobRepository.getTypes();
   }
 
-  /**
-   * INCREMENT APPLICATION COUNT
-   */
   async incrementApplicationsCount(
     id
   ) {

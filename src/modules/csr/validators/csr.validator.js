@@ -1,4 +1,3 @@
-// validators/csr.validator.js
 
 import Joi from "joi";
 

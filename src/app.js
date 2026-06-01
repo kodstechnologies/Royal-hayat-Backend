@@ -9,7 +9,6 @@ dotenv.config();
 
 const app = express();
 
-// Behind nginx / load balancer: required when X-Forwarded-For is set (express-rate-limit).
 const trustProxy = process.env.TRUST_PROXY;
 if (trustProxy === 'false' || trustProxy === '0') {
   app.set('trust proxy', false);
@@ -20,13 +19,7 @@ if (trustProxy === 'false' || trustProxy === '0') {
   app.set('trust proxy', 1);
 }
 
-// -------------------- CORS --------------------
 const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -36,12 +29,10 @@ app.use(cors({
   credentials: true,
 }));
 
-// -------------------- Middleware --------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Log identity + Sharper callback traffic (PM2: pm2 logs backend)
 app.use((req, res, next) => {
   const path = req.path || req.url || '';
   const isIdentityTraffic =
@@ -61,14 +52,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// -------------------- Routes --------------------
 app.use('/', routes);
 
 app.get('/health', (req, res) => {
   res.json({ success: true, message: 'Royal Hayat API is running' });
 });
 
-// -------------------- Global Error Handler --------------------
 app.use((err, req, res, next) => {
   if (err instanceof ApiError || err?.statusCode) {
     const statusCode = err.statusCode || 500;

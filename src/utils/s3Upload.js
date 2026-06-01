@@ -22,7 +22,6 @@ export const uploadToS3 = async (file) => {
             ContentType: file.mimetype,
         })
     );
-    // Direct permanent URL
     const url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     return { key, url };
 };

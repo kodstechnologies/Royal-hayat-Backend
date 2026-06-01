@@ -8,12 +8,6 @@ const s3 = new S3Client({
   },
 });
 
-/**
- * Upload a single multer file (memory storage) to S3.
- * @param {Express.Multer.File} file
- * @param {string} folder  - S3 key prefix / folder name
- * @returns {Promise<{ url: string, key: string }>}
- */
 export const putObject = async (file, folder = "uploads") => {
   const safeName = file.originalname.replace(/\s+/g, "_");
   const key = `${folder}/${Date.now()}-${safeName}`;

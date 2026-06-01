@@ -36,15 +36,10 @@ async function assertSubspecialitiesBelongToDepartment(departmentId, subspeciali
 class DoctorService {
   async createDoctor(doctorData) {
     try {
-      // Check if doctor already exists with same name and specialty
       const existingDoctor = await doctorRepository.findOne({
         name: doctorData.name,
         specialty: doctorData.specialty
       });
-
-      // if (existingDoctor) {
-      //   throw new ApiError(httpStatus.BAD_REQUEST, 'Doctor with this name and specialty already exists');
-      // }
 
       const subs = normalizeDoctorSubspecialityIds(doctorData.subspecialities || []);
       await assertSubspecialitiesBelongToDepartment(doctorData.department, subs);
@@ -74,7 +69,6 @@ class DoctorService {
 
     const query = { isActive: true };
 
-    // Apply filters
     if (department) {
       query.department = department;
     }
@@ -136,10 +130,6 @@ class DoctorService {
     return doctors.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  /**
-   * Active doctors who are explicitly assigned the given subspeciality on their profile.
-   * (Not every doctor in a department that lists that subspeciality.)
-   */
   async getAllDoctorsBySubspeciality(subspecialityId, filters = {}) {
     const subsExists = await Subspeciality.exists({ _id: subspecialityId });
     if (!subsExists) {
@@ -183,7 +173,6 @@ class DoctorService {
       throw new ApiError(httpStatus.NOT_FOUND, 'Doctor not found');
     }
 
-    // Check for duplicate if updating name or specialty
     if (updateData.name || updateData.specialty) {
       const duplicateCheck = await doctorRepository.findOne({
         _id: { $ne: id },

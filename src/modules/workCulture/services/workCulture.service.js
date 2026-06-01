@@ -1,4 +1,3 @@
-// services/workCulture.service.js
 
 import httpStatus from "http-status";
 import mongoose from "mongoose";
@@ -13,9 +12,21 @@ import {
 import { uploadToS3 } from "../../../utils/s3Upload.js";
 
 import { getMultipleFileUrls } from "../../../utils/s3Fetch.js";
+import toPlainObject from "../../../utils/toPlainObject.js";
+
+const attachSignedImages = async (workCulture) => {
+  if (!workCulture) return null;
+
+  const doc = toPlainObject(workCulture);
+  const signedImages = await getMultipleFileUrls(doc.images || []);
+
+  return {
+    ...doc,
+    images: signedImages,
+  };
+};
 
 class WorkCultureService {
-  // Create
   async createWorkCulture(data, files) {
 
     if (!files || files.length === 0) {
@@ -24,7 +35,6 @@ class WorkCultureService {
       );
     }
 
-    // validate only text fields
     const { error, value } =
       createWorkCultureValidator.validate(
         data,
@@ -62,30 +72,18 @@ class WorkCultureService {
       .createWorkCulture(payload);
   }
 
-  // Get All
   async getAllWorkCultures() {
     const workCultures =
       await WorkCultureRepository.getAllWorkCultures();
 
     const updatedWorkCultures = await Promise.all(
-      workCultures.map(async (item) => {
-        const signedImages = await getMultipleFileUrls(
-          item.images || []
-        );
-
-        return {
-          ...item.toObject(),
-          images: signedImages,
-        };
-      })
+      workCultures.map((item) => attachSignedImages(item)),
     );
 
     return updatedWorkCultures;
   }
 
-  // Get By ID
   async getWorkCultureById(id) {
-    console.log("id---",id)
     if (!mongoose.Types.ObjectId.isValid(id)) {
       const err = new Error("Invalid Work Culture ID");
       err.statusCode = httpStatus.BAD_REQUEST;
@@ -101,17 +99,9 @@ class WorkCultureService {
       throw err;
     }
 
-    const signedImages = await getMultipleFileUrls(
-      workCulture.images || []
-    );
-
-    return {
-      ...workCulture.toObject(),
-      images: signedImages,
-    };
+    return attachSignedImages(workCulture);
   }
 
-  // Update
   async updateWorkCulture(id, data, files) {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -141,7 +131,6 @@ class WorkCultureService {
       throw err;
     }
 
-    // validate only text fields
     const { error, value } =
       updateWorkCultureValidator.validate(
         data,
@@ -161,7 +150,6 @@ class WorkCultureService {
     let uploadedImages =
       existingWorkCulture.images || [];
 
-    // Keep only images explicitly retained by client (supports string or array)
     if (data.existingImages !== undefined) {
       const keptImages = Array.isArray(data.existingImages)
         ? data.existingImages
@@ -171,12 +159,9 @@ class WorkCultureService {
       );
     }
 
-    // When upload middleware runs, new image URLs are already in data.images.
-    // Merge those with retained existing images.
     if (Array.isArray(data.images) && data.images.length > 0) {
       uploadedImages = [...uploadedImages, ...data.images];
     } else if (files && files.length > 0) {
-      // Fallback if middleware is bypassed
       for (const file of files) {
         const uploaded = await uploadToS3(file);
         uploadedImages.push(uploaded.key);
@@ -194,18 +179,9 @@ class WorkCultureService {
         payload
       );
 
-    const signedImages =
-      await getMultipleFileUrls(
-        updatedWorkCulture.images || []
-      );
-
-    return {
-      ...updatedWorkCulture.toObject(),
-      images: signedImages,
-    };
+    return attachSignedImages(updatedWorkCulture);
   }
 
-  // Delete
   async deleteWorkCulture(id) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       const err = new Error("Invalid Work Culture ID");
