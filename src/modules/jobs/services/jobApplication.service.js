@@ -32,7 +32,6 @@ class JobApplicationService {
         : {})
     };
 
-    // Check if job exists
     const job = await jobService.getJobById(
       payload.jobId
     );
@@ -44,7 +43,6 @@ class JobApplicationService {
       );
     }
 
-    // CHECK EXISTING APPLICATION
     const existingApplication =
       await jobApplicationRepository.findRecentApplicationByPhone(
         payload.jobId,
@@ -58,13 +56,11 @@ class JobApplicationService {
       );
     }
 
-    // CREATE APPLICATION
     const application =
       await jobApplicationRepository.create(
         payload
       );
 
-    // INCREMENT COUNT
     await jobService.incrementApplicationsCount(
       payload.jobId
     );
@@ -84,7 +80,6 @@ class JobApplicationService {
   }
 
   async updateJobApplication(id, updateData) {
-    // Check if application exists
     const existingApplication = await jobApplicationRepository.exists(id);
     if (!existingApplication) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job application not found');
@@ -94,7 +89,6 @@ class JobApplicationService {
   }
 
   async deleteJobApplication(id) {
-    // Check if application exists
     const existingApplication = await jobApplicationRepository.exists(id);
     if (!existingApplication) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job application not found');
@@ -104,7 +98,6 @@ class JobApplicationService {
   }
 
   async getApplicationsByJobId(jobId, filters = {}) {
-    // Check if job exists
     const job = await jobService.getJobById(jobId);
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job not found');

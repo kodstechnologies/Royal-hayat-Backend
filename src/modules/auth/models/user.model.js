@@ -9,8 +9,6 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      // enum: ['admin','sub_admin','call_center'],
-      // default: 'patient',
     },
     refreshToken: { type: String },
     permissions: [
@@ -23,18 +21,13 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// email: unique index is created automatically by `unique: true` on the field
 
-// List managed users: find({ role: { $ne: 'admin' } }).sort({ createdAt: -1 })
 userSchema.index({ role: 1, createdAt: -1 });
 
-// Filter by role alone
 userSchema.index({ role: 1 });
 
-// Account status checks (checkPermission inactive guard, future admin filters)
 userSchema.index({ isActive: 1 });
 
-// Active users by role
 userSchema.index({ isActive: 1, role: 1 });
 
 userSchema.pre('save', async function (next) {

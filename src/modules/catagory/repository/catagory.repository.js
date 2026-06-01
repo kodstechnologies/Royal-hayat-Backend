@@ -23,7 +23,6 @@ class CatagoryRepository {
 
     const query = {};
 
-    // Search in English + Arabic names
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -72,7 +71,6 @@ class CatagoryRepository {
     return await Catagory.exists({ _id: id });
   }
 
-  // Check duplicate English OR Arabic names
   async existsByName(name, arabicName, excludeId = null) {
     const query = {
       $or: [
@@ -98,9 +96,6 @@ class CatagoryRepository {
     return await Catagory.exists(query);
   }
 
-  /**
-   * All categories with departments and doctors
-   */
   async findAllWithDepartmentsAndDoctors() {
     const categories = await Catagory.find({})
       .sort({ name: 1 })

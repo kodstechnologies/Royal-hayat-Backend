@@ -12,7 +12,6 @@ import { PERMISSIONS } from '../../../constants/permission.js';
 
 const router = Router();
 
-// Public — patient / website enquiry form
 router.post('/', createEnquiry);
 
 router.get(

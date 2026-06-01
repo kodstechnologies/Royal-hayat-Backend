@@ -1,4 +1,3 @@
-// routes/featuredDoctors.routes.js
 
 import express from "express";
 
@@ -17,7 +16,6 @@ import {
 
 const router = express.Router();
 
-// Add Featured Doctor
 router.post(
   "/",
   validate(createFeaturedDoctorValidator),
@@ -26,7 +24,6 @@ router.post(
 
 router.get("/", getFeaturedDoctors);
 
-// Edit Featured Doctor
 router.put(
   "/:id",
   validate(updateFeaturedDoctorValidator),

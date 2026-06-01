@@ -47,7 +47,6 @@ function coerceDoctorSubspecialitiesField(formData) {
 }
 
 const createDoctor = asyncHandler(async (req, res) => {
-  // Handle file upload
   let imageUrl = '';
   console.log(req.file);
   if (req.file) {
@@ -55,10 +54,8 @@ const createDoctor = asyncHandler(async (req, res) => {
       const result = await uploadToCloudinary(req.file.path, 'royale-hayat/doctors');
       imageUrl = result.url;
       
-      // Clean up temp file
       await fs.remove(req.file.path);
     } catch (error) {
-      // Clean up temp file on error
       if (req.file && req.file.path) {
         await fs.remove(req.file.path);
       }
@@ -66,7 +63,6 @@ const createDoctor = asyncHandler(async (req, res) => {
     }
   }
 
-  // Convert form data arrays to actual arrays
   const formData = { ...req.body, image: imageUrl };
   if (typeof formData.doctorId === 'string') {
     formData.doctorId = formData.doctorId.trim();
@@ -88,7 +84,6 @@ const createDoctor = asyncHandler(async (req, res) => {
     if (!formData.initials) delete formData.initials;
   }
   
-  // Convert string arrays from form data
   if (formData.qualifications && typeof formData.qualifications === 'string') {
     formData.qualifications = [formData.qualifications];
   }
@@ -104,7 +99,6 @@ const createDoctor = asyncHandler(async (req, res) => {
 
   coerceDoctorSubspecialitiesField(formData);
   
-  // Convert boolean strings to actual booleans
   if (formData.availableOnline !== undefined) {
     formData.availableOnline = formData.availableOnline === 'true' || formData.availableOnline === true;
   }
@@ -112,7 +106,6 @@ const createDoctor = asyncHandler(async (req, res) => {
     formData.isActive = formData.isActive === 'true' || formData.isActive === true;
   }
 
-  // Validate input
   const { error, value } = createDoctorSchema.validate(formData, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
@@ -128,7 +121,6 @@ const createDoctor = asyncHandler(async (req, res) => {
 });
 
 const getAllDoctors = asyncHandler(async (req, res) => {
-  // Validate query parameters
   const { error, value } = getDoctorsSchema.validate(req.query, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
@@ -145,7 +137,6 @@ const getAllDoctors = asyncHandler(async (req, res) => {
 });
 
 const getDoctorById = asyncHandler(async (req, res) => {
-  // Validate doctor ID
   const { error, value } = doctorIdSchema.validate(req.params, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
@@ -161,7 +152,6 @@ const getDoctorById = asyncHandler(async (req, res) => {
 });
 
 const getDoctorsByDepartment = asyncHandler(async (req, res) => {
-  // Validate department parameter
   const { error, value } = departmentSchema.validate(req.params, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
@@ -205,24 +195,20 @@ const getDoctorsBySubspeciality = asyncHandler(async (req, res) => {
 });
 
 const updateDoctor = asyncHandler(async (req, res) => {
-  // Validate doctor ID
   const { error: idError, value: idValue } = doctorIdSchema.validate(req.params, { abortEarly: false });
   if (idError) {
     throw new ApiError(httpStatus.BAD_REQUEST, idError.details.map(d => d.message).join(", "));
   }
 
-  // Handle file upload
   let imageUrl = req.body.image; // Keep existing image if no new file
   if (req.file) {
     try {
       const result = await uploadToCloudinary(req.file.path, 'royale-hayat/doctors');
       imageUrl = result.url;
       
-      // Clean up temp file
       await fs.remove(req.file.path);
     } catch (error) {
       console.log(error);
-      // Clean up temp file on error
       if (req.file && req.file.path) {
         await fs.remove(req.file.path);
       }
@@ -230,10 +216,8 @@ const updateDoctor = asyncHandler(async (req, res) => {
     }
   }
 
-  // Convert form data arrays to actual arrays
   const formData = { ...req.body, image: imageUrl };
   
-  // Convert string arrays from form data
   if (formData.qualifications && typeof formData.qualifications === 'string') {
     formData.qualifications = [formData.qualifications];
   }
@@ -249,7 +233,6 @@ const updateDoctor = asyncHandler(async (req, res) => {
 
   coerceDoctorSubspecialitiesField(formData);
   
-  // Convert boolean strings to actual booleans
   if (formData.availableOnline !== undefined) {
     formData.availableOnline = formData.availableOnline === 'true' || formData.availableOnline === true;
   }
@@ -257,7 +240,6 @@ const updateDoctor = asyncHandler(async (req, res) => {
     formData.isActive = formData.isActive === 'true' || formData.isActive === true;
   }
 
-  // Validate update data
   const { error: dataError, value: dataValue } = updateDoctorSchema.validate(formData, { abortEarly: false });
   if (dataError) {
     throw new ApiError(httpStatus.BAD_REQUEST, dataError.details.map(d => d.message).join(", "));
@@ -273,7 +255,6 @@ const updateDoctor = asyncHandler(async (req, res) => {
 });
 
 const deleteDoctor = asyncHandler(async (req, res) => {
-  // Validate doctor ID
   const { error, value } = doctorIdSchema.validate(req.params, { abortEarly: false });
   if (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));

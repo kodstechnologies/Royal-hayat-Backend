@@ -19,7 +19,6 @@ const jobApplicationViewPermissions = [
   PERMISSIONS.JOB_VIEW,
 ];
 
-// Public — candidate / website application
 router.post('/', upload.single('resume'), createJobApplication);
 
 router.get(

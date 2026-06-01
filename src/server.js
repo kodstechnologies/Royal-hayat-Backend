@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 5000;
 connectDB()
   .then(async () => {
 
-    // Run Admin Seeder
     await seedAdmins();
 
     const httpServer = http.createServer(app);

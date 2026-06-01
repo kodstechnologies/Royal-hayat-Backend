@@ -4,7 +4,6 @@ import Doctor from '../modules/doctors/models/doctor.model.js';
 
 dotenv.config();
 
-// Sample doctors data from frontend - you can replace this with actual data
 const sampleDoctors = [
   {
     name: 'Dr. Mustafa Alfiki',
@@ -98,19 +97,15 @@ const sampleDoctors = [
 
 async function migrateDoctors() {
   try {
-    // Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/royal-hayat');
     console.log('Connected to MongoDB');
 
-    // Clear existing doctors
     await Doctor.deleteMany({});
     console.log('Cleared existing doctors');
 
-    // Insert sample doctors
     const insertedDoctors = await Doctor.insertMany(sampleDoctors);
     console.log(`Successfully migrated ${insertedDoctors.length} doctors`);
 
-    // Display inserted doctors
     insertedDoctors.forEach((doctor, index) => {
       console.log(`${index + 1}. ${doctor.name} - ${doctor.specialty}`);
     });
@@ -124,5 +119,4 @@ async function migrateDoctors() {
   }
 }
 
-// Run the migration
 migrateDoctors();

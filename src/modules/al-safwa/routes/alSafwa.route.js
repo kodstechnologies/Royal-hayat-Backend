@@ -10,7 +10,6 @@ import { PERMISSIONS } from "../../../constants/permission.js";
 
 const router = Router();
 
-// Public — website enrollment form
 router.post("/", createAlSafwaEnrollment);
 
 router.get(

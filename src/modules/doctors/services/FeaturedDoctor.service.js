@@ -10,7 +10,6 @@ import {
 } from "../validators/featuredDoctor.validators.js";
 
 class FeaturedDoctorsService {
-  // Add Featured Doctor
   async createFeaturedDoctor(data) {
     const { error, value } =
       createFeaturedDoctorValidator.validate(data, {
@@ -38,7 +37,6 @@ class FeaturedDoctorsService {
     return await FeaturedDoctorsRepository.getFeaturedDoctors();
   }
 
-  // Edit Featured Doctor
   async updateFeaturedDoctor(id, data) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       const err = new Error("Invalid Featured Doctor ID");

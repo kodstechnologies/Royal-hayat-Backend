@@ -10,7 +10,6 @@ import {
     markHospitalFeedbackViewedService,
 } from "../service/hospitalFeedback.service.js";
 
-// CREATE
 export const createHospitalFeedback =
     async (req, res) => {
 
@@ -20,7 +19,6 @@ export const createHospitalFeedback =
                 addedBy
             } = req.query;
 
-            // VALIDATE addedBy
             const allowedAddedBy = [
                 "patient",
                 "admin"
@@ -40,14 +38,12 @@ export const createHospitalFeedback =
                 stars: req.body.stars,
                 shownOnWebsite: req.body.shownOnWebsite,
                 addedBy: addedBy || "patient",
-                // Accept both languages in a single create
                 userName: req.body.userName,
                 feedback: req.body.feedback,
                 arabicUserName: req.body.arabicUserName,
                 arabicFeedback: req.body.arabicFeedback,
             };
 
-            // Remove undefined keys
             Object.keys(payload).forEach(
                 key => payload[key] === undefined && delete payload[key]
             );
@@ -73,7 +69,6 @@ export const createHospitalFeedback =
         }
     };
 
-// GET ALL
 export const getAllHospitalFeedbacks =
     async (req, res) => {
 
@@ -96,7 +91,6 @@ export const getAllHospitalFeedbacks =
         }
     };
 
-// GET BY ID
 export const getHospitalFeedbackById =
     async (req, res) => {
 
@@ -130,7 +124,6 @@ export const getHospitalFeedbackById =
         }
     };
 
-// UPDATE
 export const updateHospitalFeedback =
     async (req, res) => {
 
@@ -139,14 +132,12 @@ export const updateHospitalFeedback =
             const payload = {
                 stars: req.body.stars,
                 shownOnWebsite: req.body.shownOnWebsite,
-                // Accept both languages in a single update
                 userName: req.body.userName,
                 feedback: req.body.feedback,
                 arabicUserName: req.body.arabicUserName,
                 arabicFeedback: req.body.arabicFeedback,
             };
 
-            // Remove undefined keys so Mongoose doesn't overwrite with null
             Object.keys(payload).forEach(
                 key => payload[key] === undefined && delete payload[key]
             );
@@ -173,7 +164,6 @@ export const updateHospitalFeedback =
         }
     };
 
-// DELETE
 export const deleteHospitalFeedback =
     async (req, res) => {
 

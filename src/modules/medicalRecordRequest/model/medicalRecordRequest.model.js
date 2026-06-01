@@ -1,4 +1,3 @@
-// models/medicalRecordRequest.model.js
 
 import mongoose from "mongoose";
 
@@ -112,7 +111,6 @@ const medicalRecordRequestSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-// compound indexes
 medicalRecordRequestSchema.index({
     patientFullName: 1,
     civilId: 1
@@ -154,7 +152,6 @@ medicalRecordRequestSchema.pre("validate", async function (next) {
     }
 });
 
-// conditional validations
 medicalRecordRequestSchema.pre("validate", function (next) {
     if (
         this.specificAuthorization ===

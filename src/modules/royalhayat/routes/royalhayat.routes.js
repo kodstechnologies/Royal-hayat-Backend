@@ -60,22 +60,16 @@ const generalLimiter = rateLimit({
   }
 });
 
-// Authentication endpoint
 router.get('/auth/token', authLimiter, getAuthToken);
 
-// Initialize appointment flow (patient validation + token retrieval)
 router.post('/book-appointment', authLimiter, initializeAppointmentFlow);
 
-// Availability endpoints
 router.get('/availability', availabilityLimiter, getAvailability);
 
-// Booking endpoints
 router.post('/appointments/book', bookingLimiter, bookAppointment);
 
-// Patient lookup endpoints
 router.get('/patients', generalLimiter, getPatient);
 
-// Specialities and care providers endpoints
 router.get('/specialities', generalLimiter, getSpecialities);
 router.get('/care-providers', generalLimiter, getCareProviders);
 

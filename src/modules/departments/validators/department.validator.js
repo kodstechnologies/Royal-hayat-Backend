@@ -11,7 +11,6 @@ const objectIdPattern =
 
 const customExplainantionItemSchema =
   Joi.object({
-    // ENGLISH
 
     subHeading:
       optionalTrimmedString,
@@ -23,8 +22,6 @@ const customExplainantionItemSchema =
       )
       .optional()
       .default([]),
-
-    // ARABIC
 
     arabicSubHeading:
       optionalTrimmedString,
@@ -45,8 +42,6 @@ const createDepartmentSchema =
       .trim()
       .required(),
 
-    // ENGLISH
-
     name: Joi.string()
       .trim()
       .required(),
@@ -63,8 +58,6 @@ const createDepartmentSchema =
             .max(100)
         )
         .optional(),
-
-    // ARABIC
 
     arabicName:
       Joi.string()
@@ -85,15 +78,11 @@ const createDepartmentSchema =
         )
         .optional(),
 
-    // CATEGORY
-
     catagory: Joi.string()
       .pattern(
         objectIdPattern
       )
       .required(),
-
-    // SUBSPECIALITIES
 
     subspecialities:
       Joi.array()
@@ -108,14 +97,10 @@ const createDepartmentSchema =
         .optional()
         .default([]),
 
-    // IMAGE
-
     image: Joi.string()
       .uri()
       .allow('')
       .optional(),
-
-    // CUSTOM EXPLANATIONS
 
     customExplainantions:
       Joi.array()
@@ -124,8 +109,6 @@ const createDepartmentSchema =
         )
         .optional()
         .default([]),
-
-    // STATUS
 
     isActive:
       Joi.boolean().default(
@@ -145,8 +128,6 @@ const updateDepartmentSchema =
         .trim()
         .optional(),
 
-    // ENGLISH
-
     name: Joi.string()
       .trim()
       .optional(),
@@ -164,8 +145,6 @@ const updateDepartmentSchema =
             .max(100)
         )
         .optional(),
-
-    // ARABIC
 
     arabicName:
       Joi.string()
@@ -186,15 +165,11 @@ const updateDepartmentSchema =
         )
         .optional(),
 
-    // CATEGORY
-
     catagory: Joi.string()
       .pattern(
         objectIdPattern
       )
       .optional(),
-
-    // SUBSPECIALITIES
 
     subspecialities:
       Joi.array()
@@ -208,14 +183,10 @@ const updateDepartmentSchema =
         .unique()
         .optional(),
 
-    // IMAGE
-
     image: Joi.string()
       .uri()
       .allow('')
       .optional(),
-
-    // CUSTOM EXPLANATIONS
 
     customExplainantions:
       Joi.array()
@@ -223,8 +194,6 @@ const updateDepartmentSchema =
           customExplainantionItemSchema
         )
         .optional(),
-
-    // STATUS
 
     isActive:
       Joi.boolean().optional(),

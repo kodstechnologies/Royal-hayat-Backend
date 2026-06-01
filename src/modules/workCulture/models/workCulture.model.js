@@ -37,10 +37,8 @@ const workCultureSchema = new mongoose.Schema(
   }
 );
 
-// Common list sorting
 workCultureSchema.index({ createdAt: -1 });
 
-// Text search support for work culture content
 workCultureSchema.index({
   heading: "text",
   headingArabic: "text",

@@ -150,7 +150,6 @@ class WorkCultureService {
     let uploadedImages =
       existingWorkCulture.images || [];
 
-    // Keep only images explicitly retained by client (supports string or array)
     if (data.existingImages !== undefined) {
       const keptImages = Array.isArray(data.existingImages)
         ? data.existingImages
@@ -160,12 +159,9 @@ class WorkCultureService {
       );
     }
 
-    // When upload middleware runs, new image URLs are already in data.images.
-    // Merge those with retained existing images.
     if (Array.isArray(data.images) && data.images.length > 0) {
       uploadedImages = [...uploadedImages, ...data.images];
     } else if (files && files.length > 0) {
-      // Fallback if middleware is bypassed
       for (const file of files) {
         const uploaded = await uploadToS3(file);
         uploadedImages.push(uploaded.key);

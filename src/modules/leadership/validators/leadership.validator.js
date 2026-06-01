@@ -1,4 +1,3 @@
-// validators/leadership.validator.js
 
 import Joi from "joi";
 

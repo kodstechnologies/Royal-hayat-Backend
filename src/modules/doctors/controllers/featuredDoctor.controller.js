@@ -4,7 +4,6 @@ import httpStatus from "http-status";
 
 import FeaturedDoctorsService from "../services/FeaturedDoctor.service.js";
 
-// Add Featured Doctor
 export const createFeaturedDoctor = asyncHandler(
   async (req, res) => {
     const featuredDoctor =
@@ -33,7 +32,6 @@ export const getFeaturedDoctors = asyncHandler(
   }
 );
 
-// Edit Featured Doctor
 export const updateFeaturedDoctor = asyncHandler(
   async (req, res) => {
     const updatedFeaturedDoctor =

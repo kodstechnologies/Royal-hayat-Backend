@@ -1,4 +1,3 @@
-// validators/document.validator.js
 
 import Joi from "joi";
 

@@ -40,7 +40,6 @@ const seedAdmins = async () => {
       existing.role = 'admin';
       existing.isActive = true;
 
-      // Optional: update password also
       existing.password = admin.password;
 
       await existing.save();

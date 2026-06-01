@@ -1,4 +1,3 @@
-// routes/leadership.routes.js
 
 import express from "express";
 
@@ -25,7 +24,6 @@ import { uploadToS3 } from "../../../utils/uploadToS3.js";
 
 const router = express.Router();
 
-// Public — website
 router.get("/", getAllLeadership);
 router.get("/:id", getLeadershipById);
 

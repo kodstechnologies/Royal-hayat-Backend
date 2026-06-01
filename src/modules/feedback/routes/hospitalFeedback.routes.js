@@ -1,4 +1,3 @@
-// routes/hospitalFeedback.routes.js
 
 import express from "express";
 
@@ -13,13 +12,11 @@ import {
     markHospitalFeedbackViewed,
 } from "../controller/hospitalFeedback.controller.js";
 
-// CREATE
 router.post(
     "/create",
     createHospitalFeedback
 );
 
-// GET ALL
 router.get(
     "/all",
     getAllHospitalFeedbacks
@@ -30,19 +27,16 @@ router.patch(
     markHospitalFeedbackViewed
 );
 
-// GET BY ID
 router.get(
     "/:id",
     getHospitalFeedbackById
 );
 
-// UPDATE
 router.put(
     "/update/:id",
     updateHospitalFeedback
 );
 
-// DELETE
 router.delete(
     "/delete/:id",
     deleteHospitalFeedback

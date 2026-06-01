@@ -4,7 +4,6 @@ const OID = /^[0-9a-fA-F]{24}$/;
 
 const customSubspecialityBodySchema =
   Joi.object({
-    // English
     subHeading: Joi.string()
       .trim()
       .allow('')
@@ -18,7 +17,6 @@ const customSubspecialityBodySchema =
       )
       .optional(),
 
-    // Arabic
     arabicSubHeading: Joi.string()
       .trim()
       .allow('')
@@ -63,7 +61,6 @@ const customSubspecialitiesUpdateField =
 
 const createSubspecialitySchema =
   Joi.object({
-    // English
     name: Joi.string()
       .trim()
       .min(1)
@@ -76,7 +73,6 @@ const createSubspecialitySchema =
       .max(5000)
       .required(),
 
-    // Arabic
     arabicName: Joi.string()
       .trim()
       .min(1)
@@ -95,7 +91,6 @@ const createSubspecialitySchema =
 
 const updateSubspecialitySchema =
   Joi.object({
-    // English
     name: Joi.string()
       .trim()
       .min(1)
@@ -108,7 +103,6 @@ const updateSubspecialitySchema =
       .max(5000)
       .optional(),
 
-    // Arabic
     arabicName: Joi.string()
       .trim()
       .min(1)

@@ -1,4 +1,3 @@
-// validators/featuredDoctors.validator.js
 
 import Joi from "joi";
 

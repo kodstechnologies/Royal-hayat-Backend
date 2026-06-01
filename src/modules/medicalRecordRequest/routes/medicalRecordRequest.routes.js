@@ -1,4 +1,3 @@
-// routes/medicalRecordRequest.routes.js
 
 import express from "express";
 import multer from "multer";
@@ -20,7 +19,6 @@ const upload = multer({ storage });
 
 const mrrViewPermissions = [PERMISSIONS.MRR_VIEW];
 
-// Public — patient / website submission
 router.post(
     "/create",
     upload.single("passportOrGovernmentId"),

@@ -7,7 +7,6 @@ export const uploadToS3 =
     try {
       if (!req.file && !req.files) return next();
 
-      // ── single file ──────────────────────────────────────────────────────
       if (req.file) {
         const { url, key } = await putObject(req.file, folder);
         const targetField = fieldMap[req.file.fieldname] || req.file.fieldname;
@@ -16,7 +15,6 @@ export const uploadToS3 =
         return next();
       }
 
-      // ── multiple files ───────────────────────────────────────────────────
       const arrayTargets = new Set(options.arrayTargets || []);
       const files = Array.isArray(req.files)
         ? req.files
@@ -26,7 +24,6 @@ export const uploadToS3 =
         const { url, key } = await putObject(file, folder);
         const targetField = fieldMap[file.fieldname] || file.fieldname;
 
-        // documents / rosDocuments → array of objects
         if (targetField === "documents" || targetField === "rosDocuments") {
           if (!Array.isArray(req.body[targetField])) req.body[targetField] = [];
           req.body[targetField].push({
@@ -37,14 +34,12 @@ export const uploadToS3 =
           continue;
         }
 
-        // single img (not in arrayTargets)
         if (targetField === "img" && !arrayTargets.has(targetField)) {
           req.body[targetField] = url;
           req.body[`${targetField}Key`] = key;
           continue;
         }
 
-        // img or any arrayTarget → accumulate as URL array
         if (targetField === "img" || arrayTargets.has(targetField)) {
           if (!Array.isArray(req.body[targetField])) {
             req.body[targetField] =
@@ -56,7 +51,6 @@ export const uploadToS3 =
           continue;
         }
 
-        // relatedInformationImages → URL array
         if (targetField === "relatedInformationImages") {
           if (!Array.isArray(req.body.relatedInformationImages)) {
             req.body.relatedInformationImages =
@@ -69,7 +63,6 @@ export const uploadToS3 =
           continue;
         }
 
-        // default → single value
         req.body[targetField] = url;
         req.body[`${targetField}Key`] = key;
       }

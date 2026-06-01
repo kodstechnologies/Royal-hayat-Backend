@@ -25,7 +25,6 @@ const appointmentRequestViewPermissions = [
 
 ];
 
-// Public — patient / website booking flow
 router.post('/', createAppointmentRequest);
 
 router.get(

@@ -42,7 +42,6 @@ async function resolveCustomSubspecialityItems(
     else {
       const doc =
         await CustomSubspeciality.create({
-          // English
           subHeading:
             item.subHeading?.trim() ||
             undefined,
@@ -51,7 +50,6 @@ async function resolveCustomSubspecialityItems(
             item.explanations
           ),
 
-          // Arabic
           arabicSubHeading:
             item.arabicSubHeading?.trim() ||
             undefined,
@@ -90,7 +88,6 @@ class SubspecialityService {
     const trimmedArabicName =
       data.arabicName.trim();
 
-    // Duplicate check
     const nameTaken =
       await subspecialityRepository.existsByName(
         trimmedName,
@@ -117,13 +114,11 @@ class SubspecialityService {
 
     return await subspecialityRepository.create(
       {
-        // English
         name: trimmedName,
 
         description:
           data.description.trim(),
 
-        // Arabic
         arabicName: trimmedArabicName,
 
         arabicDescription:
@@ -230,7 +225,6 @@ class SubspecialityService {
         updateData.arabicDescription.trim();
     }
 
-    // Custom subspecialities
     if (
       updateData.customSubspecialities !==
       undefined
@@ -255,7 +249,6 @@ class SubspecialityService {
       const raw =
         updateData.customSubspecialities;
 
-      // Remove all
       if (
         raw === null ||
         (Array.isArray(raw) &&
@@ -271,7 +264,6 @@ class SubspecialityService {
         }
       }
 
-      // Replace
       else if (Array.isArray(raw)) {
         const newIds =
           await resolveCustomSubspecialityItems(

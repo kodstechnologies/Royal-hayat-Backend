@@ -75,16 +75,10 @@ class DepartmentRepository {
 
     const query = {};
 
-    /**
-     * ACTIVE FILTER
-     */
     if (isActive !== undefined) {
       query.isActive = isActive;
     }
 
-    /**
-     * SEARCH FILTER
-     */
     if (search) {
       query.$or = [
         {
@@ -212,9 +206,6 @@ class DepartmentRepository {
     });
   }
 
-  /**
-   * Check English OR Arabic name
-   */
   async existsByName(
     name,
     arabicName,

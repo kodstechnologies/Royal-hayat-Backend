@@ -148,7 +148,6 @@ class CSRService {
 
     let uploadedImages = existingCSR.images || [];
 
-    // keep images the client chose to retain (empty string = clear all existing)
     if (data.existingImages !== undefined) {
       const kept = Array.isArray(data.existingImages)
         ? data.existingImages
@@ -156,7 +155,6 @@ class CSRService {
       uploadedImages = kept.filter((url) => url && String(url).trim());
     }
 
-    // new uploads (already on S3 via route middleware when present on body)
     if (data.images && Array.isArray(data.images) && data.images.length > 0) {
       uploadedImages = [...uploadedImages, ...data.images];
     } else if (files && files.length > 0) {
