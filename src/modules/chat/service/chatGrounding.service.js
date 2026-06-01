@@ -6,6 +6,7 @@ import {
   SITE_PAGES,
   COMMON_TASKS,
 } from '../data/chatSiteMap.js';
+import { resolveWebsiteDepartmentSlug } from '../data/websiteDepartmentSlugs.js';
 
 const CACHE_TTL_MS = Number(process.env.CHAT_GROUNDING_CACHE_TTL_MS || 600_000);
 const MAX_DEPT_DESC_CHARS = Number(process.env.CHAT_GROUNDING_DEPT_DESC_MAX || 160);
@@ -17,15 +18,6 @@ function truncate(text, max) {
   const s = String(text || '').replace(/\s+/g, ' ').trim();
   if (s.length <= max) return s;
   return `${s.slice(0, max - 1)}…`;
-}
-
-function departmentSlug(name, mongoId) {
-  const base = String(name)
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  return `${base}-${String(mongoId).slice(-6)}`;
 }
 
 async function loadDepartmentGrounding() {
@@ -45,8 +37,7 @@ async function loadDepartmentGrounding() {
   const linesAr = [];
 
   for (const row of rows) {
-    const id = String(row._id);
-    const slug = departmentSlug(row.name, id);
+    const slug = resolveWebsiteDepartmentSlug(row.name);
     const path = `/medical-services/${slug}`;
     const categoryEn = row.catagory?.name ? ` (${row.catagory.name})` : '';
     const categoryAr = row.catagory?.arabicName ? ` (${row.catagory.arabicName})` : '';
