@@ -34,7 +34,10 @@ export const createDoctorFeedback = async (req, res) => {
         const payload = {
             doctorId: doctorRef,
             stars: req.body.stars,
-            shownOnWebsite: req.body.shownOnWebsite,
+            shownOnWebsite:
+                typeof req.body.shownOnWebsite === "boolean"
+                    ? req.body.shownOnWebsite
+                    : true,
             addedBy: addedBy || "patient",
             userName: req.body.userName,
             feedback: req.body.feedback,

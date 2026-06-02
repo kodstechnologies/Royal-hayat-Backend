@@ -36,7 +36,10 @@ export const createHospitalFeedback =
 
             const payload = {
                 stars: req.body.stars,
-                shownOnWebsite: req.body.shownOnWebsite,
+                shownOnWebsite:
+                    typeof req.body.shownOnWebsite === "boolean"
+                        ? req.body.shownOnWebsite
+                        : true,
                 addedBy: addedBy || "patient",
                 userName: req.body.userName,
                 feedback: req.body.feedback,
