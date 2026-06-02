@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+
 const createAlSafwaSchema = Joi.object({
   firstName: Joi.string().allow("").optional(),
   familyName: Joi.string().allow("").optional(),
