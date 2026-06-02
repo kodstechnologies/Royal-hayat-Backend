@@ -1,11 +1,23 @@
 import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";
 import alSafwaRepository from "../repository/alSafwa.repository.js";
+import { sendAlSafwaEnrollmentNotificationEmail } from "../../../utils/alSafwaEnrollmentNotificationMail.js";
 
 class AlSafwaService {
   async createEnrollment(data) {
     try {
-      return await alSafwaRepository.create(data);
+      const enrollment = await alSafwaRepository.create(data);
+
+      try {
+        await sendAlSafwaEnrollmentNotificationEmail(enrollment);
+      } catch (mailError) {
+        console.error(
+          "Al Safwa enrollment notification email failed:",
+          mailError?.message || mailError,
+        );
+      }
+
+      return enrollment;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
