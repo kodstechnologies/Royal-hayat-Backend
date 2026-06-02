@@ -1,6 +1,7 @@
 import ApiError from '../../../utils/ApiError.js';
 import authRepository from '../repositories/auth.repository.js';
 import nodemailer from 'nodemailer';
+import { getMailFromAddress } from '../../../utils/mailFrom.js';
 
 const OTP_EXPIRY_MINUTES = Number(process.env.OTP_EXPIRY_MINUTES || 10);
 
@@ -75,7 +76,7 @@ const sendOtpEmail = async (email, otp) => {
 
     const transporter = getMailTransporter();
     await transporter.sendMail({
-      from: process.env.MAIL_FROM || process.env.SMTP_USER,
+      from: getMailFromAddress(),
       to: email,
       subject: 'Royal Hayat Login OTP',
       text: `Your OTP for login is ${otp}. It will expire in ${OTP_EXPIRY_MINUTES} minutes.`,

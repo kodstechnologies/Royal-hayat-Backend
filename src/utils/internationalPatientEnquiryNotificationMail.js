@@ -1,7 +1,8 @@
 import nodemailer from "nodemailer";
+import { getMailFromAddress } from "./mailFrom.js";
 
 const DEFAULT_RECIPIENTS =
-  "madhi333jp@gmail.com,madhi333jpg@gmail.com";
+  "info@royalehayat.com,marketing@royalehayat.com";
 
 const formatDateTime = (value) => {
   if (!value) return "N/A";
@@ -137,14 +138,8 @@ export const sendInternationalPatientEnquiryNotificationEmail = async (enquiry) 
 
   const fullName =
     `${enquiry.firstName || ""} ${enquiry.lastName || ""}`.trim() || "Patient";
-  const fromAddress =
-    process.env.MAIL_FROM ||
-    process.env.SMTP_FROM ||
-    process.env.SMTP_USER ||
-    "royalehayat.dev@gmail.com";
-
   await transporter.sendMail({
-    from: fromAddress,
+    from: getMailFromAddress(),
     to: recipients.join(", "),
     replyTo: enquiry.email,
     subject: `New International Patient Enquiry — ${fullName}`,

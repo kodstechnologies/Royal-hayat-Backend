@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { getMailFromAddress } from "./mailFrom.js";
 
 const DEFAULT_RECIPIENTS =
   "info@royalehayat.com,marketing@royalehayat.com";
@@ -130,14 +131,8 @@ export const sendEnquiryNotificationEmail = async (enquiry) => {
   });
 
   const enquiryId = enquiry.enquiryId || "New";
-  const fromAddress =
-    process.env.MAIL_FROM ||
-    process.env.SMTP_FROM ||
-    process.env.SMTP_USER ||
-    "royalehayat.dev@gmail.com";
-
   await transporter.sendMail({
-    from: fromAddress,
+    from: getMailFromAddress(),
     to: recipients.join(", "),
     replyTo: enquiry.email,
     subject: `New Contact Us Enquiry — ${enquiryId}`,

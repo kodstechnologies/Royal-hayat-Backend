@@ -13,6 +13,7 @@ import {
     medicalRecordRequestEmailTemplate,
     resolveEmailSubject,
 } from "../../../utils/shareViaMail.js";
+import { getMailFromAddress } from "../../../utils/mailFrom.js";
 import toPlainObject from "../../../utils/toPlainObject.js";
 
 export const createMedicalRecordRequestService = async (
@@ -146,10 +147,8 @@ export const shareMedicalRecordRequestViaEmailService =
         );
 
         const subject = resolveEmailSubject(normalizedLanguages);
-        const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER || "royalehayat.dev@gmail.com";
-
         await transporter.sendMail({
-            from: fromAddress,
+            from: getMailFromAddress(),
             to: recipients.join(", "),
             subject,
             html: htmlContent,

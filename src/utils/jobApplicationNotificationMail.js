@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { getMailFromAddress } from "./mailFrom.js";
 
 const DEFAULT_RECIPIENTS =
   "hr@royalehayat.com,marketing@royalehayat.com";
@@ -157,14 +158,8 @@ export const sendJobApplicationNotificationEmail = async (application, job) => {
 
   const applicationId = application.applicationId || "New";
   const jobTitle = job?.title || "Position";
-  const fromAddress =
-    process.env.MAIL_FROM ||
-    process.env.SMTP_FROM ||
-    process.env.SMTP_USER ||
-    "royalehayat.dev@gmail.com";
-
   await transporter.sendMail({
-    from: fromAddress,
+    from: getMailFromAddress(),
     to: recipients.join(", "),
     replyTo: application.email,
     subject: `New Job Application — ${applicationId} (${jobTitle})`,
