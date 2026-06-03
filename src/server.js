@@ -4,6 +4,7 @@ import connectDB from './config/db.js';
 import { initSocket } from './config/socket.js';
 import seedAdmins from './scripts/seedAdmins.js';
 import { logChatBootConfig } from './modules/chat/utils/chatBootLog.js';
+import { getMockCivilIds } from './modules/identity/data/identity.mock.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -23,6 +24,10 @@ connectDB()
     console.log('[identity][boot] Sharper will POST callback to URL above (must reach this process)');
     console.log('[identity][boot] Routes: POST /api/callback | POST /api/v1/identity/start | socket /api/socket.io');
     console.log('[identity][boot] View logs: pm2 logs backend --lines 200');
+    const mockIds = getMockCivilIds();
+    if (mockIds.length) {
+      console.log('[identity][boot] MOCK civil IDs (identity.mock.json):', mockIds.join(', '));
+    }
     });
 
   })

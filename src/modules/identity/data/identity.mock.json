@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "entries": [
+    {
+      "civilId": "286101702331",
+      "patientId": "MOCK-PATIENT-001",
+      "name": {
+        "english": "TEST PATIENT MOCK",
+        "arabic": "مريض تجريبي"
+      },
+      "sex": "M",
+      "dateOfBirth": "1990-01-15T00:00:00",
+      "bloodType": "O+",
+      "nationality": {
+        "iso3Letter": "KWT",
+        "iso2Letter": "KW",
+        "name": { "english": "Kuwait", "arabic": "الكويت" },
+        "demonym": { "english": "Kuwaiti", "arabic": "كويتي" }
+      },
+      "address": {
+        "uniqueKey": "mock-address",
+        "governorate": { "english": "Hawalli", "arabic": "حولي" }
+      },
+      "registration": {
+        "passport": "MOCK-PASSPORT-001"
+      }
+    }
+  ]
+}

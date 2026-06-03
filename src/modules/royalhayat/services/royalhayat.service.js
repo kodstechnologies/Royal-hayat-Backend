@@ -4,6 +4,7 @@ import {
   enrichPatientLookupApiError,
   throwPatientLookupError
 } from '../utils/patientLookup.errors.js';
+import { buildMockPatientRecord, isMockCivilId } from '../../identity/data/identity.mock.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -192,6 +193,14 @@ const bookAppointment = async (patientId, slotBookingId) => {
 const getPatient = async (params) => {
   try {
     const { urn, nationalid } = params;
+
+    if (nationalid && isMockCivilId(nationalid)) {
+      const mockPatient = buildMockPatientRecord(nationalid);
+      return {
+        patient: mockPatient,
+        raw: mockPatient,
+      };
+    }
 
     if (!urn && !nationalid) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'At least one parameter required: urn or nationalid');
