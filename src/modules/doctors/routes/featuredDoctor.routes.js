@@ -5,6 +5,7 @@ import {
   createFeaturedDoctor,
   getFeaturedDoctors,
   updateFeaturedDoctor,
+  deleteFeaturedDoctor,
 } from "../controllers/featuredDoctor.controller.js";
 
 import validate from "../../../middlewares/validate.js";
@@ -29,5 +30,7 @@ router.put(
   validate(updateFeaturedDoctorValidator),
   updateFeaturedDoctor
 );
+
+router.delete("/:id", deleteFeaturedDoctor);
 
 export default router;

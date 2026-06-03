@@ -29,6 +29,10 @@ class FeaturedDoctorsRepository {
       }
     ).populate("doctor");
   }
+
+  async deleteFeaturedDoctor(id) {
+    return await FeaturedDoctor.findByIdAndDelete(id);
+  }
 }
 
 export default new FeaturedDoctorsRepository();

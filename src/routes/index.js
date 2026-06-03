@@ -29,6 +29,7 @@ import chatRoutes from '../modules/chat/routes/chat.routes.js';
 import alSafwaRoutes from "../modules/al-safwa/routes/alSafwa.route.js"
 import internationalPatientEnquiryRoutes from "../modules/international-patient/routes/internationalPatientEnquiry.route.js"
 import eventRoutes from "../modules/event/routes/event.route.js"
+import fileManagerRoutes from "../modules/fileManager/routes/fileManager.routes.js"
 
 const router = Router();
 
@@ -60,5 +61,6 @@ router.use("/api/v1/dashboard", dashboardRoutes)
 router.use("/api/v1/al-safwa", alSafwaRoutes)
 router.use("/api/v1/international-patient-enquiries", internationalPatientEnquiryRoutes)
 router.use("/api/v1/events", eventRoutes)
+router.use("/api/v1/file-manager", fileManagerRoutes)
 
 export default router;

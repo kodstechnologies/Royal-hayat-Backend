@@ -47,3 +47,15 @@ export const updateFeaturedDoctor = asyncHandler(
     });
   }
 );
+
+export const deleteFeaturedDoctor = asyncHandler(
+  async (req, res) => {
+    await FeaturedDoctorsService.deleteFeaturedDoctor(req.params.id);
+
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: "Featured doctor removed successfully",
+      data: null,
+    });
+  }
+);
