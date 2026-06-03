@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import ApiError from '../../../utils/ApiError.js';
 import appointmentRequestRepository from '../repository/AppointmentRequest.repository.js';
-import appointmentBookingRecordRepository from '../repository/AppointmentBookingRecord.repository.js';
+import appointmentBookingRecordService from './AppointmentBookingRecord.service.js';
 import {
   buildAppointmentListFilter,
   normalizeRequestType,
@@ -346,7 +346,7 @@ class AppointmentRequestService {
     }
 
     if (current.status !== 'accepted') {
-      await appointmentBookingRecordRepository.create(
+      await appointmentBookingRecordService.createAppointmentBookingRecord(
         mapRequestToBookingPayload(current),
       );
     }

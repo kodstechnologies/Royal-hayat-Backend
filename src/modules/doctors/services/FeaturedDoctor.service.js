@@ -75,6 +75,24 @@ class FeaturedDoctorsService {
 
     return updatedFeaturedDoctor;
   }
+
+  async deleteFeaturedDoctor(id) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      const err = new Error("Invalid Featured Doctor ID");
+      err.statusCode = httpStatus.BAD_REQUEST;
+      throw err;
+    }
+
+    const deleted = await FeaturedDoctorsRepository.deleteFeaturedDoctor(id);
+
+    if (!deleted) {
+      const err = new Error("Featured Doctor not found");
+      err.statusCode = httpStatus.NOT_FOUND;
+      throw err;
+    }
+
+    return deleted;
+  }
 }
 
 export default new FeaturedDoctorsService();

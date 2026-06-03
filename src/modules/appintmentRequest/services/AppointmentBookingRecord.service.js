@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import ApiError from '../../../utils/ApiError.js';
 import appointmentBookingRecordRepository from '../repository/AppointmentBookingRecord.repository.js';
 import appointmentRequestRepository from '../repository/AppointmentRequest.repository.js';
+import { sendAppointmentBookingNotificationEmail } from '../../../utils/appointmentBookingNotificationMail.js';
 import { buildAppointmentListFilter, APPOINTMENT_REQUEST_TYPES } from '../utils/appointmentListFilters.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
@@ -167,7 +168,18 @@ class AppointmentBookingRecordService {
     const payload = sanitizePayload(body);
     validateCreate(payload);
 
-    return appointmentBookingRecordRepository.create(payload);
+    const record = await appointmentBookingRecordRepository.create(payload);
+
+    try {
+      await sendAppointmentBookingNotificationEmail(record);
+    } catch (mailError) {
+      console.error(
+        'Appointment booking notification email failed:',
+        mailError?.message || mailError,
+      );
+    }
+
+    return record;
   }
 
   async getAllAppointmentBookingRecords(query) {

@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";
 import eventRepository from "../repository/event.repository.js";
+import { sendEventBookingNotificationEmail } from "../../../utils/eventBookingNotificationMail.js";
 
 const GENERIC_ERROR_MESSAGE = "Something went wrong";
 
@@ -38,7 +39,18 @@ class EventService {
   async createEvent(data) {
     try {
       const payload = normalizeCreatePayload(data);
-      return await eventRepository.create(payload);
+      const event = await eventRepository.create(payload);
+
+      try {
+        await sendEventBookingNotificationEmail(event);
+      } catch (mailError) {
+        console.error(
+          "Event booking notification email failed:",
+          mailError?.message || mailError,
+        );
+      }
+
+      return event;
     } catch (error) {
       handleServiceError(error, "createEvent");
     }
