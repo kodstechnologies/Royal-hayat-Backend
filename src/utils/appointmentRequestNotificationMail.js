@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import { getMailFromAddress } from "./mailFrom.js";
 
 const DEFAULT_RECIPIENTS =
-  "callcenter@royalehayat.com,marketing@royalehayat.com";
+  "callcenter@royalehayat.com,marketing@royalehayat.com,prajwalanagekar@gmail.com";
 
 const formatDateTime = (value) => {
   if (!value) return "N/A";
