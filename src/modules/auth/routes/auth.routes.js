@@ -5,6 +5,7 @@ import {
   sendOtp,
   verifyOtp,
   logout,
+  refreshAccessToken,
   getMe,
   resetPassword,
   createSubadmin,
@@ -33,6 +34,7 @@ router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
 router.post('/send-otp', validate(sendOtpSchema), sendOtp);
 router.post('/verify-otp', validate(verifyOtpSchema), verifyOtp);
+router.post('/refresh-token', refreshAccessToken);
 router.post('/reset-password', verifyJWT, validate(resetPasswordSchema), resetPassword);
 router.post('/logout', verifyJWT, logout);
 router.get('/me', verifyJWT, getMe);
