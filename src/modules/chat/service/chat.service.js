@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import httpStatus from 'http-status';
 import ApiError from '../../../utils/ApiError.js';
 import { buildGroundingContext } from './chatGrounding.service.js';
@@ -186,6 +187,33 @@ async function buildGeminiRequestBody({ messages, lang }) {
   };
 }
 
+function messagesCacheKey(messages, lang) {
+  const trimmed = messages.slice(-MAX_HISTORY_TURNS);
+  const payload = JSON.stringify({
+    lang,
+    messages: trimmed.map((m) => ({ role: m.role, content: m.content })),
+  });
+  return createHash('sha256').update(payload).digest('hex');
+}
+
+/** One build per in-flight request (dedupes model fallbacks and concurrent identical calls). */
+const geminiRequestBodyInflight = new Map();
+
+async function resolveGeminiRequestBody({ messages, lang }) {
+  const cacheKey = messagesCacheKey(messages, lang);
+  const existing = geminiRequestBodyInflight.get(cacheKey);
+  if (existing) return existing;
+
+  const promise = buildGeminiRequestBody({ messages, lang });
+  geminiRequestBodyInflight.set(cacheKey, promise);
+
+  try {
+    return await promise;
+  } finally {
+    geminiRequestBodyInflight.delete(cacheKey);
+  }
+}
+
 function extractReplyText(data) {
   const parts = data?.candidates?.[0]?.content?.parts;
   if (!Array.isArray(parts)) return '';
@@ -289,7 +317,7 @@ async function callGeminiStream(apiKey, model, body, onChunk) {
 
 export async function generateChatReply({ messages, lang }) {
   const apiKey = getApiKey();
-  const body = await buildGeminiRequestBody({ messages, lang });
+  const body = await resolveGeminiRequestBody({ messages, lang });
   const models = getChatModels();
   const failedAttempts = [];
 
@@ -331,7 +359,7 @@ export async function generateChatReply({ messages, lang }) {
  */
 export async function streamChatReply({ messages, lang }, onChunk) {
   const apiKey = getApiKey();
-  const body = await buildGeminiRequestBody({ messages, lang });
+  const body = await resolveGeminiRequestBody({ messages, lang });
   const models = getChatModels();
   const failedAttempts = [];
 

@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import ApiError from '../../../utils/ApiError.js';
 import authRepository from '../repositories/auth.repository.js';
 import nodemailer from 'nodemailer';
@@ -174,6 +175,38 @@ const authService = {
 
   logout: async (userId) => {
     await authRepository.updateRefreshToken(userId, null);
+  },
+
+  refreshAccessToken: async (incomingRefreshToken) => {
+    if (!incomingRefreshToken) {
+      throw new ApiError(401, 'Refresh token required', { code: 'REFRESH_REQUIRED' });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+    } catch (err) {
+      if (err?.name === 'TokenExpiredError') {
+        throw new ApiError(401, 'Session expired. Please log in again.', { code: 'REFRESH_EXPIRED' });
+      }
+      throw new ApiError(401, 'Invalid refresh token', { code: 'INVALID_REFRESH' });
+    }
+
+    const user = await authRepository.findById(decoded._id);
+    if (!user || user.isActive === false) {
+      throw new ApiError(401, 'Invalid session', { code: 'INVALID_SESSION' });
+    }
+
+    if (user.refreshToken !== incomingRefreshToken) {
+      throw new ApiError(401, 'Session expired. Please log in again.', { code: 'REFRESH_REVOKED' });
+    }
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    await authRepository.updateRefreshToken(user._id, refreshToken);
+
+    return { user, accessToken, refreshToken };
   },
 };
 

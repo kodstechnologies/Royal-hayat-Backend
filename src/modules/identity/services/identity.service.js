@@ -8,6 +8,11 @@ import {
   setOperation
 } from '../store/identity.store.js';
 import { identityLog, identityLogJson } from '../utils/identity.logger.js';
+import {
+  buildMockDataResult,
+  buildMockStartResult,
+  isMockCivilId,
+} from '../data/identity.mock.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -124,6 +129,11 @@ const persistAndEmit = async (operationId, entry) => {
 };
 
 const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, reason }) => {
+  if (isMockCivilId(civilId)) {
+    identityLog('start', `service: mock bypass civilId=${civilId}`);
+    return buildMockStartResult(civilId);
+  }
+
   const payload = {
     civilId,
     callbackUrl: callbackUrl || SHARPER_CALLBACK_URL,
@@ -253,6 +263,11 @@ const getIdentityStatus = async (operationId) => {
 };
 
 const getIdentityData = async (civilId) => {
+  if (isMockCivilId(civilId)) {
+    identityLog('data', `service: mock data civilId=${civilId}`);
+    return buildMockDataResult(civilId);
+  }
+
   const dataBody = await fetchIdentityDataRaw(civilId);
   return {
     civilId,

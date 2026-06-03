@@ -75,6 +75,25 @@ app.use((err, req, res, next) => {
       meta: err.meta || null,
     });
   }
+
+  if (err?.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      success: false,
+      message: 'Access token expired',
+      data: null,
+      meta: { code: 'TOKEN_EXPIRED' },
+    });
+  }
+
+  if (err?.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid access token',
+      data: null,
+      meta: { code: 'INVALID_TOKEN' },
+    });
+  }
+
   console.error('Unhandled error:', err);
   res.status(500).json({ success: false, message: 'Internal Server Error', data: null });
 });

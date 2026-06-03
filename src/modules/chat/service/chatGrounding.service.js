@@ -12,7 +12,11 @@ const CACHE_TTL_MS = Number(process.env.CHAT_GROUNDING_CACHE_TTL_MS || 600_000);
 const MAX_DEPT_DESC_CHARS = Number(process.env.CHAT_GROUNDING_DEPT_DESC_MAX || 160);
 const MAX_DEPARTMENTS = Number(process.env.CHAT_GROUNDING_MAX_DEPARTMENTS || 60);
 
-let departmentCache = { loadedAt: 0, textEn: '', textAr: '' };
+/** Full assembled grounding strings (static CMS blocks + departments), per language. */
+let groundingCache = { loadedAt: 0, en: '', ar: '' };
+
+/** Static site map / FAQ / tasks — immutable until deploy. */
+let staticGroundingCache = { en: '', ar: '' };
 
 function truncate(text, max) {
   const s = String(text || '').replace(/\s+/g, ' ').trim();
@@ -20,12 +24,7 @@ function truncate(text, max) {
   return `${s.slice(0, max - 1)}…`;
 }
 
-async function loadDepartmentGrounding() {
-  const now = Date.now();
-  if (departmentCache.loadedAt && now - departmentCache.loadedAt < CACHE_TTL_MS) {
-    return departmentCache;
-  }
-
+async function fetchDepartmentLines() {
   const rows = await Department.find({ isActive: true })
     .select('name arabicName description arabicDescription')
     .populate('catagory', 'name arabicName')
@@ -50,13 +49,10 @@ async function loadDepartmentGrounding() {
     );
   }
 
-  departmentCache = {
-    loadedAt: now,
+  return {
     textEn: linesEn.join('\n'),
     textAr: linesAr.join('\n'),
   };
-
-  return departmentCache;
 }
 
 function formatFaq(lang) {
@@ -82,9 +78,7 @@ function formatCommonTasks(lang) {
   }).join('\n\n');
 }
 
-export async function buildGroundingContext(lang) {
-  const dept = await loadDepartmentGrounding();
-  const departmentsBlock = lang === 'ar' ? dept.textAr : dept.textEn;
+function buildStaticGrounding(lang) {
   const isAr = lang === 'ar';
 
   return `
@@ -105,9 +99,48 @@ ${formatSitePages(lang)}
 ${formatCommonTasks(lang)}
 
 ## Frequently asked questions
-${formatFaq(lang)}
+${formatFaq(lang)}`.trim();
+}
+
+function getStaticGrounding(lang) {
+  if (!staticGroundingCache.en) {
+    staticGroundingCache = {
+      en: buildStaticGrounding('en'),
+      ar: buildStaticGrounding('ar'),
+    };
+  }
+  return lang === 'ar' ? staticGroundingCache.ar : staticGroundingCache.en;
+}
+
+function assembleFullGrounding(lang, departmentsBlock) {
+  const deptSection =
+    departmentsBlock ||
+    '(Department list temporarily unavailable — direct users to /medical-services)';
+
+  return `${getStaticGrounding(lang)}
 
 ## Active medical departments from CMS (exact names and paths — do not invent)
-${departmentsBlock || '(Department list temporarily unavailable — direct users to /medical-services)'}
-`.trim();
+${deptSection}`.trim();
+}
+
+async function refreshGroundingCache() {
+  const now = Date.now();
+  const dept = await fetchDepartmentLines();
+
+  groundingCache = {
+    loadedAt: now,
+    en: assembleFullGrounding('en', dept.textEn),
+    ar: assembleFullGrounding('ar', dept.textAr),
+  };
+
+  return groundingCache;
+}
+
+export async function buildGroundingContext(lang) {
+  const now = Date.now();
+  if (!groundingCache.loadedAt || now - groundingCache.loadedAt >= CACHE_TTL_MS) {
+    await refreshGroundingCache();
+  }
+
+  return lang === 'ar' ? groundingCache.ar : groundingCache.en;
 }

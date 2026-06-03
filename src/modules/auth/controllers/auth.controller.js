@@ -34,6 +34,9 @@ const assertManagedRole = (role) => {
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  /** Limit cookie to admin app path when set (e.g. /admin). Default / = whole host. */
+  path: process.env.AUTH_COOKIE_PATH || '/',
 };
 
 export const register = asyncHandler(async (req, res) => {
@@ -84,6 +87,33 @@ export const logout = asyncHandler(async (req, res) => {
     .clearCookie('accessToken', cookieOptions)
     .clearCookie('refreshToken', cookieOptions)
     .json(ApiResponse.success(null, 'Logged out successfully'));
+});
+
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+  const incoming =
+    req.cookies?.refreshToken ||
+    req.body?.refreshToken ||
+    req.headers['x-refresh-token'];
+
+  const { user, accessToken, refreshToken } = await authService.refreshAccessToken(incoming);
+
+  res
+    .cookie('accessToken', accessToken, cookieOptions)
+    .cookie('refreshToken', refreshToken, cookieOptions)
+    .json(
+      ApiResponse.success(
+        {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          accessToken,
+          permissions: user.permissions || [],
+          isActive: user.isActive !== false,
+        },
+        'Token refreshed successfully',
+      ),
+    );
 });
 
 export const getMe = asyncHandler(async (req, res) => {
