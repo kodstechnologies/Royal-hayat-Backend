@@ -1,11 +1,22 @@
 import httpStatus from 'http-status';
 import ApiError from '../../../utils/ApiError.js';
 import enquiryRepository from '../repository/enquiry.repository.js';
+import { sendEnquiryNotificationEmail } from '../../../utils/enquiryNotificationMail.js';
 
 class EnquiryService {
   async createEnquiry(enquiryData) {
     try {
       const enquiry = await enquiryRepository.create(enquiryData);
+
+      try {
+        await sendEnquiryNotificationEmail(enquiry);
+      } catch (mailError) {
+        console.error(
+          'Enquiry notification email failed:',
+          mailError?.message || mailError,
+        );
+      }
+
       return enquiry;
     } catch (error) {
       if (error instanceof ApiError) {

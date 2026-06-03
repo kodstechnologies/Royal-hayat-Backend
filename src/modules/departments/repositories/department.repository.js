@@ -1,28 +1,5 @@
 import Department from '../models/department.model.js';
 
-const populateSubspecialities = {
-  path: 'subspecialities',
-
-  select: `
-    name
-    arabicName
-    description
-    arabicDescription
-    customSubspecialities
-  `,
-
-  populate: {
-    path: 'customSubspecialities',
-
-    select: `
-      subHeading
-      arabicSubHeading
-      explanations
-      arabicExplanations
-    `,
-  },
-};
-
 const populateCustomExplainantions = {
   path: 'customExplainantions',
 
@@ -50,8 +27,6 @@ class DepartmentRepository {
         'catagory',
         'name arabicName'
       )
-
-      .populate(populateSubspecialities)
 
       .populate(
         populateCustomExplainantions
@@ -132,10 +107,6 @@ class DepartmentRepository {
         )
 
         .populate(
-          populateSubspecialities
-        )
-
-        .populate(
           populateCustomExplainantions
         )
 
@@ -183,10 +154,6 @@ class DepartmentRepository {
       .populate(
         'catagory',
         'name arabicName'
-      )
-
-      .populate(
-        populateSubspecialities
       )
 
       .populate(

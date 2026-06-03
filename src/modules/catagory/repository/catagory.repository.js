@@ -1,6 +1,7 @@
 import Catagory from '../model/catagory.model.js';
 import Department from '../../departments/models/department.model.js';
 import Doctor from '../../doctors/models/doctor.model.js';
+import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 
 class CatagoryRepository {
   async create(data) {
@@ -110,20 +111,36 @@ class CatagoryRepository {
     })
       .sort({ order: 1, name: 1 })
       .populate({
-        path: 'subspecialities',
-        select: 'name description customSubspecialities',
-        populate: {
-          path: 'customSubspecialities',
-          select: 'subHeading explanations',
-        },
-      })
-      .populate({
         path: 'customExplainantions',
         select: 'subHeading explaination',
       })
       .lean();
 
     const deptIds = departments.map((d) => d._id);
+
+    const subspecialitiesByDept = new Map();
+
+    if (deptIds.length > 0) {
+      const subspecialities = await Subspeciality.find({
+        department: { $in: deptIds },
+      })
+        .select('name description department customSubspecialities')
+        .populate({
+          path: 'customSubspecialities',
+          select: 'subHeading explanations',
+        })
+        .lean();
+
+      for (const sub of subspecialities) {
+        const key = String(sub.department);
+
+        if (!subspecialitiesByDept.has(key)) {
+          subspecialitiesByDept.set(key, []);
+        }
+
+        subspecialitiesByDept.get(key).push(sub);
+      }
+    }
 
     const doctors =
       deptIds.length === 0
@@ -132,7 +149,7 @@ class CatagoryRepository {
           department: { $in: deptIds },
         })
           .select(
-            'doctorId name specialty title department image isActive availableOnline initials'
+            'doctorId name nameAr title titleAr department subspecialities subspecialitiesAr image isActive availableOnline initials initialsAr'
           )
           .sort({ name: 1 })
           .lean();
@@ -158,15 +175,11 @@ class CatagoryRepository {
 
       const {
         catagory: _omit,
-        subspecialities: subMulti,
         ...rest
       } = dep;
 
-      const mergedSubspecialities = Array.isArray(subMulti)
-        ? subMulti.filter(
-          (s) => s && typeof s === 'object' && s._id
-        )
-        : [];
+      const mergedSubspecialities =
+        subspecialitiesByDept.get(String(dep._id)) || [];
 
       const firstSub = mergedSubspecialities[0] || null;
 

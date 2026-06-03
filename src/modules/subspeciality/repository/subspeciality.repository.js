@@ -1,5 +1,11 @@
 import Subspeciality from '../model/subspeciality.model.js';
 import '../model/customSubspeciality.model.js';
+import '../../departments/models/department.model.js';
+
+const populateDepartment = {
+  path: 'department',
+  select: 'departmentId name arabicName',
+};
 
 class SubspecialityRepository {
   async create(data) {
@@ -16,7 +22,9 @@ class SubspecialityRepository {
     id,
     { populateCustom = true } = {}
   ) {
-    let q = Subspeciality.findById(id);
+    let q = Subspeciality.findById(id).populate(
+      populateDepartment
+    );
 
     if (populateCustom) {
       q = q.populate({
@@ -41,11 +49,16 @@ class SubspecialityRepository {
       page = 1,
       limit = 10,
       search,
+      department,
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = filters;
 
     const query = {};
+
+    if (department) {
+      query.department = department;
+    }
 
     if (search) {
       query.$or = [
@@ -89,6 +102,7 @@ class SubspecialityRepository {
     const [subspecialities, total] =
       await Promise.all([
         Subspeciality.find(query)
+          .populate(populateDepartment)
           .populate({
             path: 'customSubspecialities',
             select:
@@ -124,14 +138,20 @@ class SubspecialityRepository {
   }
 
   async updateById(id, updateData) {
-    return await Subspeciality.findByIdAndUpdate(
+    const updated = await Subspeciality.findByIdAndUpdate(
       id,
       updateData,
       {
         new: true,
         runValidators: true,
       }
-    ).lean();
+    );
+
+    if (!updated) return null;
+
+    return await this.findById(id, {
+      populateCustom: true,
+    });
   }
 
   async deleteById(id) {
@@ -149,9 +169,12 @@ class SubspecialityRepository {
   async existsByName(
     name,
     arabicName,
+    departmentId,
     excludeId = null
   ) {
     const query = {
+      department: departmentId,
+
       $or: [
         {
           name: new RegExp(

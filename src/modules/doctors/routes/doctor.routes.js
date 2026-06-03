@@ -8,15 +8,13 @@ import {
   updateDoctor,
   deleteDoctor,
   getDepartments,
-  getSpecialties
 } from '../controllers/doctor.controller.js';
 import upload from "../../../utils/multer.js";
 
 const router = Router();
 
 router.get('/', getAllDoctors);
-router.get('/departments', getDepartments);
-router.get('/specialties', getSpecialties);
+router.get('/departments/list', getDepartments);
 router.get('/department/:department', getDoctorsByDepartment);
 router.get('/subspeciality/:subspecialityId', getDoctorsBySubspeciality);
 

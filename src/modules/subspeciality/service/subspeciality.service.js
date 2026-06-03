@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import ApiError from '../../../utils/ApiError.js';
 import subspecialityRepository from '../repository/subspeciality.repository.js';
 import CustomSubspeciality from '../model/customSubspeciality.model.js';
+import Department from '../../departments/models/department.model.js';
 
 function normalizeExplanations(value) {
   if (!Array.isArray(value)) return [];
@@ -80,6 +81,19 @@ function idsToRemoveAfterReplace(
   );
 }
 
+async function assertDepartmentExists(departmentId) {
+  const exists = await Department.exists({
+    _id: departmentId,
+  });
+
+  if (!exists) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Department not found'
+    );
+  }
+}
+
 class SubspecialityService {
   async createSubspeciality(data) {
     const trimmedName =
@@ -91,7 +105,8 @@ class SubspecialityService {
     const nameTaken =
       await subspecialityRepository.existsByName(
         trimmedName,
-        trimmedArabicName
+        trimmedArabicName,
+        data.department
       );
 
     if (nameTaken) {
@@ -100,6 +115,8 @@ class SubspecialityService {
         'Subspeciality with this English or Arabic name already exists'
       );
     }
+
+    await assertDepartmentExists(data.department);
 
     const raw =
       data.customSubspecialities;
@@ -123,6 +140,8 @@ class SubspecialityService {
 
         arabicDescription:
           data.arabicDescription.trim(),
+
+        department: data.department,
 
         customSubspecialities,
       }
@@ -175,19 +194,37 @@ class SubspecialityService {
     const payload = {};
 
     if (
-      updateData.name !== undefined
+      updateData.name !== undefined ||
+      updateData.arabicName !== undefined
     ) {
+      const existing =
+        await subspecialityRepository.findById(
+          id,
+          { populateCustom: false }
+        );
+
+      const departmentId =
+        updateData.department ??
+        String(
+          existing.department?._id ??
+            existing.department
+        );
+
       const trimmed =
-        updateData.name.trim();
+        updateData.name !== undefined
+          ? updateData.name.trim()
+          : existing.name;
 
       const arabicTrimmed =
-        updateData.arabicName?.trim() ||
-        '';
+        updateData.arabicName !== undefined
+          ? updateData.arabicName.trim()
+          : existing.arabicName;
 
       const taken =
         await subspecialityRepository.existsByName(
           trimmed,
           arabicTrimmed,
+          departmentId,
           id
         );
 
@@ -198,7 +235,9 @@ class SubspecialityService {
         );
       }
 
-      payload.name = trimmed;
+      if (updateData.name !== undefined) {
+        payload.name = trimmed;
+      }
     }
 
     if (
@@ -223,6 +262,11 @@ class SubspecialityService {
     ) {
       payload.arabicDescription =
         updateData.arabicDescription.trim();
+    }
+
+    if (updateData.department !== undefined) {
+      await assertDepartmentExists(updateData.department);
+      payload.department = updateData.department;
     }
 
     if (

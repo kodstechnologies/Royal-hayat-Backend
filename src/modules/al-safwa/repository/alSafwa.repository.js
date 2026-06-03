@@ -52,10 +52,10 @@ class AlSafwaRepository {
     const query = {
       ...baseQuery,
       $or: [
-        { name: { $regex: searchTerm, $options: "i" } },
+        { firstName: { $regex: searchTerm, $options: "i" } },
+        { familyName: { $regex: searchTerm, $options: "i" } },
         { email: { $regex: searchTerm, $options: "i" } },
-        { phone: { $regex: searchTerm, $options: "i" } },
-        { notes: { $regex: searchTerm, $options: "i" } },
+        { mobile: { $regex: searchTerm, $options: "i" } },
       ],
     };
 

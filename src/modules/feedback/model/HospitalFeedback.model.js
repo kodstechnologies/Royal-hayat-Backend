@@ -31,7 +31,7 @@ const hospitalFeedbackSchema = new mongoose.Schema({
 
     shownOnWebsite: {
         type: Boolean,
-        default: false
+        default: true
     },
     addedBy: {
         type: String,

@@ -50,15 +50,6 @@ const createDepartmentSchema =
       .trim()
       .required(),
 
-    subSpecialties:
-      Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .max(100)
-        )
-        .optional(),
-
     arabicName:
       Joi.string()
         .trim()
@@ -69,33 +60,11 @@ const createDepartmentSchema =
         .trim()
         .required(),
 
-    arabicSubSpecialties:
-      Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .max(100)
-        )
-        .optional(),
-
     catagory: Joi.string()
       .pattern(
         objectIdPattern
       )
       .required(),
-
-    subspecialities:
-      Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .pattern(
-              objectIdPattern
-            )
-        )
-        .unique()
-        .optional()
-        .default([]),
 
     image: Joi.string()
       .uri()
@@ -137,15 +106,6 @@ const updateDepartmentSchema =
         .trim()
         .optional(),
 
-    subSpecialties:
-      Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .max(100)
-        )
-        .optional(),
-
     arabicName:
       Joi.string()
         .trim()
@@ -156,32 +116,11 @@ const updateDepartmentSchema =
         .trim()
         .optional(),
 
-    arabicSubSpecialties:
-      Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .max(100)
-        )
-        .optional(),
-
     catagory: Joi.string()
       .pattern(
         objectIdPattern
       )
       .optional(),
-
-    subspecialities:
-      Joi.array()
-        .items(
-          Joi.string()
-            .trim()
-            .pattern(
-              objectIdPattern
-            )
-        )
-        .unique()
-        .optional(),
 
     image: Joi.string()
       .uri()

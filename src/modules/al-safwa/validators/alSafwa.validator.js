@@ -1,14 +1,25 @@
 import Joi from "joi";
 
+
 const createAlSafwaSchema = Joi.object({
-  name: Joi.string().trim().min(2).max(100).required(),
-  email: Joi.string().trim().email().required(),
-  phone: Joi.string().trim().min(6).max(20).required(),
-  age: Joi.string().trim().min(1).max(10).required(),
-  gender: Joi.string().trim().min(1).max(30).required(),
-  notes: Joi.string().trim().min(1).max(2000).required(),
+  firstName: Joi.string().allow("").optional(),
+  familyName: Joi.string().allow("").optional(),
+  gender: Joi.string().allow("").optional(),
+  dateOfBirth: Joi.any().optional(),
+  mobile: Joi.string().allow("").optional(),
+  email: Joi.string().allow("").optional(),
+  preferredAppointmentDate: Joi.any().optional(),
+  previousMedicalCheckup: Joi.string().allow("").optional(),
+  diabetes: Joi.string().allow("").optional(),
+  highCholesterol: Joi.string().allow("").optional(),
+  bronchialAsthma: Joi.string().allow("").optional(),
+  hypertension: Joi.string().allow("").optional(),
+  heartDisease: Joi.string().allow("").optional(),
+  overweightObesity: Joi.string().allow("").optional(),
+  smoker: Joi.string().allow("").optional(),
+  alcohol: Joi.string().allow("").optional(),
   isActive: Joi.boolean().default(true),
-});
+}).unknown(true);
 
 const getAlSafwaListSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
@@ -23,7 +34,7 @@ const getAlSafwaListSchema = Joi.object({
       return value;
     }),
   sortBy: Joi.string()
-    .valid("name", "email", "createdAt", "isViewed")
+    .valid("firstName", "familyName", "mobile", "email", "createdAt", "isViewed")
     .default("createdAt"),
   sortOrder: Joi.string().valid("asc", "desc").default("desc"),
 });

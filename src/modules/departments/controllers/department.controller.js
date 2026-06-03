@@ -17,76 +17,6 @@ import { uploadToCloudinary } from '../../../utils/cloudinary.js';
 
 import fs from 'fs-extra';
 
-const OID = /^[0-9a-fA-F]{24}$/i;
-
-function coerceSubspecialitiesField(
-  formData
-) {
-  if (
-    formData.subspecialities ===
-    undefined
-  )
-    return;
-
-  const raw =
-    formData.subspecialities;
-
-  if (Array.isArray(raw)) {
-    formData.subspecialities = [
-      ...new Set(
-        raw
-          .map(String)
-          .filter((id) =>
-            OID.test(id)
-          )
-      ),
-    ];
-
-    return;
-  }
-
-  if (typeof raw === 'string') {
-    const t = raw.trim();
-
-    if (!t) {
-      formData.subspecialities =
-        [];
-
-      return;
-    }
-
-    if (t.startsWith('[')) {
-      try {
-        const parsed =
-          JSON.parse(t);
-
-        formData.subspecialities =
-          Array.isArray(parsed)
-            ? [
-              ...new Set(
-                parsed
-                  .map(String)
-                  .filter((id) =>
-                    OID.test(id)
-                  )
-              ),
-            ]
-            : [];
-
-        return;
-      } catch {
-        formData.subspecialities =
-          [];
-
-        return;
-      }
-    }
-
-    formData.subspecialities =
-      OID.test(t) ? [t] : [];
-  }
-}
-
 function coerceCustomExplainantionsField(
   formData
 ) {
@@ -172,31 +102,6 @@ const createDepartment =
 
         image: imageUrl,
       };
-
-      if (
-        formData.subSpecialties &&
-        typeof formData.subSpecialties ===
-        'string'
-      ) {
-        formData.subSpecialties = [
-          formData.subSpecialties,
-        ];
-      }
-
-      if (
-        formData.arabicSubSpecialties &&
-        typeof formData.arabicSubSpecialties ===
-        'string'
-      ) {
-        formData.arabicSubSpecialties =
-          [
-            formData.arabicSubSpecialties,
-          ];
-      }
-
-      coerceSubspecialitiesField(
-        formData
-      );
 
       coerceCustomExplainantionsField(
         formData
@@ -408,31 +313,6 @@ const updateDepartment =
 
         image: imageUrl,
       };
-
-      if (
-        formData.subSpecialties &&
-        typeof formData.subSpecialties ===
-        'string'
-      ) {
-        formData.subSpecialties = [
-          formData.subSpecialties,
-        ];
-      }
-
-      if (
-        formData.arabicSubSpecialties &&
-        typeof formData.arabicSubSpecialties ===
-        'string'
-      ) {
-        formData.arabicSubSpecialties =
-          [
-            formData.arabicSubSpecialties,
-          ];
-      }
-
-      coerceSubspecialitiesField(
-        formData
-      );
 
       coerceCustomExplainantionsField(
         formData

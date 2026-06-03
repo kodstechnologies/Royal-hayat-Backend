@@ -13,172 +13,217 @@ import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 import { uploadToCloudinary } from '../../../utils/cloudinary.js';
 import fs from 'fs-extra';
-import path from 'path';
 
-const OID = /^[0-9a-fA-F]{24}$/i;
+const ARRAY_FIELDS = [
+  'subspecialities',
+  'subspecialitiesAr',
+  'qualifications',
+  'qualificationsAr',
+  'expertise',
+  'expertiseAr',
+  'languages',
+  'languagesAr',
+];
 
-function coerceDoctorSubspecialitiesField(formData) {
-  if (formData.subspecialities === undefined) return;
-  const raw = formData.subspecialities;
+function coerceStringArrayField(formData, field) {
+  if (formData[field] === undefined) return;
+
+  const raw = formData[field];
+
   if (Array.isArray(raw)) {
-    formData.subspecialities = [...new Set(raw.map(String).filter((id) => OID.test(id)))];
+    formData[field] = raw
+      .map((s) => String(s).trim())
+      .filter(Boolean);
     return;
   }
+
   if (typeof raw === 'string') {
     const t = raw.trim();
     if (!t) {
-      formData.subspecialities = [];
+      formData[field] = [];
       return;
     }
     if (t.startsWith('[')) {
       try {
         const parsed = JSON.parse(t);
-        formData.subspecialities = Array.isArray(parsed)
-          ? [...new Set(parsed.map(String).filter((id) => OID.test(id)))]
+        formData[field] = Array.isArray(parsed)
+          ? parsed.map((s) => String(s).trim()).filter(Boolean)
           : [];
-        return;
       } catch {
-        formData.subspecialities = [];
-        return;
+        formData[field] = [];
       }
+      return;
     }
-    formData.subspecialities = OID.test(t) ? [t] : [];
+    formData[field] = [t];
+  }
+}
+
+function coerceDoctorFormArrays(formData) {
+  for (const field of ARRAY_FIELDS) {
+    coerceStringArrayField(formData, field);
+  }
+}
+
+function coerceDoctorBooleans(formData) {
+  if (formData.availableOnline !== undefined) {
+    formData.availableOnline =
+      formData.availableOnline === 'true' ||
+      formData.availableOnline === true;
+  }
+  if (formData.isActive !== undefined) {
+    formData.isActive =
+      formData.isActive === 'true' || formData.isActive === true;
+  }
+}
+
+function trimOptionalString(formData, field) {
+  if (typeof formData[field] === 'string') {
+    formData[field] = formData[field].trim();
+    if (!formData[field]) delete formData[field];
   }
 }
 
 const createDoctor = asyncHandler(async (req, res) => {
   let imageUrl = '';
-  console.log(req.file);
+
   if (req.file) {
     try {
-      const result = await uploadToCloudinary(req.file.path, 'royale-hayat/doctors');
+      const result = await uploadToCloudinary(
+        req.file.path,
+        'royale-hayat/doctors',
+      );
       imageUrl = result.url;
-      
       await fs.remove(req.file.path);
-    } catch (error) {
-      if (req.file && req.file.path) {
+    } catch {
+      if (req.file?.path) {
         await fs.remove(req.file.path);
       }
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to upload image');
+      throw new ApiError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to upload image',
+      );
     }
   }
 
   const formData = { ...req.body, image: imageUrl };
+
   if (typeof formData.doctorId === 'string') {
     formData.doctorId = formData.doctorId.trim();
   }
-  if (typeof formData.title === 'string') {
-    formData.title = formData.title.trim();
-    if (!formData.title) delete formData.title;
-  }
-  if (typeof formData.bio === 'string') {
-    formData.bio = formData.bio.trim();
-    if (!formData.bio) delete formData.bio;
-  }
-  if (typeof formData.specialty === 'string') {
-    formData.specialty = formData.specialty.trim();
-    if (!formData.specialty) delete formData.specialty;
-  }
-  if (typeof formData.initials === 'string') {
-    formData.initials = formData.initials.trim().toUpperCase();
-    if (!formData.initials) delete formData.initials;
-  }
-  
-  if (formData.qualifications && typeof formData.qualifications === 'string') {
-    formData.qualifications = [formData.qualifications];
-  }
-  if (formData.expertise && typeof formData.expertise === 'string') {
-    formData.expertise = [formData.expertise];
-  }
-  if (formData.languages && typeof formData.languages === 'string') {
-    formData.languages = [formData.languages];
-  }
-  if (formData.symptoms && typeof formData.symptoms === 'string') {
-    formData.symptoms = [formData.symptoms];
-  }
 
-  coerceDoctorSubspecialitiesField(formData);
-  
-  if (formData.availableOnline !== undefined) {
-    formData.availableOnline = formData.availableOnline === 'true' || formData.availableOnline === true;
-  }
-  if (formData.isActive !== undefined) {
-    formData.isActive = formData.isActive === 'true' || formData.isActive === true;
-  }
+  trimOptionalString(formData, 'title');
+  trimOptionalString(formData, 'titleAr');
+  trimOptionalString(formData, 'initials');
+  trimOptionalString(formData, 'initialsAr');
 
-  const { error, value } = createDoctorSchema.validate(formData, { abortEarly: false });
+  coerceDoctorFormArrays(formData);
+  coerceDoctorBooleans(formData);
+
+  const { error, value } = createDoctorSchema.validate(formData, {
+    abortEarly: false,
+  });
+
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', '),
+    );
   }
 
-  await doctorService.createDoctor(value);
-  
+  const doctor = await doctorService.createDoctor(value);
+
   res.status(201).json({
     success: true,
     message: 'Doctor created successfully',
-    data: null
+    data: doctor,
   });
 });
 
 const getAllDoctors = asyncHandler(async (req, res) => {
-  const { error, value } = getDoctorsSchema.validate(req.query, { abortEarly: false });
+  const { error, value } = getDoctorsSchema.validate(req.query, {
+    abortEarly: false,
+  });
+
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', '),
+    );
   }
 
   const result = await doctorService.getAllDoctors(value);
-  
+
   res.status(200).json({
     success: true,
     message: 'Doctors fetched successfully',
     data: result.doctors,
-    meta: result.meta
+    meta: result.meta,
   });
 });
 
 const getDoctorById = asyncHandler(async (req, res) => {
-  const { error, value } = doctorIdSchema.validate(req.params, { abortEarly: false });
+  const { error, value } = doctorIdSchema.validate(req.params, {
+    abortEarly: false,
+  });
+
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', '),
+    );
   }
 
   const doctor = await doctorService.getDoctorById(value.id);
-  
+
   res.status(200).json({
     success: true,
     message: 'Doctor fetched successfully',
-    data: doctor
+    data: doctor,
   });
 });
 
 const getDoctorsByDepartment = asyncHandler(async (req, res) => {
-  const { error, value } = departmentSchema.validate(req.params, { abortEarly: false });
+  const { error, value } = departmentSchema.validate(req.params, {
+    abortEarly: false,
+  });
+
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', '),
+    );
   }
 
   const doctors = await doctorService.getDoctorsByDepartment(value.department);
-  
+
   res.status(200).json({
     success: true,
     message: 'Doctors fetched successfully',
-    data: doctors
+    data: doctors,
   });
 });
 
 const getDoctorsBySubspeciality = asyncHandler(async (req, res) => {
-  const { error: paramsError, value: paramsValue } = subspecialityIdParamSchema.validate(req.params, {
-    abortEarly: false,
-  });
+  const { error: paramsError, value: paramsValue } =
+    subspecialityIdParamSchema.validate(req.params, { abortEarly: false });
+
   if (paramsError) {
-    throw new ApiError(httpStatus.BAD_REQUEST, paramsError.details.map((d) => d.message).join(', '));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      paramsError.details.map((d) => d.message).join(', '),
+    );
   }
 
-  const { error: queryError, value: queryValue } = getDoctorsBySubspecialityQuerySchema.validate(req.query, {
-    abortEarly: false,
-  });
+  const { error: queryError, value: queryValue } =
+    getDoctorsBySubspecialityQuerySchema.validate(req.query, {
+      abortEarly: false,
+    });
+
   if (queryError) {
-    throw new ApiError(httpStatus.BAD_REQUEST, queryError.details.map((d) => d.message).join(', '));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      queryError.details.map((d) => d.message).join(', '),
+    );
   }
 
   const result = await doctorService.getAllDoctorsBySubspeciality(
@@ -195,97 +240,98 @@ const getDoctorsBySubspeciality = asyncHandler(async (req, res) => {
 });
 
 const updateDoctor = asyncHandler(async (req, res) => {
-  const { error: idError, value: idValue } = doctorIdSchema.validate(req.params, { abortEarly: false });
+  const { error: idError, value: idValue } = doctorIdSchema.validate(
+    req.params,
+    { abortEarly: false },
+  );
+
   if (idError) {
-    throw new ApiError(httpStatus.BAD_REQUEST, idError.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      idError.details.map((d) => d.message).join(', '),
+    );
   }
 
-  let imageUrl = req.body.image; // Keep existing image if no new file
+  let imageUrl = req.body.image;
+
   if (req.file) {
     try {
-      const result = await uploadToCloudinary(req.file.path, 'royale-hayat/doctors');
+      const result = await uploadToCloudinary(
+        req.file.path,
+        'royale-hayat/doctors',
+      );
       imageUrl = result.url;
-      
       await fs.remove(req.file.path);
-    } catch (error) {
-      console.log(error);
-      if (req.file && req.file.path) {
+    } catch {
+      if (req.file?.path) {
         await fs.remove(req.file.path);
       }
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to upload image');
+      throw new ApiError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to upload image',
+      );
     }
   }
 
   const formData = { ...req.body, image: imageUrl };
-  
-  if (formData.qualifications && typeof formData.qualifications === 'string') {
-    formData.qualifications = [formData.qualifications];
-  }
-  if (formData.expertise && typeof formData.expertise === 'string') {
-    formData.expertise = [formData.expertise];
-  }
-  if (formData.languages && typeof formData.languages === 'string') {
-    formData.languages = [formData.languages];
-  }
-  if (formData.symptoms && typeof formData.symptoms === 'string') {
-    formData.symptoms = [formData.symptoms];
-  }
 
-  coerceDoctorSubspecialitiesField(formData);
-  
-  if (formData.availableOnline !== undefined) {
-    formData.availableOnline = formData.availableOnline === 'true' || formData.availableOnline === true;
-  }
-  if (formData.isActive !== undefined) {
-    formData.isActive = formData.isActive === 'true' || formData.isActive === true;
-  }
+  trimOptionalString(formData, 'title');
+  trimOptionalString(formData, 'titleAr');
+  trimOptionalString(formData, 'initials');
+  trimOptionalString(formData, 'initialsAr');
 
-  const { error: dataError, value: dataValue } = updateDoctorSchema.validate(formData, { abortEarly: false });
+  coerceDoctorFormArrays(formData);
+  coerceDoctorBooleans(formData);
+
+  const { error: dataError, value: dataValue } = updateDoctorSchema.validate(
+    formData,
+    { abortEarly: false },
+  );
+
   if (dataError) {
-    throw new ApiError(httpStatus.BAD_REQUEST, dataError.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      dataError.details.map((d) => d.message).join(', '),
+    );
   }
 
   const doctor = await doctorService.updateDoctor(idValue.id, dataValue);
-  
+
   res.status(200).json({
     success: true,
     message: 'Doctor updated successfully',
-    data: doctor
+    data: doctor,
   });
 });
 
 const deleteDoctor = asyncHandler(async (req, res) => {
-  const { error, value } = doctorIdSchema.validate(req.params, { abortEarly: false });
+  const { error, value } = doctorIdSchema.validate(req.params, {
+    abortEarly: false,
+  });
+
   if (error) {
-    throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.details.map((d) => d.message).join(', '),
+    );
   }
 
   await doctorService.deleteDoctor(value.id);
-  
+
   res.status(200).json({
     success: true,
     message: 'Doctor deleted successfully',
-    data: null
+    data: null,
   });
 });
 
 const getDepartments = asyncHandler(async (req, res) => {
   const departments = await doctorService.getDepartments();
-  
+
   res.status(200).json({
     success: true,
     message: 'Departments fetched successfully',
-    data: departments
-  });
-});
-
-const getSpecialties = asyncHandler(async (req, res) => {
-  const specialties = await doctorService.getSpecialties();
-  
-  res.status(200).json({
-    success: true,
-    message: 'Specialties fetched successfully',
-    data: specialties
+    data: departments,
   });
 });
 
@@ -298,5 +344,4 @@ export {
   updateDoctor,
   deleteDoctor,
   getDepartments,
-  getSpecialties
 };
