@@ -4,55 +4,69 @@ import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 
-function normalizeDoctorSubspecialityIds(ids) {
-  if (!Array.isArray(ids)) return [];
-  return [...new Set(ids.map(String).filter((id) => /^[0-9a-fA-F]{24}$/i.test(id)))];
+const OID = /^[0-9a-fA-F]{24}$/i;
+
+function normalizeStringArray(value) {
+  if (!Array.isArray(value)) return [];
+  return [
+    ...new Set(
+      value.map((s) => String(s).trim()).filter(Boolean),
+    ),
+  ];
 }
 
-function subspecialityIdsFromDoctorDoc(doc) {
-  if (!doc?.subspecialities?.length) return [];
-  return doc.subspecialities.map((s) =>
-    typeof s === 'object' && s && '_id' in s ? String(s._id) : String(s),
-  );
-}
-
-async function assertSubspecialitiesBelongToDepartment(departmentId, subspecialityIds) {
-  if (!subspecialityIds || subspecialityIds.length === 0) return;
-  const dept = await Department.findById(departmentId).select('subspecialities').lean();
-  if (!dept) {
+async function assertDepartmentExists(departmentId) {
+  const exists = await Department.exists({ _id: departmentId });
+  if (!exists) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Department not found');
   }
-  const allowed = new Set((dept.subspecialities || []).map(String));
-  for (const sid of subspecialityIds) {
-    if (!allowed.has(String(sid))) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Each selected subspeciality must belong to the selected department',
-      );
-    }
+}
+
+async function resolveDepartmentId(departmentParam) {
+  if (OID.test(departmentParam)) {
+    await assertDepartmentExists(departmentParam);
+    return departmentParam;
   }
+
+  const dept = await Department.findOne({
+    $or: [{ departmentId: departmentParam }, { name: departmentParam }],
+  })
+    .select('_id')
+    .lean();
+
+  if (!dept) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Department not found');
+  }
+
+  return String(dept._id);
 }
 
 class DoctorService {
   async createDoctor(doctorData) {
-    try {
-      const existingDoctor = await doctorRepository.findOne({
-        name: doctorData.name,
-        specialty: doctorData.specialty
-      });
+    await assertDepartmentExists(doctorData.department);
 
-      const subs = normalizeDoctorSubspecialityIds(doctorData.subspecialities || []);
-      await assertSubspecialitiesBelongToDepartment(doctorData.department, subs);
-      const payload = { ...doctorData, subspecialities: subs };
+    const existingDoctor = await doctorRepository.findOne({
+      doctorId: doctorData.doctorId,
+    });
 
-      const doctor = await doctorRepository.create(payload);
-      return doctor;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error creating doctor');
+    if (existingDoctor) {
+      throw new ApiError(
+        httpStatus.CONFLICT,
+        'Doctor with this doctorId already exists',
+      );
     }
+
+    const payload = {
+      ...doctorData,
+      subspecialities: normalizeStringArray(
+        doctorData.subspecialities,
+      ),
+      subspecialitiesAr: normalizeStringArray(
+        doctorData.subspecialitiesAr,
+      ),
+    };
+
+    return await doctorRepository.create(payload);
   }
 
   async getAllDoctors(filters = {}) {
@@ -60,11 +74,11 @@ class DoctorService {
       page = 1,
       limit = 10,
       department,
-      specialty,
+      subspeciality,
       search,
       availableOnline,
       sortBy = 'name',
-      sortOrder = 'asc'
+      sortOrder = 'asc',
     } = filters;
 
     const query = { isActive: true };
@@ -72,21 +86,27 @@ class DoctorService {
     if (department) {
       query.department = department;
     }
-    if (specialty) {
-      query.specialty = specialty;
+
+    if (subspeciality) {
+      query.$or = [
+        { subspecialities: subspeciality },
+        { subspecialitiesAr: subspeciality },
+      ];
     }
+
     if (availableOnline !== undefined) {
       query.availableOnline = availableOnline;
     }
 
-    let doctors, total;
+    let doctors;
+    let total;
 
     if (search) {
       const searchResult = await doctorRepository.search(search, {
         page,
         limit,
         sortBy,
-        sortOrder
+        sortOrder,
       });
       doctors = searchResult.doctors;
       total = searchResult.total;
@@ -95,7 +115,7 @@ class DoctorService {
         page,
         limit,
         sortBy,
-        sortOrder
+        sortOrder,
       });
       total = await doctorRepository.countDocuments(query);
     }
@@ -106,8 +126,8 @@ class DoctorService {
         page,
         limit,
         totalRecords: total,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit) || 0,
+      },
     };
   }
 
@@ -121,18 +141,23 @@ class DoctorService {
     return doctor;
   }
 
-  async getDoctorsByDepartment(department) {
+  async getDoctorsByDepartment(departmentParam) {
+    const departmentId = await resolveDepartmentId(departmentParam);
+
     const doctors = await doctorRepository.findAll({
-      department: department,
-      isActive: true
+      department: departmentId,
+      isActive: true,
     });
 
     return doctors.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async getAllDoctorsBySubspeciality(subspecialityId, filters = {}) {
-    const subsExists = await Subspeciality.exists({ _id: subspecialityId });
-    if (!subsExists) {
+    const sub = await Subspeciality.findById(subspecialityId)
+      .select('name arabicName')
+      .lean();
+
+    if (!sub) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Subspeciality not found');
     }
 
@@ -143,9 +168,17 @@ class DoctorService {
       sortOrder = 'asc',
     } = filters;
 
+    const matchValues = [
+      sub.name,
+      sub.arabicName,
+    ].filter(Boolean);
+
     const query = {
       isActive: true,
-      subspecialities: subspecialityId,
+      $or: [
+        { subspecialities: { $in: matchValues } },
+        { subspecialitiesAr: { $in: matchValues } },
+      ],
     };
 
     const doctors = await doctorRepository.findMany(query, {
@@ -173,45 +206,44 @@ class DoctorService {
       throw new ApiError(httpStatus.NOT_FOUND, 'Doctor not found');
     }
 
-    if (updateData.name || updateData.specialty) {
-      const duplicateCheck = await doctorRepository.findOne({
+    if (updateData.doctorId) {
+      const duplicate = await doctorRepository.findOne({
         _id: { $ne: id },
-        name: updateData.name || existingDoctor.name,
-        specialty: updateData.specialty || existingDoctor.specialty
+        doctorId: updateData.doctorId,
       });
 
-      if (duplicateCheck) {
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Doctor with this name and specialty already exists');
+      if (duplicate) {
+        throw new ApiError(
+          httpStatus.CONFLICT,
+          'Doctor with this doctorId already exists',
+        );
       }
     }
 
-    const resolvedDeptId =
-      updateData.department !== undefined
-        ? String(updateData.department)
-        : String(existingDoctor.department?._id || existingDoctor.department || '');
+    if (updateData.department) {
+      await assertDepartmentExists(updateData.department);
+    }
 
     const patch = { ...updateData };
 
     if (updateData.subspecialities !== undefined) {
-      const subs = normalizeDoctorSubspecialityIds(updateData.subspecialities);
-      await assertSubspecialitiesBelongToDepartment(resolvedDeptId, subs);
-      patch.subspecialities = subs;
-    } else if (updateData.department !== undefined) {
-      const existingSubs = subspecialityIdsFromDoctorDoc(existingDoctor);
-      const dept = await Department.findById(resolvedDeptId).select('subspecialities').lean();
-      const allowed = new Set((dept?.subspecialities || []).map(String));
-      const filtered = existingSubs.filter((sid) => allowed.has(sid));
-      patch.subspecialities = filtered;
-      await assertSubspecialitiesBelongToDepartment(resolvedDeptId, filtered);
+      patch.subspecialities = normalizeStringArray(
+        updateData.subspecialities,
+      );
     }
 
-    const doctor = await doctorRepository.updateById(id, patch);
-    return doctor;
+    if (updateData.subspecialitiesAr !== undefined) {
+      patch.subspecialitiesAr = normalizeStringArray(
+        updateData.subspecialitiesAr,
+      );
+    }
+
+    return await doctorRepository.updateById(id, patch);
   }
 
   async deleteDoctor(id) {
     const doctor = await doctorRepository.findById(id);
-    
+
     if (!doctor) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Doctor not found');
     }
@@ -220,13 +252,20 @@ class DoctorService {
   }
 
   async getDepartments() {
-    const departments = await doctorRepository.distinct('department', { isActive: true });
-    return departments.sort();
-  }
+    const departmentIds = await doctorRepository.distinct('department', {
+      isActive: true,
+    });
 
-  async getSpecialties() {
-    const specialties = await doctorRepository.distinct('specialty', { isActive: true });
-    return specialties.sort();
+    if (departmentIds.length === 0) return [];
+
+    const departments = await Department.find({
+      _id: { $in: departmentIds },
+    })
+      .select('departmentId name arabicName')
+      .sort({ name: 1 })
+      .lean();
+
+    return departments;
   }
 }
 

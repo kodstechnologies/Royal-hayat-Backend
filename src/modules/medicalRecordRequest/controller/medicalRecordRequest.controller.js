@@ -16,7 +16,7 @@ export const createMedicalRecordRequest =
             const request =
                 await createMedicalRecordRequestService(
                     req.body,
-                    req.file
+                    req.files
                 );
 
             return res.status(201).json({

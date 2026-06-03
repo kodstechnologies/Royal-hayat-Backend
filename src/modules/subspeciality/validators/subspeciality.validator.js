@@ -85,6 +85,10 @@ const createSubspecialitySchema =
       .max(5000)
       .required(),
 
+    department: Joi.string()
+      .pattern(OID)
+      .required(),
+
     customSubspecialities:
       customSubspecialitiesArray,
   });
@@ -115,6 +119,10 @@ const updateSubspecialitySchema =
       .max(5000)
       .optional(),
 
+    department: Joi.string()
+      .pattern(OID)
+      .optional(),
+
     customSubspecialities:
       customSubspecialitiesUpdateField,
   }).min(1);
@@ -136,6 +144,10 @@ const getSubspecialitiesSchema =
       .trim()
       .min(1)
       .max(200)
+      .optional(),
+
+    department: Joi.string()
+      .pattern(OID)
       .optional(),
 
     sortBy: Joi.string()

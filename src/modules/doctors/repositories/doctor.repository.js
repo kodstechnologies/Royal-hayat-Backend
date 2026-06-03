@@ -1,4 +1,5 @@
 import Doctor from '../models/doctor.model.js';
+import '../../departments/models/department.model.js';
 
 class DoctorRepository {
   async create(doctorData) {
@@ -8,12 +9,7 @@ class DoctorRepository {
 
   async findById(id) {
     return await Doctor.findById(id)
-      .populate({
-        path: 'department',
-        select: 'name departmentId',
-        populate: { path: 'subspecialities', select: 'name description' },
-      })
-      .populate('subspecialities', 'name description')
+      .populate('department', 'departmentId name arabicName')
       .lean();
   }
 
@@ -23,14 +19,14 @@ class DoctorRepository {
 
   async findMany(query, options = {}) {
     const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc' } = options;
-    
+
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
-    
+
     const skip = (page - 1) * limit;
-    
+
     return await Doctor.find(query)
-      .populate('department', 'name departmentId')
+      .populate('department', 'departmentId name arabicName')
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
@@ -38,7 +34,9 @@ class DoctorRepository {
   }
 
   async findAll(query) {
-    return await Doctor.find(query).lean();
+    return await Doctor.find(query)
+      .populate('department', 'departmentId name arabicName')
+      .lean();
   }
 
   async countDocuments(query) {
@@ -46,19 +44,20 @@ class DoctorRepository {
   }
 
   async updateById(id, updateData) {
-    return await Doctor.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    return await Doctor.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    })
+      .populate('department', 'departmentId name arabicName')
+      .lean();
   }
 
   async findOneAndUpdate(query, updateData, options = {}) {
-    return await Doctor.findOneAndUpdate(
-      query,
-      updateData,
-      { new: true, runValidators: true, ...options }
-    );
+    return await Doctor.findOneAndUpdate(query, updateData, {
+      new: true,
+      runValidators: true,
+      ...options,
+    });
   }
 
   async deleteById(id) {
@@ -69,7 +68,7 @@ class DoctorRepository {
     return await Doctor.findByIdAndUpdate(
       id,
       { isActive: false },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -79,32 +78,32 @@ class DoctorRepository {
 
   async search(searchQuery, options = {}) {
     const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc' } = options;
-    
+
     const query = {
       $text: { $search: searchQuery },
-      isActive: true
+      isActive: true,
     };
-    
+
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
-    
+
     const skip = (page - 1) * limit;
-    
+
     const doctors = await Doctor.find(query)
-      .populate('department', 'name departmentId')
+      .populate('department', 'departmentId name arabicName')
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
       .lean();
-    
+
     const total = await Doctor.countDocuments(query);
-    
+
     return {
       doctors,
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
     };
   }
 }

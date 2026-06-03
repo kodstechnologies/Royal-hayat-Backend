@@ -45,13 +45,6 @@ const departmentSchema = new mongoose.Schema(
       required: true,
     },
 
-    subspecialities: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subspeciality',
-      },
-    ],
-
     image: {
       type: String,
       trim: true,
@@ -61,22 +54,6 @@ const departmentSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'CustomExplainantion',
-      },
-    ],
-
-    subSpecialties: [
-      {
-        type: String,
-        trim: true,
-        maxlength: 100,
-      },
-    ],
-
-    arabicSubSpecialties: [
-      {
-        type: String,
-        trim: true,
-        maxlength: 100,
       },
     ],
 
@@ -114,8 +91,6 @@ departmentSchema.index({ isActive: 1 });
 departmentSchema.index({ order: 1 });
 
 departmentSchema.index({ catagory: 1 });
-
-departmentSchema.index({ subspecialities: 1 });
 
 const Department = mongoose.model(
   'Department',

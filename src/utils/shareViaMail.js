@@ -57,29 +57,44 @@ const renderArabicRow = (labelAr, value) => `
 `;
 
 const buildRequestFields = (request) => {
-  const serviceDate = request.specificDateOfService || request.createdAt;
-  const dateFrom = formatDate(serviceDate);
-  const dateTo = formatDate(serviceDate);
-  const specialRequest =
-    request.otherPurpose?.trim() ||
-    (request.purposeOfDisclosure === "Others" ? "N/A" : "—");
+  const dateFrom = formatDate(request.specificFromDate);
+  const dateTo = formatDate(request.specificToDate);
+  const specialRequest = request.specialRequest?.trim() || "—";
 
   const purpose =
     request.purposeOfDisclosure === "Others" && request.otherPurpose
       ? `${request.purposeOfDisclosure} — ${request.otherPurpose}`
       : request.purposeOfDisclosure;
 
+  const isPassportId = request.validIdentification === "passportORGovtId";
+  const documentType = isPassportId ? "Passport / Government ID" : "Civil ID";
+  const documentTypeAr = isPassportId
+    ? "جواز السفر / هوية حكومية"
+    : "البطاقة المدنية";
+
+  const civilId = request.civilIdNumber || request.civilId || "N/A";
+
+  let requestedDocumentType = request.specificAuthorization || "N/A";
+  if (request.specificAuthorization === "specific documents") {
+    const types = Array.isArray(request.specificDocumentTypes)
+      ? request.specificDocumentTypes.join(", ")
+      : "";
+    requestedDocumentType = types
+      ? `specific documents: ${types}${request.specificDocumentsOther ? ` — ${request.specificDocumentsOther}` : ""}`
+      : "specific documents";
+  }
+
   const signatureName =
-    request.patientNameConfirmation ||
-    request.patientFullName ||
-    "N/A";
+    request.requestedBy === "Legal Representative"
+      ? request.legalRepresentativeFullName
+      : request.patientNameConfirmation || request.patientFullName || "N/A";
 
   return {
     patientName: escapeHtml(request.patientFullName),
-    documentType: "Civil ID",
-    documentTypeAr: "البطاقة المدنية",
-    civilId: escapeHtml(request.civilId),
-    requestedDocumentType: escapeHtml(request.specificAuthorization),
+    documentType,
+    documentTypeAr,
+    civilId: escapeHtml(civilId),
+    requestedDocumentType: escapeHtml(requestedDocumentType),
     dateFrom,
     dateTo,
     specialRequest: escapeHtml(specialRequest),

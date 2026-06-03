@@ -5,6 +5,36 @@ import ApiError from '../../../utils/ApiError.js';
 
 import httpStatus from 'http-status';
 
+const endOfClosingDay = (closingDate) => {
+  const date = new Date(closingDate);
+  date.setHours(23, 59, 59, 999);
+  return date;
+};
+
+/** True when the job is still within its closing date (end of that calendar day). */
+const isClosingDateStillOpen = (closingDate) => {
+  if (!closingDate) return true;
+  return endOfClosingDay(closingDate).getTime() >= Date.now();
+};
+
+const applyClosingDateToActiveStatus = (updateData) => {
+  if (updateData.closingDate === undefined) {
+    return updateData;
+  }
+
+  const next = { ...updateData };
+
+  if (isClosingDateStillOpen(next.closingDate)) {
+    if (next.isActive !== false) {
+      next.isActive = true;
+    }
+  } else if (next.isActive !== true) {
+    next.isActive = false;
+  }
+
+  return next;
+};
+
 class JobService {
 
   async createJob(jobData) {
@@ -140,9 +170,11 @@ class JobService {
       }
     }
 
+    const payload = applyClosingDateToActiveStatus(updateData);
+
     return await jobRepository.updateById(
       id,
-      updateData
+      payload
     );
   }
 

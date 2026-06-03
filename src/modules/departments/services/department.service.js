@@ -6,43 +6,9 @@ import CustomExplainantion from '../models/customExplainantion.model.js';
 
 import Catagory from '../../catagory/model/catagory.model.js';
 
-import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
-
 import ApiError from '../../../utils/ApiError.js';
 
 import httpStatus from 'http-status';
-
-function normalizeSubspecialityIds(value) {
-  if (!Array.isArray(value)) return [];
-
-  return [
-    ...new Set(
-      value
-        .map(String)
-        .filter((id) =>
-          /^[0-9a-fA-F]{24}$/i.test(id)
-        )
-    ),
-  ];
-}
-
-async function assertSubspecialitiesExist(
-  ids
-) {
-  if (!ids || ids.length === 0) return;
-
-  const count =
-    await Subspeciality.countDocuments({
-      _id: { $in: ids },
-    });
-
-  if (count !== ids.length) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'One or more subspecialities not found'
-    );
-  }
-}
 
 async function replaceCustomExplainantionsForDepartment(
   departmentId,
@@ -159,18 +125,7 @@ class DepartmentService {
       );
     }
 
-    const subspecialities =
-      normalizeSubspecialityIds(
-        departmentData.subspecialities
-      );
-
-    await assertSubspecialitiesExist(
-      subspecialities
-    );
-
     const {
-      subspecialities: _s,
-
       customExplainantions:
       ceInput,
 
@@ -181,8 +136,6 @@ class DepartmentService {
       await departmentRepository.create(
         {
           ...rest,
-
-          subspecialities,
 
           customExplainantions:
             [],
@@ -353,44 +306,9 @@ class DepartmentService {
       }
     }
 
-    let payload = data;
-
-    if (
-      data.subspecialities !==
-      undefined
-    ) {
-      const nextSubIds =
-        normalizeSubspecialityIds(
-          data.subspecialities
-        );
-
-      await assertSubspecialitiesExist(
-        nextSubIds
-      );
-
-      const {
-        subspecialities: _a,
-
-        ...rest
-      } = data;
-
-      payload = {
-        $set: {
-          ...rest,
-
-          subspecialities:
-            nextSubIds,
-        },
-
-        $unset: {
-          subspeciality: '',
-        },
-      };
-    }
-
     return await departmentRepository.updateById(
       id,
-      payload
+      data
     );
   }
 
