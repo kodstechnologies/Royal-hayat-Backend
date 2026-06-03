@@ -13,7 +13,7 @@ export const FLOATING_CHAT_WIDGET = {
   en: `The floating chat button (bottom corner) includes:
 - Type a question in the text box for AI help with navigating the site.
 - Quick topic pills: "Book Appointment" (guided steps → /book-appointment), "Al Safwa HealthCare" (/al-safwa), "Jobs" (/work-with-us?section=positions), "Royal Home Health" (/home-health).
-- After a guided topic, "Need more help?" then "Continue on WhatsApp" for patient care (+965 2536 0000).
+- After a guided topic, "Chat with our agent" then "Continue on WhatsApp" for patient care (+965 2536 0000).
 Users can either follow your links in chat or use these same quick buttons.`,
   ar: `زر المحادثة العائم يتضمن:
 - كتابة سؤال للحصول على مساعدة ذكية في استخدام الموقع.
