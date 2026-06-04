@@ -5,6 +5,9 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = join(__dirname, 'identity.mock.json');
 
+/** Toggle in code — no env var. Per-scenario rules in identity.mock.json. */
+export const MOCK_FORCED_BOOKING_FAILURE_ENABLED = true;
+
 let cachedConfig = null;
 
 const loadConfig = () => {
@@ -121,12 +124,8 @@ const entryByPatientId = () => {
   return map;
 };
 
-const isForcedBookingFailureEnabled = () => {
-  if (process.env.NODE_ENV === 'production' && process.env.BOOKING_TEST_FAILURE !== 'true') {
-    return false;
-  }
-  return process.env.NODE_ENV !== 'production' || process.env.BOOKING_TEST_FAILURE === 'true';
-};
+const isForcedBookingFailureEnabled = () =>
+  MOCK_FORCED_BOOKING_FAILURE_ENABLED && loadConfig().enabled === true;
 
 /**
  * QA-only forced booking failure for mock patients (see identity.mock.json).
@@ -145,12 +144,19 @@ export const getForcedBookingFailureMessage = ({ patientId, doctorId, date, slot
   if (config.date) {
     if (!date || date !== config.date) return null;
   }
-  if (config.slotTimePrefix) {
+  const prefixes = Array.isArray(config.slotTimePrefixes)
+    ? config.slotTimePrefixes
+    : config.slotTimePrefix
+      ? [config.slotTimePrefix]
+      : [];
+
+  if (prefixes.length > 0) {
     const normalizedSlot = String(slotTime || '').trim().match(/^(\d{1,2}):(\d{2})/);
     const slotPrefix = normalizedSlot
       ? `${parseInt(normalizedSlot[1], 10)}:${normalizedSlot[2]}`
       : '';
-    if (!slotPrefix || !slotPrefix.startsWith(config.slotTimePrefix)) return null;
+    const matches = prefixes.some((prefix) => slotPrefix === String(prefix).trim());
+    if (!slotPrefix || !matches) return null;
   }
 
   return config.message || 'Test booking failure (forced).';
