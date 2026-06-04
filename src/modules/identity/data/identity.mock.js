@@ -144,12 +144,19 @@ export const getForcedBookingFailureMessage = ({ patientId, doctorId, date, slot
   if (config.date) {
     if (!date || date !== config.date) return null;
   }
-  if (config.slotTimePrefix) {
+  const prefixes = Array.isArray(config.slotTimePrefixes)
+    ? config.slotTimePrefixes
+    : config.slotTimePrefix
+      ? [config.slotTimePrefix]
+      : [];
+
+  if (prefixes.length > 0) {
     const normalizedSlot = String(slotTime || '').trim().match(/^(\d{1,2}):(\d{2})/);
     const slotPrefix = normalizedSlot
       ? `${parseInt(normalizedSlot[1], 10)}:${normalizedSlot[2]}`
       : '';
-    if (!slotPrefix || !slotPrefix.startsWith(config.slotTimePrefix)) return null;
+    const matches = prefixes.some((prefix) => slotPrefix === String(prefix).trim());
+    if (!slotPrefix || !matches) return null;
   }
 
   return config.message || 'Test booking failure (forced).';
