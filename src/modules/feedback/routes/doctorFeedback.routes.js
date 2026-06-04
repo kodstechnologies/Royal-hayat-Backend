@@ -21,6 +21,7 @@ router.get("/counts", getFeedbackCountsForAll);
 
 router.patch("/view/:feedbackId", markDoctorFeedbackViewed);
 
+/** :doctorId = Doctor document MongoDB _id */
 router.get("/:doctorId", getDoctorFeedbackById);
 
 router.put("/update/:doctorId", updateDoctorFeedback);

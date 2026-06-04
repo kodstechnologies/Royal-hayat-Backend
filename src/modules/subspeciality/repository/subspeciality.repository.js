@@ -31,7 +31,9 @@ class SubspecialityRepository {
         path: 'customSubspecialities',
         select:
           `
+          heading
           subHeading
+          arabicHeading
           arabicSubHeading
           explanations
           arabicExplanations
@@ -107,7 +109,9 @@ class SubspecialityRepository {
             path: 'customSubspecialities',
             select:
               `
+              heading
               subHeading
+              arabicHeading
               arabicSubHeading
               explanations
               arabicExplanations

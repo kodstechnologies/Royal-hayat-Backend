@@ -2,7 +2,17 @@ import mongoose from 'mongoose';
 
 const customSubspecialitySchema = new mongoose.Schema(
   {
+    heading: {
+      type: String,
+      trim: true,
+    },
+
     subHeading: {
+      type: String,
+      trim: true,
+    },
+
+    arabicHeading: {
       type: String,
       trim: true,
     },
