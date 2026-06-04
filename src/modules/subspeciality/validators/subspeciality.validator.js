@@ -15,7 +15,8 @@ const customSubspecialityBodySchema =
           .trim()
           .allow('')
       )
-      .optional(),
+      .optional()
+      .default([]),
 
     arabicSubHeading: Joi.string()
       .trim()
@@ -28,29 +29,26 @@ const customSubspecialityBodySchema =
           .trim()
           .allow('')
       )
-      .optional(),
-  }).min(1);
+      .optional()
+      .default([]),
+  });
 
-const customItemSchema =
-  Joi.alternatives()
-    .try(
-      Joi.string()
-        .pattern(OID)
-        .messages({
-          'string.pattern.base':
-            'Each item must be a valid ObjectId or object body',
-        }),
+const customItemSchema = Joi.alternatives().try(
+  Joi.string()
+    .pattern(OID)
+    .messages({
+      'string.pattern.base':
+        'Each item must be a valid ObjectId or object body',
+    }),
 
-      customSubspecialityBodySchema
-    )
-    .required();
+  customSubspecialityBodySchema
+);
 
-const customSubspecialitiesArray =
-  Joi.array()
-    .items(customItemSchema)
-    .max(50)
-    .optional();
-
+const customSubspecialitiesArray = Joi.array()
+  .items(customItemSchema)
+  .max(50)
+  .optional()
+  .default([]);
 const customSubspecialitiesUpdateField =
   Joi.alternatives()
     .try(

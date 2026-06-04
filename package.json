@@ -10,6 +10,7 @@
     "seed:admins": "node src/scripts/seedAdmins.js",
     "seed:jobs": "node src/scripts/seedJobs.js",
     "seed:departments": "node src/scripts/seedDepartments.js",
+    "seed:categories": "node src/scripts/seedCategories.js",
     "seed:subspecialities": "node src/scripts/seedSubspecialities.js",
     "seed:doctors": "node src/scripts/seedDoctors.js"
   },

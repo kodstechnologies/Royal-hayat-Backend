@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import ApiError from './utils/ApiError.js';
+import { formatMongooseValidationError } from './utils/mongooseValidationMessages.js';
 import routes from './routes/index.js';
 
 dotenv.config();
@@ -91,6 +92,16 @@ app.use((err, req, res, next) => {
       message: 'Invalid access token',
       data: null,
       meta: { code: 'INVALID_TOKEN' },
+    });
+  }
+
+  if (err?.name === 'ValidationError' && err.errors) {
+    const messages = formatMongooseValidationError(err);
+    return res.status(400).json({
+      success: false,
+      message: messages.join(', '),
+      data: null,
+      meta: messages,
     });
   }
 

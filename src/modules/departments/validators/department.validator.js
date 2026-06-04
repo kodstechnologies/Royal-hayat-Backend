@@ -9,6 +9,13 @@ const optionalTrimmedString =
 const objectIdPattern =
   /^[0-9a-fA-F]{24}$/;
 
+const stringFieldMessages = {
+  'string.min': '{{#label}} must be at least {{#limit}} characters',
+  'string.max': '{{#label}} must not exceed {{#limit}} characters',
+  'any.required': '{{#label}} is required',
+  'string.empty': '{{#label}} is required',
+};
+
 const customExplainantionItemSchema =
   Joi.object({
 
@@ -40,31 +47,47 @@ const createDepartmentSchema =
   Joi.object({
     departmentId: Joi.string()
       .trim()
-      .required(),
+      .required()
+      .label('Department ID'),
 
     name: Joi.string()
       .trim()
-      .required(),
+      .required()
+      .label('Name'),
 
     description: Joi.string()
       .trim()
-      .required(),
+      .min(10)
+      .max(1000)
+      .required()
+      .label('Description')
+      .messages(stringFieldMessages),
 
     arabicName:
       Joi.string()
         .trim()
-        .required(),
+        .required()
+        .label('Arabic name'),
 
     arabicDescription:
       Joi.string()
         .trim()
-        .required(),
+        .min(10)
+        .max(1000)
+        .required()
+        .label('Arabic description')
+        .messages(stringFieldMessages),
 
     catagory: Joi.string()
       .pattern(
         objectIdPattern
       )
-      .required(),
+      .required()
+      .label('Category')
+      .messages({
+        'any.required': 'Category is required',
+        'string.pattern.base': 'Category is invalid',
+      }),
 
     image: Joi.string()
       .uri()
@@ -104,17 +127,26 @@ const updateDepartmentSchema =
     description:
       Joi.string()
         .trim()
-        .optional(),
+        .min(10)
+        .max(1000)
+        .optional()
+        .label('Description')
+        .messages(stringFieldMessages),
 
     arabicName:
       Joi.string()
         .trim()
-        .optional(),
+        .optional()
+        .label('Arabic name'),
 
     arabicDescription:
       Joi.string()
         .trim()
-        .optional(),
+        .min(10)
+        .max(1000)
+        .optional()
+        .label('Arabic description')
+        .messages(stringFieldMessages),
 
     catagory: Joi.string()
       .pattern(

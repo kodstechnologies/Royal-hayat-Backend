@@ -13,9 +13,21 @@ import ApiError from '../../../utils/ApiError.js';
 
 import httpStatus from 'http-status';
 
-import { uploadToCloudinary } from '../../../utils/cloudinary.js';
+import { putObject } from '../../../utils/putObject.js';
 
-import fs from 'fs-extra';
+const DEPARTMENT_S3_FOLDER = 'department';
+
+async function uploadDepartmentImage(file) {
+  try {
+    const { url } = await putObject(file, DEPARTMENT_S3_FOLDER);
+    return url;
+  } catch {
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Failed to upload image'
+    );
+  }
+}
 
 function coerceCustomExplainantionsField(
   formData
@@ -67,34 +79,7 @@ const createDepartment =
       let imageUrl = '';
 
       if (req.file) {
-        try {
-          const result =
-            await uploadToCloudinary(
-              req.file.path,
-              'royale-hayat/departments'
-            );
-
-          imageUrl =
-            result.url;
-
-          await fs.remove(
-            req.file.path
-          );
-        } catch (error) {
-          if (
-            req.file &&
-            req.file.path
-          ) {
-            await fs.remove(
-              req.file.path
-            );
-          }
-
-          throw new ApiError(
-            httpStatus.INTERNAL_SERVER_ERROR,
-            'Failed to upload image'
-          );
-        }
+        imageUrl = await uploadDepartmentImage(req.file);
       }
 
       const formData = {
@@ -188,16 +173,7 @@ const getAllDepartments =
       }
 
       const result =
-        await departmentService.getAllDepartments(
-          {
-            ...value,
-
-            sortBy:
-              'createdAt',
-
-            sortOrder: 'asc',
-          }
-        );
+        await departmentService.getAllDepartments(value);
 
       res.status(200).json({
         success: true,
@@ -278,34 +254,7 @@ const updateDepartment =
         req.body.image;
 
       if (req.file) {
-        try {
-          const result =
-            await uploadToCloudinary(
-              req.file.path,
-              'royale-hayat/departments'
-            );
-
-          imageUrl =
-            result.url;
-
-          await fs.remove(
-            req.file.path
-          );
-        } catch (error) {
-          if (
-            req.file &&
-            req.file.path
-          ) {
-            await fs.remove(
-              req.file.path
-            );
-          }
-
-          throw new ApiError(
-            httpStatus.INTERNAL_SERVER_ERROR,
-            'Failed to upload image'
-          );
-        }
+        imageUrl = await uploadDepartmentImage(req.file);
       }
 
       const formData = {
