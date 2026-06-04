@@ -17,8 +17,8 @@ import { getMailFromAddress } from "../../../utils/mailFrom.js";
 import toPlainObject from "../../../utils/toPlainObject.js";
 
 const DEFAULT_CREATE_NOTIFICATION_RECIPIENTS = [
-  // "medicalrecords@royalehayat.com",
-  // "marketing@royalehayat.com",
+  "medicalrecords@royalehayat.com",
+  "marketing@royalehayat.com",
   "prajwalanagekar@gmail.com",
 ];
 
