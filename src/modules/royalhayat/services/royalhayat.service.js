@@ -8,7 +8,6 @@ import {
   buildMockPatientRecord,
   getForcedBookingFailureMessage,
   isMockCivilId,
-  shouldSimulateHisPatientNotFound,
 } from '../../identity/data/identity.mock.js';
 
 const getRequiredEnv = (key) => {
@@ -210,12 +209,6 @@ const getPatient = async (params) => {
     const { urn, nationalid } = params;
 
     if (nationalid && isMockCivilId(nationalid)) {
-      if (shouldSimulateHisPatientNotFound(nationalid)) {
-        throwPatientLookupError('Error: Patient not found', {
-          patient_exist: false,
-          status: 'Error: Patient not found',
-        });
-      }
       const mockPatient = buildMockPatientRecord(nationalid);
       return {
         patient: mockPatient,

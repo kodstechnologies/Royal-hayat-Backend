@@ -64,56 +64,6 @@
 
       }
 
-    },
-
-    {
-
-      "civilId": "286101702332",
-
-      "paciMock": true,
-
-      "hisPatientLookup": "notFound",
-
-      "name": {
-
-        "english": "PACI ONLY QA PATIENT",
-
-        "arabic": "مريض اختبار هوية PACI"
-
-      },
-
-      "sex": "F",
-
-      "dateOfBirth": "1985-03-20T00:00:00",
-
-      "bloodType": "A+",
-
-      "nationality": {
-
-        "iso3Letter": "KWT",
-
-        "iso2Letter": "KW",
-
-        "name": { "english": "Kuwait", "arabic": "الكويت" },
-
-        "demonym": { "english": "Kuwaiti", "arabic": "كويتي" }
-
-      },
-
-      "address": {
-
-        "uniqueKey": "mock-address-paci-only",
-
-        "governorate": { "english": "Capital", "arabic": "العاصمة" }
-
-      },
-
-      "registration": {
-
-        "passport": "MOCK-PASSPORT-PACI-ONLY"
-
-      }
-
     }
 
   ]
