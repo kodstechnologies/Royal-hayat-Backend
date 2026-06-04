@@ -121,6 +121,12 @@ export const buildMockDataResult = (civilId) => {
   };
 };
 
+/** QA: PACI/identity mock succeeds; HMS GET /patients returns not found (see hisPatientLookup in identity.mock.json). */
+export const shouldSimulateHisPatientNotFound = (civilId) => {
+  const entry = getMockEntry(civilId);
+  return entry?.hisPatientLookup === 'notFound';
+};
+
 export const buildMockPatientRecord = (nationalid) => {
   const entry = getMockEntry(nationalid);
   const name = entry?.name || { english: 'TEST PATIENT MOCK', arabic: 'مريض تجريبي' };

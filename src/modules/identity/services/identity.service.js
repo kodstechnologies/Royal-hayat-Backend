@@ -10,6 +10,7 @@ import {
 import { identityLog, identityLogJson } from '../utils/identity.logger.js';
 import {
   buildMockDataResult,
+  buildMockIdentityRaw,
   buildMockStartResult,
   isMockCivilId,
 } from '../data/identity.mock.js';
@@ -106,7 +107,11 @@ const persistAndEmit = async (operationId, entry) => {
   const effectiveCivilId = entry.civilId || null;
 
   if (entry.verified === true && effectiveCivilId && !identityData) {
-    identityData = await fetchIdentityDataRaw(effectiveCivilId, { allowMissing: true });
+    if (isMockCivilId(effectiveCivilId)) {
+      identityData = buildMockIdentityRaw(effectiveCivilId);
+    } else {
+      identityData = await fetchIdentityDataRaw(effectiveCivilId, { allowMissing: true });
+    }
   }
 
   const stored = setOperation(operationId, {
@@ -130,8 +135,47 @@ const persistAndEmit = async (operationId, entry) => {
 
 const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, reason }) => {
   if (isMockCivilId(civilId)) {
-    identityLog('start', `service: mock bypass civilId=${civilId}`);
-    return buildMockStartResult(civilId);
+    identityLog('start', `service: mock bypass civilId=${civilId} (simulated callback)`);
+    const mockResult = buildMockStartResult(civilId);
+    const operationId = `mock-${civilId}`;
+
+    setOperation(operationId, {
+      operationId,
+      civilId,
+      status: 'pending',
+      verified: null,
+      callbackReceived: false,
+      callbackData: null,
+      identityData: null,
+      latestStatusRaw: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    setImmediate(() => {
+      handleIdentityCallback({
+        payload: {
+          operationId,
+          success: true,
+          civilId,
+          name: mockResult.personName,
+        },
+      }).catch((err) => {
+        console.error('[identity][mock] simulated callback failed:', err?.message || err);
+      });
+    });
+
+    return {
+      operationId,
+      status: 'pending',
+      verified: null,
+      skippedStart: true,
+      dataSource: 'mock',
+      civilId,
+      personName: mockResult.personName,
+      raw: mockResult.raw,
+      callbackUrl: callbackUrl || SHARPER_CALLBACK_URL,
+    };
   }
 
   const payload = {
@@ -246,7 +290,11 @@ const getIdentityStatus = async (operationId) => {
   const effectiveCivilId = normalized.civilId || existing.civilId || null;
   let identityData = existing.identityData ?? null;
   if (normalized.verified === true && effectiveCivilId && !identityData) {
-    identityData = await fetchIdentityDataRaw(effectiveCivilId, { allowMissing: true });
+    if (isMockCivilId(effectiveCivilId)) {
+      identityData = buildMockIdentityRaw(effectiveCivilId);
+    } else {
+      identityData = await fetchIdentityDataRaw(effectiveCivilId, { allowMissing: true });
+    }
   }
 
   const updated = setOperation(operationId, {

@@ -8,6 +8,7 @@ import {
   buildMockPatientRecord,
   getForcedBookingFailureMessage,
   isMockCivilId,
+  shouldSimulateHisPatientNotFound,
 } from '../../identity/data/identity.mock.js';
 
 const getRequiredEnv = (key) => {
@@ -176,7 +177,9 @@ const bookAppointment = async (patientId, slotBookingId, options = {}) => {
       slotTime: options.slotTime,
     });
     if (forcedMessage) {
-      throw new ApiError(httpStatus.BAD_REQUEST, forcedMessage);
+      throw new ApiError(httpStatus.BAD_REQUEST, forcedMessage, {
+        code: 'REGISTERED_PATIENT_BOOKING_FALLBACK',
+      });
     }
 
     const endpoint = '/WEBAPP/appointment/book';
@@ -209,6 +212,12 @@ const getPatient = async (params) => {
     const { urn, nationalid } = params;
 
     if (nationalid && isMockCivilId(nationalid)) {
+      if (shouldSimulateHisPatientNotFound(nationalid)) {
+        throwPatientLookupError('Error: Patient not found', {
+          patient_exist: false,
+          status: 'Error: Patient not found',
+        });
+      }
       const mockPatient = buildMockPatientRecord(nationalid);
       return {
         patient: mockPatient,
