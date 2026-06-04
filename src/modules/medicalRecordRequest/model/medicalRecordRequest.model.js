@@ -236,7 +236,6 @@ medicalRecordRequestSchema.pre("validate", function (next) {
   if (this.specificAuthorization === "Discharge Summary") {
     this.specificDocumentTypes = undefined;
     this.specificDocumentsOther = undefined;
-    this.specialRequest = undefined;
     if (this.specificFromDate && !this.specificToDate) {
       this.specificToDate = this.specificFromDate;
     }
