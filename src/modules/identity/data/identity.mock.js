@@ -5,6 +5,9 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = join(__dirname, 'identity.mock.json');
 
+/** Toggle in code — no env var. Per-scenario rules in identity.mock.json. */
+export const MOCK_FORCED_BOOKING_FAILURE_ENABLED = true;
+
 let cachedConfig = null;
 
 const loadConfig = () => {
@@ -121,12 +124,8 @@ const entryByPatientId = () => {
   return map;
 };
 
-const isForcedBookingFailureEnabled = () => {
-  if (process.env.NODE_ENV === 'production' && process.env.BOOKING_TEST_FAILURE !== 'true') {
-    return false;
-  }
-  return process.env.NODE_ENV !== 'production' || process.env.BOOKING_TEST_FAILURE === 'true';
-};
+const isForcedBookingFailureEnabled = () =>
+  MOCK_FORCED_BOOKING_FAILURE_ENABLED && loadConfig().enabled === true;
 
 /**
  * QA-only forced booking failure for mock patients (see identity.mock.json).
