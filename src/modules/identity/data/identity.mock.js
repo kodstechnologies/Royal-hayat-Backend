@@ -6,6 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = join(__dirname, 'identity.mock.json');
 
 /** Toggle in code — no env var. Per-scenario rules in identity.mock.json. */
+export const MOCK_IDENTITY_ENABLED = true;
 export const MOCK_FORCED_BOOKING_FAILURE_ENABLED = true;
 
 let cachedConfig = null;
@@ -29,6 +30,7 @@ const loadConfig = () => {
 
 const entryByCivilId = () => {
   const map = new Map();
+  if (!MOCK_IDENTITY_ENABLED) return map;
   const { enabled, entries } = loadConfig();
   if (!enabled) return map;
 
@@ -81,8 +83,18 @@ export const buildMockIdentityRaw = (civilId) => {
   };
 };
 
+const mockPersonName = (civilId) => {
+  const entry = getMockEntry(civilId);
+  const name = entry?.name || { english: 'TEST PATIENT MOCK', arabic: 'مريض تجريبي' };
+  return {
+    english: name.english || name.en || 'TEST PATIENT MOCK',
+    arabic: name.arabic || name.ar || 'مريض تجريبي',
+  };
+};
+
 export const buildMockStartResult = (civilId) => {
   const raw = buildMockIdentityRaw(civilId);
+  const personName = mockPersonName(civilId);
   return {
     operationId: null,
     status: 'verified',
@@ -90,14 +102,30 @@ export const buildMockStartResult = (civilId) => {
     skippedStart: true,
     dataSource: 'mock',
     civilId,
+    personName,
     raw,
   };
 };
 
-export const buildMockDataResult = (civilId) => ({
-  civilId,
-  raw: buildMockIdentityRaw(civilId),
-});
+export const buildMockDataResult = (civilId) => {
+  const raw = buildMockIdentityRaw(civilId);
+  const personName = mockPersonName(civilId);
+  return {
+    verified: true,
+    civilId,
+    personName,
+    identityData: raw,
+    raw,
+    skippedStart: true,
+    dataSource: 'mock',
+  };
+};
+
+/** QA: PACI succeeds but HMS patient lookup returns not found (see hisPatientLookup in identity.mock.json). */
+export const shouldSimulateHisPatientNotFound = (civilId) => {
+  const entry = getMockEntry(civilId);
+  return entry?.hisPatientLookup === 'notFound';
+};
 
 export const buildMockPatientRecord = (nationalid) => {
   const entry = getMockEntry(nationalid);

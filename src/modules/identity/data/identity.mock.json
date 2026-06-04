@@ -1,36 +1,122 @@
-{
-  "enabled": true,
-  "entries": [
-    {
-      "civilId": "286101702331",
-      "patientId": "MOCK-PATIENT-001",
-      "name": {
-        "english": "TEST PATIENT MOCK",
-        "arabic": "مريض تجريبي"
-      },
-      "sex": "M",
-      "dateOfBirth": "1990-01-15T00:00:00",
-      "bloodType": "O+",
-      "nationality": {
-        "iso3Letter": "KWT",
-        "iso2Letter": "KW",
-        "name": { "english": "Kuwait", "arabic": "الكويت" },
-        "demonym": { "english": "Kuwaiti", "arabic": "كويتي" }
-      },
-      "address": {
-        "uniqueKey": "mock-address",
-        "governorate": { "english": "Hawalli", "arabic": "حولي" }
-      },
-      "registration": {
-        "passport": "MOCK-PASSPORT-001"
-      },
-      "forcedBookingFailure": {
-        "enabled": true,
-        "doctorId": "dr-abubakr-elmardi",
-        "date": "2026-06-10",
-        "slotTimePrefixes": ["10:00", "10:20", "10:40", "11:00", "11:20", "11:40"],
-        "message": "Test booking failure (forced): online booking could not be completed."
-      }
-    }
-  ]
-}
+{
+
+  "enabled": true,
+
+  "entries": [
+
+    {
+
+      "civilId": "286101702331",
+
+      "patientId": "MOCK-PATIENT-001",
+
+      "name": {
+
+        "english": "TEST PATIENT MOCK",
+
+        "arabic": "مريض تجريبي"
+
+      },
+
+      "sex": "M",
+
+      "dateOfBirth": "1990-01-15T00:00:00",
+
+      "bloodType": "O+",
+
+      "nationality": {
+
+        "iso3Letter": "KWT",
+
+        "iso2Letter": "KW",
+
+        "name": { "english": "Kuwait", "arabic": "الكويت" },
+
+        "demonym": { "english": "Kuwaiti", "arabic": "كويتي" }
+
+      },
+
+      "address": {
+
+        "uniqueKey": "mock-address",
+
+        "governorate": { "english": "Hawalli", "arabic": "حولي" }
+
+      },
+
+      "registration": {
+
+        "passport": "MOCK-PASSPORT-001"
+
+      },
+
+      "forcedBookingFailure": {
+
+        "enabled": true,
+
+        "doctorId": "dr-abubakr-elmardi",
+
+        "date": "2026-06-10",
+
+        "slotTimePrefixes": ["10:00", "10:20", "10:40", "11:00", "11:20", "11:40"],
+
+        "message": "Test booking failure (forced): online booking could not be completed."
+
+      }
+
+    },
+
+    {
+
+      "civilId": "286101702332",
+
+      "paciMock": true,
+
+      "hisPatientLookup": "notFound",
+
+      "name": {
+
+        "english": "PACI ONLY QA PATIENT",
+
+        "arabic": "مريض اختبار هوية PACI"
+
+      },
+
+      "sex": "F",
+
+      "dateOfBirth": "1985-03-20T00:00:00",
+
+      "bloodType": "A+",
+
+      "nationality": {
+
+        "iso3Letter": "KWT",
+
+        "iso2Letter": "KW",
+
+        "name": { "english": "Kuwait", "arabic": "الكويت" },
+
+        "demonym": { "english": "Kuwaiti", "arabic": "كويتي" }
+
+      },
+
+      "address": {
+
+        "uniqueKey": "mock-address-paci-only",
+
+        "governorate": { "english": "Capital", "arabic": "العاصمة" }
+
+      },
+
+      "registration": {
+
+        "passport": "MOCK-PASSPORT-PACI-ONLY"
+
+      }
+
+    }
+
+  ]
+
+}
+
