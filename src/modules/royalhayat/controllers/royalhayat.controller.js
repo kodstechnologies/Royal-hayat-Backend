@@ -37,7 +37,11 @@ const bookAppointment = asyncHandler(async (req, res) => {
     );
   }
 
-  const result = await royalHayatService.bookAppointment(value.patientId, value.slotBookingId);
+  const result = await royalHayatService.bookAppointment(value.patientId, value.slotBookingId, {
+    doctorId: value.doctorId,
+    date: value.date,
+    slotTime: value.slotTime,
+  });
 
   res.status(httpStatus.OK).json({
     success: true,

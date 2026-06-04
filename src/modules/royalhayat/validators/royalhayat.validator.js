@@ -13,7 +13,10 @@ const availabilitySchema = Joi.object({
 
 const bookAppointmentSchema = Joi.object({
   patientId: Joi.string().trim().min(1).required(),
-  slotBookingId: Joi.string().trim().min(1).required()
+  slotBookingId: Joi.string().trim().min(1).required(),
+  doctorId: Joi.string().trim().optional(),
+  date: Joi.string().trim().pattern(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  slotTime: Joi.string().trim().optional(),
 });
 
 const patientSchema = Joi.object({

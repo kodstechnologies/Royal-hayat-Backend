@@ -4,7 +4,11 @@ import {
   enrichPatientLookupApiError,
   throwPatientLookupError
 } from '../utils/patientLookup.errors.js';
-import { buildMockPatientRecord, isMockCivilId } from '../../identity/data/identity.mock.js';
+import {
+  buildMockPatientRecord,
+  getForcedBookingFailureMessage,
+  isMockCivilId,
+} from '../../identity/data/identity.mock.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -159,10 +163,20 @@ const getAvailability = async (params) => {
   }
 };
 
-const bookAppointment = async (patientId, slotBookingId) => {
+const bookAppointment = async (patientId, slotBookingId, options = {}) => {
   try {
     if (!patientId || !slotBookingId) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameters: patientId, slotBookingId');
+    }
+
+    const forcedMessage = getForcedBookingFailureMessage({
+      patientId,
+      doctorId: options.doctorId,
+      date: options.date,
+      slotTime: options.slotTime,
+    });
+    if (forcedMessage) {
+      throw new ApiError(httpStatus.BAD_REQUEST, forcedMessage);
     }
 
     const endpoint = '/WEBAPP/appointment/book';

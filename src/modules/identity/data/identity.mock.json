@@ -23,6 +23,13 @@
       },
       "registration": {
         "passport": "MOCK-PASSPORT-001"
+      },
+      "forcedBookingFailure": {
+        "enabled": true,
+        "doctorId": "dr-abubakr-elmardi",
+        "date": "2026-06-05",
+        "slotTimePrefix": "10:20",
+        "message": "Test booking failure (forced): online booking could not be completed."
       }
     }
   ]

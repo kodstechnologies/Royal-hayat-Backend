@@ -108,3 +108,50 @@ export const buildMockPatientRecord = (nationalid) => {
     name: name.english || name.en || 'TEST PATIENT MOCK',
   };
 };
+
+const entryByPatientId = () => {
+  const map = new Map();
+  const { enabled, entries } = loadConfig();
+  if (!enabled) return map;
+
+  for (const entry of entries) {
+    const patientId = String(entry?.patientId || '').trim();
+    if (patientId) map.set(patientId, entry);
+  }
+  return map;
+};
+
+const isForcedBookingFailureEnabled = () => {
+  if (process.env.NODE_ENV === 'production' && process.env.BOOKING_TEST_FAILURE !== 'true') {
+    return false;
+  }
+  return process.env.NODE_ENV !== 'production' || process.env.BOOKING_TEST_FAILURE === 'true';
+};
+
+/**
+ * QA-only forced booking failure for mock patients (see identity.mock.json).
+ * Returns an error message when the scenario matches, otherwise null.
+ */
+export const getForcedBookingFailureMessage = ({ patientId, doctorId, date, slotTime }) => {
+  if (!isForcedBookingFailureEnabled()) return null;
+
+  const entry = entryByPatientId().get(String(patientId || '').trim());
+  const config = entry?.forcedBookingFailure;
+  if (!config?.enabled) return null;
+
+  if (config.doctorId) {
+    if (!doctorId || doctorId !== config.doctorId) return null;
+  }
+  if (config.date) {
+    if (!date || date !== config.date) return null;
+  }
+  if (config.slotTimePrefix) {
+    const normalizedSlot = String(slotTime || '').trim().match(/^(\d{1,2}):(\d{2})/);
+    const slotPrefix = normalizedSlot
+      ? `${parseInt(normalizedSlot[1], 10)}:${normalizedSlot[2]}`
+      : '';
+    if (!slotPrefix || !slotPrefix.startsWith(config.slotTimePrefix)) return null;
+  }
+
+  return config.message || 'Test booking failure (forced).';
+};
