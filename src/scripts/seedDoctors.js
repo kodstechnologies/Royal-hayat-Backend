@@ -17,15 +17,22 @@ const DEPARTMENT_ALIASES = {
   "General Surgery": "General & Laparoscopic Surgery",
   Pediatric: "Pediatrics",
   "La Cosmetique": "Plastic Surgery & Cosmetology",
+  "Plastic Surgery": "Plastic Surgery & Cosmetology",
   Radiology: "Center for Diagnostic Imaging",
   Pharmacy: "Royale Hayat Pharmacy",
   Dental: "Dental Clinic",
   Laboratory: "Laboratory Services",
-  /** No Nutricare department in CMS; dietitians align with family / primary care. */
   Nutricare: "Family Medicine",
+  ENT: "ENT (Ear, Nose & Throat)",
+  "IVF & Reproductive Medicine": "Reproductive Medicine & IVF",
+  "Reproductive Medicine": "Reproductive Medicine & IVF",
+  IVF: "Reproductive Medicine & IVF",
+  "Anesthesia & Intensive Care": "Anesthesia",
+  "Al Safwa": "Al Safwa HealthCare",
 };
 
 const loadFrontendDoctors = async () => {
+  /** Mirrors Royal-hayat-admin-frontend/src/data/doctors.ts */
   const doctorsTsPath = path.resolve(
     __dirname,
     "../../../RoyalHayat/src/data/doctors.ts",
@@ -125,7 +132,7 @@ const mapDoctorPayload = (entry, departmentId, doctorId) => {
     expertiseAr: toStringArray(entry.expertiseAr),
     languages: toStringArray(entry.languages),
     languagesAr: toStringArray(entry.languagesAr),
-    availableOnline: Boolean(entry.availableOnline),
+    availableOnline: true,
     isActive: true,
     initials: "Dr.",
     initialsAr: "د.",

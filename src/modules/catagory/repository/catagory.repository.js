@@ -112,7 +112,7 @@ class CatagoryRepository {
       .sort({ order: 1, name: 1 })
       .populate({
         path: 'customExplainantions',
-        select: 'subHeading explaination',
+        select: 'heading subHeading explaination arabicHeading arabicSubHeading arabicExplaination',
       })
       .lean();
 
@@ -127,7 +127,7 @@ class CatagoryRepository {
         .select('name description department customSubspecialities')
         .populate({
           path: 'customSubspecialities',
-          select: 'subHeading explanations',
+          select: 'heading subHeading explanations arabicHeading arabicSubHeading arabicExplanations',
         })
         .lean();
 

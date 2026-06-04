@@ -43,6 +43,10 @@ async function resolveCustomSubspecialityItems(
     else {
       const doc =
         await CustomSubspeciality.create({
+          heading:
+            item.heading?.trim() ||
+            undefined,
+
           subHeading:
             item.subHeading?.trim() ||
             undefined,
@@ -50,6 +54,10 @@ async function resolveCustomSubspecialityItems(
           explanations: normalizeExplanations(
             item.explanations
           ),
+
+          arabicHeading:
+            item.arabicHeading?.trim() ||
+            undefined,
 
           arabicSubHeading:
             item.arabicSubHeading?.trim() ||

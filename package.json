@@ -12,7 +12,8 @@
     "seed:departments": "node src/scripts/seedDepartments.js",
     "seed:categories": "node src/scripts/seedCategories.js",
     "seed:subspecialities": "node src/scripts/seedSubspecialities.js",
-    "seed:doctors": "node src/scripts/seedDoctors.js"
+    "seed:doctors": "node src/scripts/seedDoctors.js",
+    "seed:relink-refs": "node src/scripts/relinkDepartmentRefs.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1049.0",

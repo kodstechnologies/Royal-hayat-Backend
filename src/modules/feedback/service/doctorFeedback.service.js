@@ -1,7 +1,7 @@
 
 import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";
-import { resolveDoctorByDoctorId } from "../utils/resolveDoctor.js";
+import { resolveDoctorByMongoId } from "../utils/resolveDoctor.js";
 import {
     createDoctorFeedbackRepo,
     getAllDoctorFeedbacksRepo,
@@ -13,8 +13,8 @@ import {
     markDoctorFeedbackViewedRepo,
 } from "../repository/doctorFeedback.repository.js";
 
-const resolveDoctorObjectId = async (doctorIdOrMongoId) => {
-    const doctor = await resolveDoctorByDoctorId(doctorIdOrMongoId);
+const resolveDoctorObjectId = async (doctorMongoId) => {
+    const doctor = await resolveDoctorByMongoId(doctorMongoId);
     return doctor._id;
 };
 
@@ -26,8 +26,8 @@ const resolveFeedbackId = (feedbackId) => {
 };
 
 export const createDoctorFeedbackService = async (body) => {
-    const doctorRef = body.doctorId ?? body.doctor;
-    const doctorObjectId = await resolveDoctorObjectId(doctorRef);
+    const doctorMongoId = body.doctor ?? body.doctorId;
+    const doctorObjectId = await resolveDoctorObjectId(doctorMongoId);
 
     const { doctorId, doctor, ...rest } = body;
 
@@ -41,20 +41,20 @@ export const getAllDoctorFeedbacksService = async () => {
     return await getAllDoctorFeedbacksRepo();
 };
 
-export const getDoctorFeedbacksByDoctorIdService = async (doctorId) => {
-    const doctorObjectId = await resolveDoctorObjectId(doctorId);
+export const getDoctorFeedbacksByDoctorIdService = async (doctorMongoId) => {
+    const doctorObjectId = await resolveDoctorObjectId(doctorMongoId);
     return await getDoctorFeedbacksByDoctorIdRepo(doctorObjectId);
 };
 
-export const updateDoctorFeedbackService = async (doctorId, feedbackId, body) => {
+export const updateDoctorFeedbackService = async (doctorMongoId, feedbackId, body) => {
     const resolvedFeedbackId = resolveFeedbackId(feedbackId);
-    await resolveDoctorObjectId(doctorId);
+    await resolveDoctorObjectId(doctorMongoId);
 
     const payload = { ...body };
 
     if (payload.doctorId !== undefined || payload.doctor !== undefined) {
-        const doctorRef = payload.doctorId ?? payload.doctor;
-        payload.doctor = await resolveDoctorObjectId(doctorRef);
+        const nextDoctorMongoId = payload.doctor ?? payload.doctorId;
+        payload.doctor = await resolveDoctorObjectId(nextDoctorMongoId);
         delete payload.doctorId;
     }
 
@@ -67,9 +67,9 @@ export const updateDoctorFeedbackService = async (doctorId, feedbackId, body) =>
     return feedback;
 };
 
-export const deleteDoctorFeedbackService = async (doctorId, feedbackId) => {
+export const deleteDoctorFeedbackService = async (doctorMongoId, feedbackId) => {
     const resolvedFeedbackId = resolveFeedbackId(feedbackId);
-    await resolveDoctorObjectId(doctorId);
+    await resolveDoctorObjectId(doctorMongoId);
 
     const feedback = await getDoctorFeedbackByIdRepo(resolvedFeedbackId);
 

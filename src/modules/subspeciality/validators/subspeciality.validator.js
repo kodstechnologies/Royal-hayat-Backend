@@ -4,6 +4,11 @@ const OID = /^[0-9a-fA-F]{24}$/;
 
 const customSubspecialityBodySchema =
   Joi.object({
+    heading: Joi.string()
+      .trim()
+      .allow('')
+      .optional(),
+
     subHeading: Joi.string()
       .trim()
       .allow('')
@@ -17,6 +22,11 @@ const customSubspecialityBodySchema =
       )
       .optional()
       .default([]),
+
+    arabicHeading: Joi.string()
+      .trim()
+      .allow('')
+      .optional(),
 
     arabicSubHeading: Joi.string()
       .trim()

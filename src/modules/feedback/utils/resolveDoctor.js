@@ -7,18 +7,27 @@ const isMongoObjectId = (value) =>
     mongoose.Types.ObjectId.isValid(value) &&
     String(new mongoose.Types.ObjectId(value)) === String(value);
 
-export const resolveDoctorByDoctorId = async (doctorIdOrMongoId) => {
-    if (!doctorIdOrMongoId || typeof doctorIdOrMongoId !== "string") {
-        throw new ApiError(httpStatus.BAD_REQUEST, "doctorId is required");
+/**
+ * Resolves a doctor strictly by MongoDB _id (not provider/doctorId string).
+ */
+export const resolveDoctorByMongoId = async (mongoId) => {
+    if (!mongoId || typeof mongoId !== "string") {
+        throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            "Doctor MongoDB _id is required",
+        );
     }
 
-    const trimmed = doctorIdOrMongoId.trim();
+    const trimmed = mongoId.trim();
 
-    let doctor = await Doctor.findOne({ doctorId: trimmed }).select("_id doctorId");
-
-    if (!doctor && isMongoObjectId(trimmed)) {
-        doctor = await Doctor.findById(trimmed).select("_id doctorId");
+    if (!isMongoObjectId(trimmed)) {
+        throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            "Invalid doctor MongoDB _id",
+        );
     }
+
+    const doctor = await Doctor.findById(trimmed).select("_id doctorId");
 
     if (!doctor) {
         throw new ApiError(httpStatus.NOT_FOUND, "Doctor not found");

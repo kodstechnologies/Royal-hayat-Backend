@@ -47,6 +47,13 @@ async function replaceCustomExplainantionsForDepartment(
     await CustomExplainantion.insertMany(
       list.map((item) => ({
 
+        heading:
+          typeof item.heading ===
+            'string' &&
+            item.heading.trim()
+            ? item.heading.trim()
+            : undefined,
+
         subHeading:
           typeof item.subHeading ===
             'string' &&
@@ -63,6 +70,13 @@ async function replaceCustomExplainantionsForDepartment(
             )
             .filter(Boolean)
           : [],
+
+        arabicHeading:
+          typeof item.arabicHeading ===
+            'string' &&
+            item.arabicHeading.trim()
+            ? item.arabicHeading.trim()
+            : undefined,
 
         arabicSubHeading:
           typeof item.arabicSubHeading ===

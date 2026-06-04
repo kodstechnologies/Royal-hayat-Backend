@@ -4,7 +4,9 @@ const populateCustomExplainantions = {
   path: 'customExplainantions',
 
   select: `
+    heading
     subHeading
+    arabicHeading
     arabicSubHeading
     explaination
     arabicExplaination

@@ -1,170 +1,270 @@
 import dotenv from "dotenv";
+import fs from "fs";
 import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath, pathToFileURL } from "url";
 
 import connectDB from "../config/db.js";
 import Department from "../modules/departments/models/department.model.js";
 import Subspeciality from "../modules/subspeciality/model/subspeciality.model.js";
+import CustomSubspeciality from "../modules/subspeciality/model/customSubspeciality.model.js";
 
 dotenv.config();
 
-/** Mirrors Royal-hayat-admin-frontend/src/data/subspeciality.ts */
-const SUBSPECIALITIES = [
-  {
-    departmentName: "Obstetrics & Gynecology",
-    name: "Women's Health",
-    nameAr: "صحة المرأة",
-    description:
-      "At Royale Hayat Hospital, we provide expert care tailored to women's unique needs, from adolescence to the golden years. Our compassionate, patient-centered approach ensures you receive the best preventive and advanced treatments in a supportive environment.",
-    descriptionAr:
-      "في مستشفى رويال حياة، نقدم رعاية متخصصة مصممة لتلبية احتياجات المرأة الصحية في مختلف مراحل حياتها، من مرحلة المراهقة وحتى سنوات النضج.",
-  },
-  {
-    departmentName: "Obstetrics & Gynecology",
-    name: "Urogynecology",
-    nameAr: "أمراض المسالك البولية النسائية",
-    description:
-      "At our Women's Urogynecology Clinic, we provide expert care for urinary and pelvic health challenges. Our specialized team uses the latest diagnostic tools and treatments to offer personalized, evidence-based care in a luxurious, supportive environment.",
-    descriptionAr:
-      "في عيادة أمراض المسالك البولية النسائية بمستشفى رويال حياة، نقدم رعاية متخصصة لصحة الجهاز البولي وقاع الحوض لدى المرأة.",
-  },
-  {
-    departmentName: "Obstetrics & Gynecology",
-    name: "Cosmetic Gynecology",
-    nameAr: "أمراض النساء التجميلية",
-    description:
-      "Introducing Kuwait's first Cosmetic Gynecology Unit at Royale Hayat Hospital. We offer the latest surgical and non-surgical procedures tailored to women's unique needs.",
-    descriptionAr:
-      "يفتخر مستشفى رويال حياة بتقديم أول وحدة متخصصة في طب النساء التجميلي في الكويت، حيث نوفر أحدث الإجراءات الجراحية وغير الجراحية.",
-  },
-  {
-    departmentName: "Obstetrics & Gynecology",
-    name: "Gynecologic Oncology",
-    nameAr: "أورام النساء",
-    description:
-      "Our Gynecologic Oncology unit provides specialized care for gynecological cancers and related conditions.",
-    descriptionAr:
-      "تقدم وحدة أورام النساء في مستشفى رويال حياة رعاية متخصصة ومتقدمة لتشخيص وعلاج السرطانات النسائية والحالات المرتبطة بها.",
-  },
-  {
-    departmentName: "Obstetrics & Gynecology",
-    name: "Physiotherapy",
-    nameAr: "العلاج الطبيعي",
-    description:
-      "At Royale Hayat Hospital, our Physiotherapy Clinic offers advanced treatments tailored to support women's health throughout life. We collaborate with other departments for comprehensive recovery and rehabilitation.",
-    descriptionAr:
-      "في مستشفى رويال حياة، تقدم عيادة العلاج الطبيعي برامج علاجية متقدمة ومخصصة لدعم صحة المرأة في مختلف مراحل حياتها.",
-  },
-  {
-    departmentName: "Obstetrics & Gynecology",
-    name: "Parent and Childbirth Education",
-    nameAr: "تثقيف الوالدين والولادة",
-    description:
-      "At Royale Hayat Hospital, we offer comprehensive educational programs for expectant parents, ensuring a calm and informed birthing experience.",
-    descriptionAr:
-      "في مستشفى رويال حياة، نقدم برامج تعليمية شاملة للآباء والأمهات المنتظرين، بهدف توفير تجربة ولادة هادئة، آمنة، ومبنية على المعرفة والثقة.",
-  },
-  {
-    departmentName: "General & Laparoscopic Surgery",
-    name: "Obesity Bariatric Surgery",
-    nameAr: "جراحة السمنة",
-    description:
-      "Royale Hayat Hospital's Bariatric Surgery Center is the first in the Middle East and Africa to be recognized by the Surgical Review Corporation as an International Center of Excellence in weight loss surgeries.",
-    descriptionAr:
-      "يُعد مركز جراحات السمنة في مستشفى رويال حياة الأول في الشرق الأوسط وأفريقيا الذي يحصل على اعتماد المؤسسة العالمية لمراجعة الجراحة كمركز دولي متميز في جراحات إنقاص الوزن.",
-  },
-  {
-    departmentName: "General & Laparoscopic Surgery",
-    name: "Breast Surgical Oncology",
-    nameAr: "أورام الثدي الجراحية",
-    description:
-      "At Royale Hayat Hospital, our Breast Surgical Oncology Clinic offers exceptional care for breast health. Our experienced team provides expert examinations, precise diagnoses, and advanced treatments for various breast conditions.",
-    descriptionAr:
-      "في مستشفى رويال حياة، تقدم عيادة جراحة أورام الثدي رعاية متخصصة وشاملة لصحة الثدي.",
-  },
-  {
-    departmentName: "General & Laparoscopic Surgery",
-    name: "Abdominal Wall Reconstruction",
-    nameAr: "إعادة بناء جدار البطن",
-    description:
-      "Our Abdominal Wall Reconstruction unit provides specialized surgical care for complex abdominal wall conditions.",
-    descriptionAr:
-      "تقدم وحدة إعادة ترميم جدار البطن في مستشفى رويال حياة رعاية جراحية متخصصة لعلاج الحالات المعقدة المتعلقة بجدار البطن.",
-  },
-  {
-    departmentName: "General & Laparoscopic Surgery",
-    name: "Clinical Nutrition & Dietetics",
-    nameAr: "التغذية السريرية",
-    description:
-      "At Royale Hayat Hospital, our Nutrition and Diet Clinic is dedicated to promoting optimal health through personalized nutritional care aligned with World Health Organization standards.",
-    descriptionAr:
-      "في مستشفى رويال حياة، تلتزم عيادة التغذية العلاجية والحمية بتعزيز الصحة العامة من خلال برامج غذائية مخصصة.",
-  },
-  {
-    departmentName: "Internal Medicine",
-    name: "Cardiology",
-    nameAr: "أمراض القلب",
-    description:
-      "At Royale Hayat Hospital, we prioritize preventive cardiac care to promote long-term heart health and well-being. Our Cardiology Unit offers expert support, education, and treatment for a healthier life.",
-    descriptionAr:
-      "في مستشفى رويال حياة، نولي أهمية كبيرة للرعاية القلبية الوقائية بهدف تعزيز صحة القلب على المدى الطويل وتحسين جودة الحياة.",
-  },
-  {
-    departmentName: "Internal Medicine",
-    name: "Nephrology",
-    nameAr: "أمراض الكلى",
-    description:
-      "At Royale Hayat Hospital, our Nephrology Clinic provides top-tier diagnostic, preventive, and therapeutic services for kidney-related conditions.",
-    descriptionAr:
-      "في مستشفى رويال حياة، تقدم عيادة أمراض الكلى خدمات تشخيصية ووقائية وعلاجية متكاملة لأمراض الكلى.",
-  },
-  {
-    departmentName: "Internal Medicine",
-    name: "Gastroenterology",
-    nameAr: "أمراض الجهاز الهضمي",
-    description:
-      "At Royale Hayat Hospital's Center for Digestive Diseases, we combine world-class expertise with cutting-edge technology to treat a wide range of gastrointestinal conditions.",
-    descriptionAr:
-      "في مركز أمراض الجهاز الهضمي في مستشفى رويال حياة، نجمع بين الخبرة الطبية العالمية وأحدث التقنيات لتشخيص وعلاج مجموعة واسعة من أمراض الجهاز الهضمي.",
-  },
-  {
-    departmentName: "Internal Medicine",
-    name: "Endocrinology & Metabolism",
-    nameAr: "الغدد الصماء والتمثيل الغذائي",
-    description:
-      "At Royale Hayat Hospital, our Endocrinology and Metabolism Clinic offers comprehensive care for endocrine and metabolic disorders.",
-    descriptionAr:
-      "في مستشفى رويال حياة، تقدم عيادة الغدد الصماء والتمثيل الغذائي رعاية شاملة لاضطرابات الغدد والهرمونات والأمراض الأيضية.",
-  },
-  {
-    departmentName: "Internal Medicine",
-    name: "Rheumatology",
-    nameAr: "أمراض الروماتيزم",
-    description:
-      "At Royale Hayat Hospital, our Rheumatology Clinic is dedicated to providing expert consultations and treatments for a wide range of musculoskeletal and autoimmune disorders.",
-    descriptionAr:
-      "في مستشفى رويال حياة، تقدم عيادة الروماتيزم استشارات وعلاجات متخصصة لمجموعة واسعة من أمراض الجهاز العضلي الهيكلي وأمراض المناعة الذاتية.",
-  },
-  {
-    departmentName: "Internal Medicine",
-    name: "Clinical Nutrition & Dietetics",
-    nameAr: "التغذية السريرية",
-    description:
-      "At Royale Hayat Hospital, our Nutrition and Diet Clinic is dedicated to promoting optimal health through personalized nutritional care aligned with World Health Organization standards.",
-    descriptionAr:
-      "في مستشفى رويال حياة، تلتزم عيادة التغذية العلاجية والحمية بتعزيز الصحة المثلى من خلال رعاية غذائية مخصصة.",
-  },
-];
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const buildDepartmentMapByName = async () => {
-  const departments = await Department.find({}).select("_id name arabicName").lean();
-  const map = new Map();
+const ROYAL_HAYAT_DATA = path.resolve(
+  __dirname,
+  "../../../RoyalHayat/src/data",
+);
 
-  for (const dept of departments) {
-    map.set(dept.name.trim().toLowerCase(), dept._id);
+/** departmentDetails.name → Department.name in DB (when labels differ) */
+const DEPARTMENT_NAME_ALIASES = {
+  "plastic surgery & cosmetology": "Plastic Surgery & Cosmetology",
+  "ent (ear, nose & throat)": "ENT (Ear, Nose & Throat)",
+  "royale hayat dental": "Dental Clinic",
+  "royale hayat pharmacy": "Royale Hayat Pharmacy",
+  "al safwa healthcare program": "Al Safwa HealthCare",
+};
+
+const extractExportedArray = (raw, exportName) => {
+  const marker = `export const ${exportName}`;
+  const markerIndex = raw.indexOf(marker);
+  if (markerIndex < 0) {
+    throw new Error(`Could not find "${exportName}" export`);
   }
 
-  return map;
+  const equalsIndex = raw.indexOf("=", markerIndex);
+  const arrayStart = raw.indexOf("[", equalsIndex);
+  let depth = 0;
+  let arrayEnd = -1;
+
+  for (let i = arrayStart; i < raw.length; i += 1) {
+    const char = raw[i];
+    if (char === "[") depth += 1;
+    else if (char === "]") {
+      depth -= 1;
+      if (depth === 0) {
+        arrayEnd = i + 1;
+        if (raw[arrayEnd] === ";") arrayEnd += 1;
+        break;
+      }
+    }
+  }
+
+  if (arrayEnd < 0) {
+    throw new Error(`Could not parse array bounds for "${exportName}"`);
+  }
+
+  return raw.slice(arrayStart, arrayEnd);
 };
+
+const loadTsArrayExport = async (fileName, exportName, transformSource) => {
+  const filePath = path.join(ROYAL_HAYAT_DATA, fileName);
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`${fileName} not found at ${filePath}`);
+  }
+
+  let raw = fs.readFileSync(filePath, "utf8").replace(/\r\n/g, "\n");
+  let arraySource = extractExportedArray(raw, exportName);
+
+  if (transformSource) {
+    arraySource = transformSource(arraySource);
+  }
+
+  const tempPath = path.join(__dirname, `.${exportName}.subseed.temp.mjs`);
+  fs.writeFileSync(
+    tempPath,
+    `export const ${exportName} = ${arraySource};\n`,
+    "utf8",
+  );
+
+  try {
+    const mod = await import(pathToFileURL(tempPath));
+    return mod[exportName];
+  } finally {
+    fs.unlinkSync(tempPath);
+  }
+};
+
+const loadDepartmentDetails = () =>
+  loadTsArrayExport("departmentDetails.ts", "departmentDetails");
+
+const loadFrontendDepartments = () =>
+  loadTsArrayExport("departments.ts", "departments", (source) =>
+    source.replace(/\s*,\s*icon:\s*\w+/g, ""),
+  );
+
+const trimOrUndefined = (value) => {
+  const text = String(value ?? "").trim();
+  return text.length > 0 ? text : undefined;
+};
+
+const toStringArray = (value) => {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => String(item).trim()).filter(Boolean);
+};
+
+const padDescription = (text, fallback) => {
+  const value = String(text || fallback || "").trim();
+  if (value.length >= 10) return value;
+  const padded = value || "Specialized clinical care at Royale Hayat Hospital.";
+  return padded.length >= 10 ? padded : `${padded} Royale Hayat Hospital.`;
+};
+
+const mapSectionToCustomBlocks = (section) => {
+  const blocks = [];
+
+  const appendBlock = (block) => {
+    const heading = trimOrUndefined(block.title);
+    const subHeading = trimOrUndefined(block.content);
+    const explanations = toStringArray(block.items);
+    const arabicHeading = trimOrUndefined(block.titleAr);
+    const arabicSubHeading = trimOrUndefined(block.contentAr);
+    const arabicExplanations = toStringArray(block.itemsAr);
+
+    if (
+      !heading &&
+      !subHeading &&
+      explanations.length === 0 &&
+      !arabicHeading &&
+      !arabicSubHeading &&
+      arabicExplanations.length === 0
+    ) {
+      return;
+    }
+
+    blocks.push({
+      heading,
+      subHeading,
+      explanations,
+      arabicHeading,
+      arabicSubHeading,
+      arabicExplanations,
+    });
+  };
+
+  appendBlock(section);
+
+  if (Array.isArray(section.subsections)) {
+    for (const subsection of section.subsections) {
+      appendBlock(subsection);
+    }
+  }
+
+  return blocks;
+};
+
+const buildCustomBlocksFromSections = (sections) => {
+  if (!Array.isArray(sections)) return [];
+  return sections.flatMap((section) => mapSectionToCustomBlocks(section));
+};
+
+const buildSubspecialityRowsFromDetails = (detailsList) => {
+  const rows = [];
+
+  for (const detail of detailsList) {
+    const departmentName = String(detail.name || "").trim();
+    const subDepartments = detail.subDepartments;
+
+    if (!departmentName || !Array.isArray(subDepartments)) continue;
+
+    for (const sub of subDepartments) {
+      const name = String(sub.name || "").trim();
+      if (!name) continue;
+
+      rows.push({
+        departmentName,
+        departmentSlug: String(detail.slug || "").trim(),
+        name,
+        arabicName: String(sub.nameAr || name).trim(),
+        description: padDescription(sub.intro, name),
+        arabicDescription: padDescription(
+          sub.introAr,
+          sub.nameAr || name,
+        ),
+        customBlocks: buildCustomBlocksFromSections(sub.sections),
+      });
+    }
+  }
+
+  return rows;
+};
+
+const buildDepartmentLookups = async (departmentsList) => {
+  const dbDepartments = await Department.find({})
+    .select("_id name")
+    .lean();
+
+  const byName = new Map();
+
+  for (const dept of dbDepartments) {
+    byName.set(dept.name.trim().toLowerCase(), dept._id);
+  }
+
+  const slugToFrontendName = new Map(
+    departmentsList.map((d) => [
+      String(d.slug || "").trim().toLowerCase(),
+      String(d.name || "").trim(),
+    ]),
+  );
+
+  const resolveDepartmentId = (departmentName, departmentSlug) => {
+    const aliasKey = departmentName.trim().toLowerCase();
+    const aliasedName =
+      DEPARTMENT_NAME_ALIASES[aliasKey] || departmentName;
+
+    let id = byName.get(aliasedName.trim().toLowerCase());
+    if (id) return id;
+
+    const frontendName = slugToFrontendName.get(
+      String(departmentSlug || "").trim().toLowerCase(),
+    );
+
+    if (frontendName) {
+      id = byName.get(frontendName.trim().toLowerCase());
+      if (id) return id;
+    }
+
+    return null;
+  };
+
+  return { resolveDepartmentId };
+};
+
+async function replaceCustomSubspecialitiesForSubspeciality(
+  subspecialityId,
+  items,
+) {
+  const existing = await Subspeciality.findById(subspecialityId)
+    .select("customSubspecialities")
+    .lean();
+
+  const oldIds = (existing?.customSubspecialities || []).map((x) =>
+    String(x),
+  );
+
+  if (oldIds.length > 0) {
+    await CustomSubspeciality.deleteMany({ _id: { $in: oldIds } });
+  }
+
+  const list = Array.isArray(items) ? items : [];
+  if (list.length === 0) return [];
+
+  const docs = await CustomSubspeciality.insertMany(
+    list.map((item) => ({
+      heading: trimOrUndefined(item.heading),
+      subHeading: trimOrUndefined(item.subHeading),
+      explanations: toStringArray(item.explanations),
+      arabicHeading: trimOrUndefined(item.arabicHeading),
+      arabicSubHeading: trimOrUndefined(item.arabicSubHeading),
+      arabicExplanations: toStringArray(item.arabicExplanations),
+    })),
+  );
+
+  return docs.map((d) => d._id);
+}
 
 const seedSubspecialities = async () => {
   await connectDB();
@@ -174,11 +274,25 @@ const seedSubspecialities = async () => {
   let skipped = 0;
 
   try {
-    const departmentMap = await buildDepartmentMapByName();
+    const [detailsList, departmentsList] = await Promise.all([
+      loadDepartmentDetails(),
+      loadFrontendDepartments(),
+    ]);
 
-    for (const sub of SUBSPECIALITIES) {
-      const departmentKey = sub.departmentName.trim().toLowerCase();
-      const departmentId = departmentMap.get(departmentKey);
+    const rows = buildSubspecialityRowsFromDetails(detailsList);
+    const { resolveDepartmentId } = await buildDepartmentLookups(
+      departmentsList,
+    );
+
+    console.log(
+      `📦 Loaded ${rows.length} subspecialities from departmentDetails (${detailsList.length} departments)`,
+    );
+
+    for (const sub of rows) {
+      const departmentId = resolveDepartmentId(
+        sub.departmentName,
+        sub.departmentSlug,
+      );
 
       if (!departmentId) {
         console.warn(
@@ -189,34 +303,48 @@ const seedSubspecialities = async () => {
       }
 
       const payload = {
-        name: sub.name.trim(),
-        arabicName: sub.nameAr.trim(),
-        description: sub.description.trim(),
-        arabicDescription: sub.descriptionAr.trim(),
+        name: sub.name,
+        arabicName: sub.arabicName,
+        description: sub.description,
+        arabicDescription: sub.arabicDescription,
         department: departmentId,
-        customSubspecialities: [],
       };
 
-      const existing = await Subspeciality.findOne({
+      let doc = await Subspeciality.findOne({
         department: departmentId,
         $or: [{ name: payload.name }, { arabicName: payload.arabicName }],
       });
 
-      if (existing) {
-        existing.set(payload);
-        await existing.save();
+      if (doc) {
+        doc.set(payload);
+        await doc.save();
         updated += 1;
         console.log(
-          `↻ Updated subspeciality: ${payload.name} → ${sub.departmentName} (${departmentId})`,
+          `↻ Updated subspeciality: ${payload.name} → ${sub.departmentName}`,
         );
-        continue;
+      } else {
+        doc = await Subspeciality.create({
+          ...payload,
+          customSubspecialities: [],
+        });
+        created += 1;
+        console.log(
+          `✅ Created subspeciality: ${payload.name} → ${sub.departmentName}`,
+        );
       }
 
-      await Subspeciality.create(payload);
-      created += 1;
-      console.log(
-        `✅ Created subspeciality: ${payload.name} → ${sub.departmentName} (${departmentId})`,
+      const customIds = await replaceCustomSubspecialitiesForSubspeciality(
+        doc._id,
+        sub.customBlocks,
       );
+
+      await Subspeciality.findByIdAndUpdate(doc._id, {
+        $set: { customSubspecialities: customIds },
+      });
+
+      if (sub.customBlocks.length > 0) {
+        console.log(`   ↳ ${sub.customBlocks.length} custom section(s)`);
+      }
     }
 
     console.log(
@@ -224,6 +352,7 @@ const seedSubspecialities = async () => {
     );
   } catch (error) {
     console.error("❌ Subspeciality seeding failed:", error.message);
+    console.error(error);
     process.exitCode = 1;
   } finally {
     await mongoose.connection.close();

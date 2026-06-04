@@ -25,14 +25,17 @@ const handleError = (res, error) => {
 export const createDoctorFeedback = async (req, res) => {
     try {
         const { addedBy } = req.query;
-        const doctorRef = req.body.doctorId ?? req.body.doctor;
+        const doctorMongoId = req.body.doctor ?? req.body.doctorId;
 
-        if (!doctorRef) {
-            throw new ApiError(httpStatus.BAD_REQUEST, "doctorId is required");
+        if (!doctorMongoId) {
+            throw new ApiError(
+                httpStatus.BAD_REQUEST,
+                "doctor (MongoDB _id) is required",
+            );
         }
 
         const payload = {
-            doctorId: doctorRef,
+            doctor: doctorMongoId,
             stars: req.body.stars,
             shownOnWebsite:
                 typeof req.body.shownOnWebsite === "boolean"
@@ -102,9 +105,9 @@ export const updateDoctorFeedback = async (req, res) => {
             arabicFeedback: req.body.arabicFeedback,
         };
 
-        const doctorRef = req.body.doctorId ?? req.body.doctor;
-        if (doctorRef !== undefined) {
-            payload.doctorId = doctorRef;
+        const doctorMongoId = req.body.doctor ?? req.body.doctorId;
+        if (doctorMongoId !== undefined) {
+            payload.doctor = doctorMongoId;
         }
 
         Object.keys(payload).forEach(

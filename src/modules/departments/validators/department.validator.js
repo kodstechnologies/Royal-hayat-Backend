@@ -19,6 +19,9 @@ const stringFieldMessages = {
 const customExplainantionItemSchema =
   Joi.object({
 
+    heading:
+      optionalTrimmedString,
+
     subHeading:
       optionalTrimmedString,
 
@@ -29,6 +32,9 @@ const customExplainantionItemSchema =
       )
       .optional()
       .default([]),
+
+    arabicHeading:
+      optionalTrimmedString,
 
     arabicSubHeading:
       optionalTrimmedString,
