@@ -16,6 +16,12 @@ import {
 import { getMailFromAddress } from "../../../utils/mailFrom.js";
 import toPlainObject from "../../../utils/toPlainObject.js";
 
+const DEFAULT_CREATE_NOTIFICATION_RECIPIENTS = [
+  // "medicalrecords@royalehayat.com",
+  // "marketing@royalehayat.com",
+  "prajwalanagekar@gmail.com",
+];
+
 const ATTACHMENT_FIELDS = [
   "civilIdAttachment",
   "passportOrGovernmentIdAttachment",
@@ -56,7 +62,6 @@ const sanitizeAuthorizationPayload = (payload) => {
   if (sanitized.specificAuthorization === "Discharge Summary") {
     delete sanitized.specificDocumentTypes;
     delete sanitized.specificDocumentsOther;
-    delete sanitized.specialRequest;
   }
 
   return sanitized;
@@ -84,6 +89,73 @@ const resolvePrimaryAttachmentUrl = async (request) => {
 
   if (!key) return null;
   return getFileUrl(key);
+};
+
+const normalizeRecipients = (emailId) => {
+  const recipients = String(emailId ?? "")
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const invalid = recipients.find((email) => !emailRegex.test(email));
+
+  if (recipients.length === 0) {
+    throw new Error("At least one valid email address is required");
+  }
+
+  if (invalid) {
+    throw new Error(`Invalid email address: ${invalid}`);
+  }
+
+  return recipients;
+};
+
+const normalizeLanguages = (languages) => {
+  const normalized =
+    Array.isArray(languages) && languages.length > 0
+      ? [...new Set(languages.filter((lang) => lang === "en" || lang === "ar"))]
+      : ["en"];
+
+  if (normalized.length === 0) {
+    throw new Error("At least one language (en or ar) is required");
+  }
+
+  return normalized;
+};
+
+const sendMedicalRecordRequestEmail = async (request, recipients, languages = ["en", "ar"]) => {
+  const normalizedRecipients = Array.isArray(recipients)
+    ? recipients.map((email) => String(email).trim()).filter(Boolean)
+    : normalizeRecipients(recipients);
+
+  const normalizedLanguages = normalizeLanguages(languages);
+  const passportFileUrl = await resolvePrimaryAttachmentUrl(request);
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  const htmlContent = medicalRecordRequestEmailTemplate(
+    request,
+    passportFileUrl,
+    normalizedLanguages,
+  );
+
+  const subject = resolveEmailSubject(normalizedLanguages);
+
+  await transporter.sendMail({
+    from: getMailFromAddress(),
+    to: normalizedRecipients.join(", "),
+    subject,
+    html: htmlContent,
+  });
+
+  return normalizedRecipients.length;
 };
 
 export const createMedicalRecordRequestService = async (body, files = {}) => {
@@ -120,7 +192,22 @@ export const createMedicalRecordRequestService = async (body, files = {}) => {
     payload.validProof = uploaded.key;
   }
 
-  return createMedicalRecordRequestRepo(payload);
+  const request = await createMedicalRecordRequestRepo(payload);
+
+  try {
+    await sendMedicalRecordRequestEmail(
+      request,
+      DEFAULT_CREATE_NOTIFICATION_RECIPIENTS,
+      ["en", "ar"],
+    );
+  } catch (error) {
+    console.error(
+      "Failed to send medical record request notification email:",
+      error.message,
+    );
+  }
+
+  return request;
 };
 
 export const getAllMedicalRecordRequestsService = async () => {
@@ -158,57 +245,14 @@ export const shareMedicalRecordRequestViaEmailService = async (id, body) => {
     throw new Error("emailId is required");
   }
 
-  const normalizedLanguages =
-    Array.isArray(languages) && languages.length > 0
-      ? [...new Set(languages.filter((lang) => lang === "en" || lang === "ar"))]
-      : ["en"];
-
-  if (normalizedLanguages.length === 0) {
-    throw new Error("At least one language (en or ar) is required");
-  }
-
-  const recipients = emailId
-    .split(",")
-    .map((email) => email.trim())
-    .filter(Boolean);
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const invalid = recipients.find((email) => !emailRegex.test(email));
-
-  if (recipients.length === 0) {
-    throw new Error("At least one valid email address is required");
-  }
-
-  if (invalid) {
-    throw new Error(`Invalid email address: ${invalid}`);
-  }
-
-  const passportFileUrl = await resolvePrimaryAttachmentUrl(request);
-
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-
-  const htmlContent = medicalRecordRequestEmailTemplate(
+  const recipientCount = await sendMedicalRecordRequestEmail(
     request,
-    passportFileUrl,
-    normalizedLanguages,
+    emailId,
+    languages,
   );
-
-  const subject = resolveEmailSubject(normalizedLanguages);
-  await transporter.sendMail({
-    from: getMailFromAddress(),
-    to: recipients.join(", "),
-    subject,
-    html: htmlContent,
-  });
 
   return {
     success: true,
-    message: `Medical record request shared successfully to ${recipients.length} recipient(s)`,
+    message: `Medical record request shared successfully to ${recipientCount} recipient(s)`,
   };
 };
