@@ -1,14 +1,8 @@
-const SUBJECT_EN =
+const EMAIL_SUBJECT =
   "New Authorization for the Disclosure of Patient Health Information via Email Upon Patient Request";
 
-const SUBJECT_AR =
-  "تفويض جديد للإفصاح عن المعلومات الصحية للمريض عبر البريد الإلكتروني بناءً على طلب المريض";
-
-const AUTHORIZATION_EN =
+const AUTHORIZATION_STATEMENT =
   "Patient authorizes the hospital to send medical records electronically through email.";
-
-const AUTHORIZATION_AR =
-  "أفوض مستشفى رويال حياة بالإفصاح عن معلوماتي الصحية وإرسال السجلات الطبية إلكترونياً إلى المستلم المحدد في هذا الطلب.";
 
 const formatDate = (value) => {
   if (!value) return "N/A";
@@ -45,17 +39,6 @@ const renderRow = (label, value) => `
   </tr>
 `;
 
-const renderArabicRow = (labelAr, value) => `
-  <tr>
-    <td style="padding: 10px 16px; width: 42%; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9; vertical-align: top; text-align: right; direction: rtl;">
-      ${labelAr}
-    </td>
-    <td style="padding: 10px 16px; font-size: 14px; color: #0f172a; font-weight: 500; border-bottom: 1px solid #f1f5f9; vertical-align: top; text-align: right; direction: rtl;">
-      ${value}
-    </td>
-  </tr>
-`;
-
 const buildRequestFields = (request) => {
   const dateFrom = formatDate(request.specificFromDate);
   const dateTo = formatDate(request.specificToDate);
@@ -68,10 +51,6 @@ const buildRequestFields = (request) => {
 
   const isPassportId = request.validIdentification === "passportORGovtId";
   const documentType = isPassportId ? "Passport / Government ID" : "Civil ID";
-  const documentTypeAr = isPassportId
-    ? "جواز السفر / هوية حكومية"
-    : "البطاقة المدنية";
-
   const civilId = request.civilIdNumber || request.civilId || "N/A";
 
   let requestedDocumentType = request.specificAuthorization || "N/A";
@@ -92,7 +71,6 @@ const buildRequestFields = (request) => {
   return {
     patientName: escapeHtml(request.patientFullName),
     documentType,
-    documentTypeAr,
     civilId: escapeHtml(civilId),
     requestedDocumentType: escapeHtml(requestedDocumentType),
     dateFrom,
@@ -107,9 +85,9 @@ const buildRequestFields = (request) => {
   };
 };
 
-const sectionShell = (title, tableRows, rtl = false) => `
+const sectionShell = (title, tableRows) => `
   <div style="margin-bottom: 24px;">
-    <h2 style="margin: 0 0 12px; font-size: 16px; color: #7f1d1d; font-weight: 700; ${rtl ? "text-align: right; direction: rtl;" : ""}">
+    <h2 style="margin: 0 0 12px; font-size: 16px; color: #7f1d1d; font-weight: 700;">
       ${title}
     </h2>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
@@ -118,16 +96,15 @@ const sectionShell = (title, tableRows, rtl = false) => `
   </div>
 `;
 
-const buildEnglishSections = (fields, passportFileUrl) => {
+const buildEmailBody = (fields, passportFileUrl) => {
   const passportCell = passportFileUrl
     ? `<a href="${passportFileUrl}" target="_blank" style="color: #7f1d1d; font-weight: 600;">View attached file</a>`
     : "N/A";
 
   return `
     <div style="margin-bottom: 28px; padding-bottom: 24px; border-bottom: 2px solid #fecaca;">
-      <p style="margin: 0 0 8px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #991b1b;">English</p>
       <h1 style="margin: 0; font-size: 20px; line-height: 1.4; color: #0f172a; font-weight: 700;">
-        ${SUBJECT_EN}
+        ${EMAIL_SUBJECT}
       </h1>
       <p style="margin: 8px 0 0; font-size: 13px; color: #64748b;">MRR ID: <strong>${fields.mrrId}</strong></p>
     </div>
@@ -168,7 +145,7 @@ const buildEnglishSections = (fields, passportFileUrl) => {
 
     ${sectionShell(
       "Authorization Statement",
-      renderRow("Authorization", AUTHORIZATION_EN),
+      renderRow("Authorization", AUTHORIZATION_STATEMENT),
     )}
 
     ${sectionShell(
@@ -178,135 +155,25 @@ const buildEnglishSections = (fields, passportFileUrl) => {
   `;
 };
 
-const buildArabicSections = (fields, passportFileUrl) => {
-  const passportCell = passportFileUrl
-    ? `<a href="${passportFileUrl}" target="_blank" style="color: #7f1d1d; font-weight: 600;">عرض الملف المرفق</a>`
-    : "غير متوفر";
-
-  return `
-  <div style="margin-bottom: 28px; padding-bottom: 24px; border-bottom: 2px solid #fecaca; direction: rtl; text-align: right;">
-    <p style="margin: 0 0 8px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #991b1b;">العربية</p>
-    <h1 style="margin: 0; font-size: 20px; line-height: 1.6; color: #0f172a; font-weight: 700;">
-      ${SUBJECT_AR}
-    </h1>
-    <p style="margin: 8px 0 0; font-size: 13px; color: #64748b; direction: ltr; text-align: right;">رقم الطلب: <strong>${fields.mrrId}</strong></p>
+const buildConfidentialityFooter = (mrrId) => `
+  <div>
+    <p style="margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: #7f1d1d; text-transform: uppercase;">
+      CONFIDENTIALITY NOTICE
+    </p>
+    <p style="margin: 0; font-size: 12px; line-height: 1.65; color: #64748b;">
+      This communication contains protected health information intended only for the designated recipient.
+    </p>
+    <p style="margin: 10px 0 0; font-size: 11px; color: #94a3b8;">
+      MRR ID: <strong style="color: #7f1d1d;">${mrrId}</strong>
+    </p>
   </div>
-
-  ${sectionShell(
-    "بيانات المريض",
-    `
-      ${renderArabicRow("اسم المريض", fields.patientName)}
-      ${renderArabicRow("نوع المستند", fields.documentTypeAr)}
-      ${renderArabicRow("الرقم المدني", fields.civilId)}
-      ${renderArabicRow("جواز السفر / الهوية الحكومية", passportCell)}
-    `,
-    true,
-  )}
-
-  ${sectionShell(
-    "معلومات طلب السجل الطبي",
-    `
-      ${renderArabicRow("نوع المستند المطلوب", fields.requestedDocumentType)}
-      ${renderArabicRow("من تاريخ", fields.dateFrom)}
-      ${renderArabicRow("إلى تاريخ", fields.dateTo)}
-      ${renderArabicRow("طلب خاص", fields.specialRequest)}
-    `,
-    true,
-  )}
-
-  ${sectionShell(
-    "بيانات المستلم",
-    `
-      ${renderArabicRow("اسم المستلم", fields.recipientName)}
-      ${renderArabicRow("البريد الإلكتروني للمستلم", fields.recipientEmail)}
-      ${renderArabicRow("رقم هاتف المستلم", fields.recipientPhone)}
-    `,
-    true,
-  )}
-
-  ${sectionShell(
-    "الغرض من الإفصاح",
-    renderArabicRow("الغرض من الإفصاح", fields.purpose),
-    true,
-  )}
-
-  ${sectionShell(
-    "تفويض المريض",
-    renderArabicRow("التفويض", AUTHORIZATION_AR),
-    true,
-  )}
-
-  ${sectionShell(
-    "التوقيع الإلكتروني",
-    renderArabicRow("الاسم الموقع إلكترونياً", fields.signatureName),
-    true,
-  )}
 `;
-};
 
-const buildConfidentialityFooter = (includeEn, includeAr, mrrId) => {
-  const blocks = [];
+export const resolveEmailSubject = () => EMAIL_SUBJECT;
 
-  if (includeEn) {
-    blocks.push(`
-      <div style="margin-bottom: ${includeAr ? "20px" : "0"};">
-        <p style="margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: #7f1d1d; text-transform: uppercase;">
-          CONFIDENTIALITY NOTICE
-        </p>
-        <p style="margin: 0; font-size: 12px; line-height: 1.65; color: #64748b;">
-          This communication contains protected health information intended only for the designated recipient.
-        </p>
-        <p style="margin: 10px 0 0; font-size: 11px; color: #94a3b8;">
-          MRR ID: <strong style="color: #7f1d1d;">${mrrId}</strong>
-        </p>
-      </div>
-    `);
-  }
-
-  if (includeAr) {
-    blocks.push(`
-      <div style="direction: rtl; text-align: right;">
-        <p style="margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: #7f1d1d;">
-          إشعار السرية
-        </p>
-        <p style="margin: 0; font-size: 12px; line-height: 1.75; color: #64748b;">
-          تحتوي هذه الرسالة على معلومات صحية سرية ومخصصة فقط للمستلم المحدد
-        </p>
-        ${!includeEn ? `<p style="margin: 10px 0 0; font-size: 11px; color: #94a3b8; direction: ltr; text-align: right;">رقم الطلب: <strong style="color: #7f1d1d;">${mrrId}</strong></p>` : ""}
-      </div>
-    `);
-  }
-
-  return blocks.join("");
-};
-
-export const resolveEmailSubject = (languages = ["en"]) => {
-  const includeEn = languages.includes("en");
-  const includeAr = languages.includes("ar");
-
-  if (includeEn && includeAr) {
-    return SUBJECT_EN;
-  }
-  if (includeAr) {
-    return SUBJECT_AR;
-  }
-  return SUBJECT_EN;
-};
-
-export const medicalRecordRequestEmailTemplate = (
-  request,
-  passportFileUrl,
-  languages = ["en"],
-) => {
-  const normalizedLanguages = Array.isArray(languages) ? languages : ["en"];
-  const includeEn = normalizedLanguages.includes("en");
-  const includeAr = normalizedLanguages.includes("ar");
-
+export const medicalRecordRequestEmailTemplate = (request, passportFileUrl) => {
   const fields = buildRequestFields(request);
-
-  const bodyParts = [];
-  if (includeEn) bodyParts.push(buildEnglishSections(fields, passportFileUrl));
-  if (includeAr) bodyParts.push(buildArabicSections(fields, passportFileUrl));
+  const body = buildEmailBody(fields, passportFileUrl);
 
   return `
 <!DOCTYPE html>
@@ -333,12 +200,12 @@ export const medicalRecordRequestEmailTemplate = (
             </tr>
             <tr>
               <td style="padding: 28px 32px 32px;">
-                ${bodyParts.join('<div style="height: 28px;"></div>')}
+                ${body}
               </td>
             </tr>
             <tr>
               <td style="padding: 22px 32px 28px; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
-                ${buildConfidentialityFooter(includeEn, includeAr, fields.mrrId)}
+                ${buildConfidentialityFooter(fields.mrrId)}
               </td>
             </tr>
           </table>
