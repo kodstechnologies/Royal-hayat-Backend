@@ -1,0 +1,177 @@
+{
+  "civilId": "271060903599",
+  "identityStart": {
+    "request": {
+      "method": "POST",
+      "url": "http://18.158.98.55/api/v1/identity/start",
+      "body": {
+        "civilId": "271060903599",
+        "serviceName": {
+          "ar": "تجربة",
+          "en": "Service Test"
+        },
+        "reason": {
+          "ar": "تجربة",
+          "en": "test"
+        }
+      }
+    },
+    "response": {
+      "success": true,
+      "message": "Identity verification started successfully",
+      "data": {
+        "operationId": "yr1k344gx3",
+        "status": "pending",
+        "verified": null,
+        "skippedStart": false,
+        "dataSource": "start",
+        "paciRequestId": "f7e86335-0f6a-4b11-bc38-c4e3e2020c96",
+        "statusUrl": "https://mid.royalehayat.com/p/xapi/status/yr1k344gx3",
+        "callbackUrl": "http://18.158.98.55/api/callback",
+        "raw": {
+          "paciRequestId": "f7e86335-0f6a-4b11-bc38-c4e3e2020c96",
+          "operationId": "yr1k344gx3",
+          "urls": {
+            "status": "https://mid.royalehayat.com/p/xapi/status/yr1k344gx3"
+          }
+        }
+      }
+    }
+  },
+  "patientLookup": {
+    "request": {
+      "method": "GET",
+      "url": "http://18.158.98.55/api/v1/royal-hayat/patients",
+      "query": {
+        "nationalid": "271060903599"
+      }
+    },
+    "response": {
+      "success": true,
+      "message": "Patient data fetched successfully",
+      "data": {
+        "patient": {
+          "patient_exist": true,
+          "patient_id": "104702",
+          "urn": "00105296",
+          "national_id": "272727272727",
+          "first_name": "Vrajesh",
+          "last_name": "VR",
+          "arabic_first_name": "",
+          "arabic_last_name": "",
+          "mobile_number": "66864017",
+          "email": "vrajesh.vr@royalehayat.com",
+          "dob": "1971-06-09",
+          "gender": "Male",
+          "address": "Adwani complex,Farwaniya",
+          "insurance_list": [
+            {
+              "id": "104702||1",
+              "payor_code": "SELF",
+              "payor_description": "Self Paying",
+              "plan_code": "SELF",
+              "plan_description": "Self Paying",
+              "card_no": "",
+              "rank": "1"
+            }
+          ],
+          "status": "Success"
+        },
+        "raw": {
+          "patient_exist": true,
+          "patient_id": "104702",
+          "urn": "00105296",
+          "national_id": "272727272727",
+          "first_name": "Vrajesh",
+          "last_name": "VR",
+          "arabic_first_name": "",
+          "arabic_last_name": "",
+          "mobile_number": "66864017",
+          "email": "vrajesh.vr@royalehayat.com",
+          "dob": "1971-06-09",
+          "gender": "Male",
+          "address": "Adwani complex,Farwaniya",
+          "insurance_list": [
+            {
+              "id": "104702||1",
+              "payor_code": "SELF",
+              "payor_description": "Self Paying",
+              "plan_code": "SELF",
+              "plan_description": "Self Paying",
+              "card_no": "",
+              "rank": "1"
+            }
+          ],
+          "status": "Success"
+        }
+      }
+    }
+  },
+  "identityData": {
+    "request": {
+      "method": "GET",
+      "url": "http://18.158.98.55/api/v1/identity/data/271060903599"
+    },
+    "response": {
+      "success": true,
+      "message": "Identity data fetched successfully",
+      "data": {
+        "civilId": "271060903599",
+        "raw": {
+          "name": {
+            "english": "VRAJESH VELLUVA RAYAROTH",
+            "arabic": "فارجيش  فيلوفا راياروت كونهاناندان"
+          },
+          "nameParts": null,
+          "sex": "M",
+          "dateOfBirth": "1971-06-09T00:00:00",
+          "nationality": {
+            "iso3Letter": "IND",
+            "iso2Letter": "IN",
+            "name": {
+              "english": "India",
+              "arabic": "الهند"
+            },
+            "demonym": {
+              "english": "Indian",
+              "arabic": "هندي"
+            }
+          },
+          "bloodType": "",
+          "address": {
+            "uniqueKey": null,
+            "governorate": null,
+            "area": null,
+            "block": null,
+            "street": null,
+            "building": null,
+            "unitType": null,
+            "unitNumber": null,
+            "floor": null
+          },
+          "registration": {
+            "cardSerialNumber": null,
+            "chipSerialNumber": null,
+            "passport": "X5365792",
+            "passportIssuer": null,
+            "issued": null,
+            "expires": "2027-04-27T00:00:00",
+            "documentNumber": null,
+            "residence": null
+          },
+          "contacts": null,
+          "signature": null,
+          "images": null,
+          "operationId": "yr1k344gx3",
+          "reference": null,
+          "uniqueId": null,
+          "civilId": "271060903599",
+          "success": true,
+          "timestamp": "2026-06-05T15:00:45.5129679+03:00",
+          "paciRequestId": "f7e86335-0f6a-4b11-bc38-c4e3e2020c96",
+          "requestType": 1
+        }
+      }
+    }
+  }
+}

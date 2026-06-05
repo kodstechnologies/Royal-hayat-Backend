@@ -40,32 +40,47 @@ const parseExistingBookingFromMessage = (message) => {
   return {};
 };
 
+const isDuplicateBookingHint = (lower) =>
+  lower.includes('active booking') ||
+  lower.includes('already has an appointment') ||
+  lower.includes('already has a booking') ||
+  (lower.includes('already has') &&
+    (lower.includes('booking') || lower.includes('appointment')));
+
+const isSameDoctorSameDayHint = (lower) =>
+  (lower.includes('same doctor') && lower.includes('same day')) ||
+  (lower.includes('this doctor') && lower.includes('same day'));
+
 const classifyBookingConflict = (raw) => {
   const message = cleanBookingMessage(raw);
   if (!message) return null;
 
   const lower = message.toLowerCase();
-  if (lower === SAME_DOCTOR_SAME_DAY_MESSAGE.toLowerCase()) {
-    return {
-      code: 'DUPLICATE_SAME_DOCTOR_SAME_DAY',
-      message: SAME_DOCTOR_SAME_DAY_MESSAGE
-    };
-  }
-
-  if (!lower.includes('active booking')) {
-    return null;
-  }
-
   const parsed = parseExistingBookingFromMessage(message);
-  const isSameDoctorSameDay =
-    lower.includes('same doctor') && lower.includes('same day');
 
-  if (isSameDoctorSameDay) {
+  if (
+    lower === SAME_DOCTOR_SAME_DAY_MESSAGE.toLowerCase() ||
+    isSameDoctorSameDayHint(lower)
+  ) {
     return {
       code: 'DUPLICATE_SAME_DOCTOR_SAME_DAY',
-      message,
+      message:
+        lower === SAME_DOCTOR_SAME_DAY_MESSAGE.toLowerCase()
+          ? SAME_DOCTOR_SAME_DAY_MESSAGE
+          : message,
       ...parsed
     };
+  }
+
+  if (!isDuplicateBookingHint(lower)) {
+    if (parsed.existingDoctor && parsed.existingDate && parsed.existingTime) {
+      return {
+        code: 'DUPLICATE_SAME_TIME_DIFFERENT_DOCTOR',
+        message,
+        ...parsed
+      };
+    }
+    return null;
   }
 
   const isSameTimeConflict =

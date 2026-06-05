@@ -178,6 +178,14 @@ const bookAppointment = async (patientId, slotBookingId, options = {}) => {
       slotTime: options.slotTime,
     });
     if (forcedMessage) {
+      const conflict = classifyBookingConflict(forcedMessage);
+      if (conflict) {
+        throw new ApiError(httpStatus.BAD_REQUEST, conflict.message || forcedMessage, {
+          code: conflict.code,
+          status: forcedMessage,
+          conflict
+        });
+      }
       throw new ApiError(httpStatus.BAD_REQUEST, forcedMessage, {
         code: 'REGISTERED_PATIENT_BOOKING_FALLBACK',
       });

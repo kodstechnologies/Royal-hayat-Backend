@@ -137,7 +137,7 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
   if (isMockCivilId(civilId)) {
     identityLog('start', `service: mock bypass civilId=${civilId} (simulated callback)`);
     const mockResult = buildMockStartResult(civilId);
-    const operationId = `mock-${civilId}`;
+    const operationId = mockResult.operationId || `mock-${civilId}`;
 
     setOperation(operationId, {
       operationId,
@@ -170,11 +170,13 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
       status: 'pending',
       verified: null,
       skippedStart: true,
-      dataSource: 'mock',
+      dataSource: mockResult.dataSource,
       civilId,
       personName: mockResult.personName,
-      raw: mockResult.raw,
-      callbackUrl: callbackUrl || SHARPER_CALLBACK_URL,
+      raw: mockResult.fixtureRaw || mockResult.raw,
+      paciRequestId: mockResult.paciRequestId || null,
+      statusUrl: mockResult.statusUrl || null,
+      callbackUrl: mockResult.callbackUrl || callbackUrl || SHARPER_CALLBACK_URL,
     };
   }
 

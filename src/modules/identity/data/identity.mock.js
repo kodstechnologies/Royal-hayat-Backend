@@ -4,12 +4,33 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = join(__dirname, 'identity.mock.json');
+const PERSON1_DATA_PATH = join(__dirname, 'person1-data.json');
 
 /** Toggle in code — no env var. Per-scenario rules in identity.mock.json. */
 export const MOCK_IDENTITY_ENABLED = true;
 export const MOCK_FORCED_BOOKING_FAILURE_ENABLED = true;
 
 let cachedConfig = null;
+let cachedPerson1Data = undefined;
+
+const loadPerson1Data = () => {
+  if (cachedPerson1Data !== undefined) return cachedPerson1Data;
+
+  try {
+    cachedPerson1Data = JSON.parse(readFileSync(PERSON1_DATA_PATH, 'utf8'));
+  } catch {
+    cachedPerson1Data = null;
+  }
+
+  return cachedPerson1Data;
+};
+
+const getPerson1Entry = (civilId) => {
+  const data = loadPerson1Data();
+  const normalized = String(civilId || '').trim();
+  if (!data || String(data.civilId || '').trim() !== normalized) return null;
+  return data;
+};
 
 const loadConfig = () => {
   if (cachedConfig) return cachedConfig;
@@ -46,6 +67,7 @@ const entryByCivilId = () => {
 export const isMockCivilId = (civilId) => {
   const normalized = String(civilId || '').trim();
   if (!normalized) return false;
+  if (getPerson1Entry(normalized)) return true;
   return entryByCivilId().has(normalized);
 };
 
@@ -54,6 +76,9 @@ export const getMockCivilIds = () => [...entryByCivilId().keys()];
 const getMockEntry = (civilId) => entryByCivilId().get(String(civilId || '').trim()) || null;
 
 export const buildMockIdentityRaw = (civilId) => {
+  const person1Raw = getPerson1Entry(civilId)?.identityData?.response?.data?.raw;
+  if (person1Raw) return person1Raw;
+
   const entry = getMockEntry(civilId);
   const name = entry?.name || { english: 'TEST PATIENT MOCK', arabic: 'مريض تجريبي' };
 
@@ -93,23 +118,41 @@ const mockPersonName = (civilId) => {
 };
 
 export const buildMockStartResult = (civilId) => {
+  const person1 = getPerson1Entry(civilId);
   const raw = buildMockIdentityRaw(civilId);
-  const personName = mockPersonName(civilId);
+  const personName = person1
+    ? {
+        english: raw?.name?.english || '',
+        arabic: raw?.name?.arabic || '',
+      }
+    : mockPersonName(civilId);
+  const startData = person1?.identityStart?.response?.data;
+
   return {
-    operationId: null,
+    operationId: startData?.operationId || null,
     status: 'verified',
     verified: true,
     skippedStart: true,
-    dataSource: 'mock',
+    dataSource: person1 ? 'person1-fixture' : 'mock',
     civilId,
     personName,
     raw,
+    paciRequestId: startData?.paciRequestId || null,
+    statusUrl: startData?.statusUrl || null,
+    callbackUrl: startData?.callbackUrl || null,
+    fixtureRaw: startData?.raw || null,
   };
 };
 
 export const buildMockDataResult = (civilId) => {
+  const person1 = getPerson1Entry(civilId);
   const raw = buildMockIdentityRaw(civilId);
-  const personName = mockPersonName(civilId);
+  const personName = person1
+    ? {
+        english: raw?.name?.english || '',
+        arabic: raw?.name?.arabic || '',
+      }
+    : mockPersonName(civilId);
   return {
     verified: true,
     civilId,
@@ -117,7 +160,7 @@ export const buildMockDataResult = (civilId) => {
     identityData: raw,
     raw,
     skippedStart: true,
-    dataSource: 'mock',
+    dataSource: person1 ? 'person1-fixture' : 'mock',
   };
 };
 
@@ -128,6 +171,9 @@ export const shouldSimulateHisPatientNotFound = (civilId) => {
 };
 
 export const buildMockPatientRecord = (nationalid) => {
+  const person1Patient = getPerson1Entry(nationalid)?.patientLookup?.response?.data?.patient;
+  if (person1Patient) return { ...person1Patient };
+
   const entry = getMockEntry(nationalid);
   const name = entry?.name || { english: 'TEST PATIENT MOCK', arabic: 'مريض تجريبي' };
 
