@@ -8,6 +8,16 @@ const cleanBookingMessage = (raw) =>
     .replace(/care provider/gi, 'doctor');
 
 const parseExistingBookingFromMessage = (message) => {
+  const appointmentDuringTimeSlot = message.match(
+    /already has an appointment with\s+(.+?)\s+\((\d{1,2}:\d{2})(?:\s*-\s*\d{1,2}:\d{2})?\)\s+during this time slot/i
+  );
+  if (appointmentDuringTimeSlot) {
+    return {
+      existingDoctor: appointmentDuringTimeSlot[1]?.trim(),
+      existingTime: appointmentDuringTimeSlot[2]?.trim()
+    };
+  }
+
   const withProviderOnDateAtTime = message.match(
     /with\s+(?:doctor\s+|care\s+provider\s+)?(.+?)\s+on\s+(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2})\s+(?:at\s+)?(\d{1,2}:\d{2}(?::\d{2})?)/i
   );
@@ -44,12 +54,21 @@ const isDuplicateBookingHint = (lower) =>
   lower.includes('active booking') ||
   lower.includes('already has an appointment') ||
   lower.includes('already has a booking') ||
+  lower.includes('during this time slot') ||
+  lower.includes('book at a different date or time') ||
   (lower.includes('already has') &&
     (lower.includes('booking') || lower.includes('appointment')));
 
 const isSameDoctorSameDayHint = (lower) =>
   (lower.includes('same doctor') && lower.includes('same day')) ||
   (lower.includes('this doctor') && lower.includes('same day'));
+
+const isSameTimeConflictHint = (lower, parsed) =>
+  lower.includes('same time') ||
+  lower.includes('same day and time') ||
+  lower.includes('during this time slot') ||
+  lower.includes('book at a different date or time') ||
+  Boolean(parsed.existingDoctor && (parsed.existingDate || parsed.existingTime));
 
 const classifyBookingConflict = (raw) => {
   const message = cleanBookingMessage(raw);
@@ -83,12 +102,7 @@ const classifyBookingConflict = (raw) => {
     return null;
   }
 
-  const isSameTimeConflict =
-    lower.includes('same time') ||
-    lower.includes('same day and time') ||
-    Boolean(parsed.existingDoctor && (parsed.existingDate || parsed.existingTime));
-
-  if (isSameTimeConflict) {
+  if (isSameTimeConflictHint(lower, parsed)) {
     return {
       code: 'DUPLICATE_SAME_TIME_DIFFERENT_DOCTOR',
       message,

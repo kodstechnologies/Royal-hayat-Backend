@@ -221,6 +221,16 @@ const bookAppointment = async (patientId, slotBookingId, options = {}) => {
     };
   } catch (error) {
     console.error('[RoyalHayat] bookAppointment Exception:', error.message);
+    const rawStatus = error?.meta?.status || error.message;
+    const conflict =
+      classifyBookingConflict(rawStatus) || classifyBookingConflict(error.message);
+    if (conflict) {
+      throw new ApiError(httpStatus.BAD_REQUEST, conflict.message || rawStatus, {
+        code: conflict.code,
+        status: rawStatus,
+        conflict
+      });
+    }
     throw error;
   }
 };
