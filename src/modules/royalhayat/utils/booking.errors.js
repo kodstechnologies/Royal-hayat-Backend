@@ -7,14 +7,35 @@ const cleanBookingMessage = (raw) =>
     .trim()
     .replace(/care provider/gi, 'doctor');
 
+const formatTimeRange = (start, end) => {
+  if (!start) return undefined;
+  return end ? `${start}-${end}` : start;
+};
+
 const parseExistingBookingFromMessage = (message) => {
+  const arabicAppointmentDuringTimeSlot = message.match(
+    /موعد\s+مع\s+\(([^)]+)\)[،,]?\s*خلال\s+هذا\s+الوقت\s+\((\d{1,2}:\d{2})(?:\s*-\s*(\d{1,2}:\d{2}))?\)/u
+  );
+  if (arabicAppointmentDuringTimeSlot) {
+    return {
+      existingDoctor: arabicAppointmentDuringTimeSlot[1]?.trim(),
+      existingTime: formatTimeRange(
+        arabicAppointmentDuringTimeSlot[2]?.trim(),
+        arabicAppointmentDuringTimeSlot[3]?.trim()
+      )
+    };
+  }
+
   const appointmentDuringTimeSlot = message.match(
-    /already has an appointment with\s+(.+?)\s+\((\d{1,2}:\d{2})(?:\s*-\s*\d{1,2}:\d{2})?\)\s+during this time slot/i
+    /already has an appointment with\s+(.+?)\s+\((\d{1,2}:\d{2})(?:\s*-\s*(\d{1,2}:\d{2})?)\)\s+during this time slot/i
   );
   if (appointmentDuringTimeSlot) {
     return {
       existingDoctor: appointmentDuringTimeSlot[1]?.trim(),
-      existingTime: appointmentDuringTimeSlot[2]?.trim()
+      existingTime: formatTimeRange(
+        appointmentDuringTimeSlot[2]?.trim(),
+        appointmentDuringTimeSlot[3]?.trim()
+      )
     };
   }
 
@@ -50,24 +71,31 @@ const parseExistingBookingFromMessage = (message) => {
   return {};
 };
 
-const isDuplicateBookingHint = (lower) =>
+const isDuplicateBookingHint = (message, lower) =>
   lower.includes('active booking') ||
   lower.includes('already has an appointment') ||
   lower.includes('already has a booking') ||
   lower.includes('during this time slot') ||
   lower.includes('book at a different date or time') ||
   (lower.includes('already has') &&
-    (lower.includes('booking') || lower.includes('appointment')));
+    (lower.includes('booking') || lower.includes('appointment'))) ||
+  message.includes('لديه موعد') ||
+  message.includes('لدي موعد') ||
+  message.includes('خلال هذا الوقت') ||
+  message.includes('يرجى الحجز في تاريخ أو وقت مختلف');
 
-const isSameDoctorSameDayHint = (lower) =>
+const isSameDoctorSameDayHint = (message, lower) =>
   (lower.includes('same doctor') && lower.includes('same day')) ||
-  (lower.includes('this doctor') && lower.includes('same day'));
+  (lower.includes('this doctor') && lower.includes('same day')) ||
+  (message.includes('نفس الطبيب') && message.includes('نفس اليوم'));
 
-const isSameTimeConflictHint = (lower, parsed) =>
+const isSameTimeConflictHint = (message, lower, parsed) =>
   lower.includes('same time') ||
   lower.includes('same day and time') ||
   lower.includes('during this time slot') ||
   lower.includes('book at a different date or time') ||
+  message.includes('خلال هذا الوقت') ||
+  message.includes('يرجى الحجز في تاريخ أو وقت مختلف') ||
   Boolean(parsed.existingDoctor && (parsed.existingDate || parsed.existingTime));
 
 const classifyBookingConflict = (raw) => {
@@ -79,7 +107,7 @@ const classifyBookingConflict = (raw) => {
 
   if (
     lower === SAME_DOCTOR_SAME_DAY_MESSAGE.toLowerCase() ||
-    isSameDoctorSameDayHint(lower)
+    isSameDoctorSameDayHint(message, lower)
   ) {
     return {
       code: 'DUPLICATE_SAME_DOCTOR_SAME_DAY',
@@ -91,7 +119,7 @@ const classifyBookingConflict = (raw) => {
     };
   }
 
-  if (!isDuplicateBookingHint(lower)) {
+  if (!isDuplicateBookingHint(message, lower)) {
     if (parsed.existingDoctor && parsed.existingDate && parsed.existingTime) {
       return {
         code: 'DUPLICATE_SAME_TIME_DIFFERENT_DOCTOR',
@@ -102,7 +130,7 @@ const classifyBookingConflict = (raw) => {
     return null;
   }
 
-  if (isSameTimeConflictHint(lower, parsed)) {
+  if (isSameTimeConflictHint(message, lower, parsed)) {
     return {
       code: 'DUPLICATE_SAME_TIME_DIFFERENT_DOCTOR',
       message,
