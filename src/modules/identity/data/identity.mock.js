@@ -187,5 +187,9 @@ export const getForcedBookingFailureMessage = ({ patientId, doctorId, date, slot
     if (!slotPrefix || !matches) return null;
   }
 
+  if (config.bookingConflictMessage) {
+    return config.bookingConflictMessage;
+  }
+
   return config.message || 'Test booking failure (forced).';
 };

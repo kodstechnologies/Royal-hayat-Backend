@@ -4,6 +4,7 @@ import {
   enrichPatientLookupApiError,
   throwPatientLookupError
 } from '../utils/patientLookup.errors.js';
+import { classifyBookingConflict } from '../utils/booking.errors.js';
 import {
   buildMockPatientRecord,
   getForcedBookingFailureMessage,
@@ -192,9 +193,18 @@ const bookAppointment = async (patientId, slotBookingId, options = {}) => {
     });
    
     if (response.status !== 'Success') {
-       console.log("book appointment res",response)
+      console.log('book appointment res', response);
       console.error('[RoyalHayat] Booking Error Status:', response.status);
-      throw new ApiError(httpStatus.BAD_REQUEST, response.status || 'Failed to book appointment', response);
+      const conflict = classifyBookingConflict(response.status);
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        conflict?.message || response.status || 'Failed to book appointment',
+        {
+          ...(response || {}),
+          code: conflict?.code || 'BOOKING_FAILED',
+          conflict: conflict || null
+        }
+      );
     }
 
     return {

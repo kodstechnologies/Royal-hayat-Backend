@@ -113,7 +113,7 @@ export const enquiryNotificationEmailTemplate = (enquiry) => {
 };
 
 export const sendEnquiryNotificationEmail = async (enquiry) => {
-  const recipients = (process.env.ENQUIRY_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS)
+  const recipients = DEFAULT_RECIPIENTS
     .split(",")
     .map((email) => email.trim())
     .filter(Boolean);
