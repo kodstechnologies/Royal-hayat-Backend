@@ -350,38 +350,6 @@ const JOBS = [
     isActive: true,
     applicationsCount: 0,
   },
-  {
-    title: "Spa Therapist – Female Only, Bilingual (Arabic & English)",
-    arabicTitle: null,
-    description:
-      "Performs body massage, body treatments and beauty treatments for Spa guests at Royale Hayat Hospital Spa.",
-    arabicDescription: null,
-    classification: "Spa",
-    location: "Royale Hayat Hospital",
-    arabicLocation: "الكويت",
-    type: "Full-time",
-    responsibilities: [
-      "Prepare and tidy spa premises",
-      "manage daily booking programme",
-      "provide massages, body treatments, facials, manicures, pedicures and hair care",
-      "maintain product supplies",
-      "check spa cards for guest instructions",
-      "maintain linen",
-      "ensure guest comfort (temperature, lighting, music)",
-      "report complaints to Senior Therapist",
-      "adhere to spa and hotel policy",
-      "maintain grooming standards",
-    ],
-    arabicResponsibilities: [],
-    requirements: [
-      "High School Vocational Certificate or above, preferably Graduate in any discipline. Body massage skill, body treatments, skin analysis, beauty treatment skill. English communication (speaking, reading, listening). Good customer service skills, positive outgoing personality",
-    ],
-    arabicRequirements: [],
-    postedDate: "2026-05-13",
-    closingDate: null,
-    isActive: true,
-    applicationsCount: 0,
-  },
 ];
 
 const normalizeJobPayload = (job) => ({
