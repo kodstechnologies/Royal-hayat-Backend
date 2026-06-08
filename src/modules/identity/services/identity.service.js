@@ -327,10 +327,17 @@ const getIdentityData = async (civilId) => {
 
 const handleIdentityCallback = async (callbackBody) => {
   identityLog('callback', 'service: handleIdentityCallback entered');
-  identityLogJson('callback', 'service: raw callback body', callbackBody);
+  identityLogJson('callback', 'received from Sharper (raw body)', callbackBody);
 
   const payload = callbackBody?.payload || callbackBody;
   const operationId = payload?.operationId || callbackBody?.operationId;
+
+  identityLogJson('callback', 'extracted payload', {
+    operationId: operationId || null,
+    civilId: payload?.civilId || callbackBody?.civilId || null,
+    success: payload?.success ?? callbackBody?.success ?? null,
+    name: payload?.name || callbackBody?.name || null,
+  });
 
   if (!operationId) {
     identityLog('callback', 'service: MISSING operationId in callback');
@@ -369,6 +376,7 @@ const handleIdentityCallback = async (callbackBody) => {
     'callback',
     `service: done operationId=${operationId} status=${clientPayload.status} verified=${clientPayload.verified}`
   );
+  identityLogJson('callback', 'emitted to website via socket (identity:complete)', clientPayload);
 
   return {
     operationId,

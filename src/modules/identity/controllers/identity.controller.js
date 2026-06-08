@@ -113,22 +113,19 @@ const getIdentityData = asyncHandler(async (req, res) => {
 });
 
 const identityCallback = asyncHandler(async (req, res) => {
-  console.log('[CALLBACK URL HIT] controller handler running — will process and emit socket');
   identityLog('callback', 'controller: handler entered');
-  identityLogJson('callback', 'controller: req.body', req.body);
+  identityLogJson('callback', 'HTTP request body (from Sharper)', req.body ?? {});
 
   const result = await identityService.handleIdentityCallback(req.body);
 
-  console.log(
-    `[CALLBACK URL HIT] processed operationId=${result.operationId} status=${result.status} verified=${result.verified} — socket emit attempted`
-  );
-  identityLogJson('callback', 'controller: processed result', result);
-
-  res.status(httpStatus.OK).json({
+  const httpResponse = {
     success: true,
     message: 'Callback received successfully',
-    data: result
-  });
+    data: result,
+  };
+  identityLogJson('callback', 'HTTP response sent (to Sharper)', httpResponse);
+
+  res.status(httpStatus.OK).json(httpResponse);
 });
 
 export {

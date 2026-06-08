@@ -11,6 +11,7 @@ import {
   isMockCivilId,
   shouldSimulateHisPatientNotFound,
 } from '../../identity/data/identity.mock.js';
+import { royalHayatLog, royalHayatLogJson } from '../utils/royalhayat.logger.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -167,6 +168,9 @@ const getAvailability = async (params) => {
 
 const bookAppointment = async (patientId, slotBookingId, options = {}) => {
   try {
+    royalHayatLog('booking', `bookAppointment called patientId=${patientId} slotBookingId=${slotBookingId}`);
+    royalHayatLogJson('booking', 'bookAppointment options', options);
+
     if (!patientId || !slotBookingId) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Missing required parameters: patientId, slotBookingId');
     }
@@ -178,6 +182,7 @@ const bookAppointment = async (patientId, slotBookingId, options = {}) => {
       slotTime: options.slotTime,
     });
     if (forcedMessage) {
+      royalHayatLog('booking', `mock forced failure: ${forcedMessage}`);
       const conflict = classifyBookingConflict(forcedMessage);
       if (conflict) {
         throw new ApiError(httpStatus.BAD_REQUEST, conflict.message || forcedMessage, {
@@ -191,18 +196,22 @@ const bookAppointment = async (patientId, slotBookingId, options = {}) => {
       });
     }
 
+    const hisPayload = {
+      patient_id: patientId,
+      slot_booking_id: slotBookingId,
+    };
     const endpoint = '/WEBAPP/appointment/book';
+    royalHayatLogJson('booking', `HIS request POST ${ROYAL_HAYAT_BASE_URL}${endpoint}`, hisPayload);
+
     const response = await makeAuthenticatedRequest(endpoint, {
       method: 'POST',
-      body: JSON.stringify({
-        patient_id: patientId,
-        slot_booking_id: slotBookingId
-      })
+      body: JSON.stringify(hisPayload),
     });
-   
+
+    royalHayatLogJson('booking', 'HIS response', response);
+
     if (response.status !== 'Success') {
-      console.log('book appointment res', response);
-      console.error('[RoyalHayat] Booking Error Status:', response.status);
+      royalHayatLog('booking', `HIS booking failed status=${response.status}`);
       const conflict = classifyBookingConflict(response.status);
       throw new ApiError(
         httpStatus.BAD_REQUEST,
@@ -215,12 +224,17 @@ const bookAppointment = async (patientId, slotBookingId, options = {}) => {
       );
     }
 
-    return {
+    const result = {
       status: response.status,
-      raw: response
+      raw: response,
     };
+    royalHayatLogJson('booking', 'bookAppointment success result', result);
+    return result;
   } catch (error) {
-    console.error('[RoyalHayat] bookAppointment Exception:', error.message);
+    royalHayatLog('booking', `bookAppointment exception: ${error.message}`);
+    if (error?.meta) {
+      royalHayatLogJson('booking', 'bookAppointment error meta', error.meta);
+    }
     const rawStatus = error?.meta?.status || error.message;
     const conflict =
       classifyBookingConflict(rawStatus) || classifyBookingConflict(error.message);

@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import asyncHandler from '../../../utils/asyncHandler.js';
 import ApiError from '../../../utils/ApiError.js';
 import royalHayatService from '../services/royalhayat.service.js';
+import { royalHayatLogJson } from '../utils/royalhayat.logger.js';
 import {
   availabilitySchema,
   bookAppointmentSchema,
@@ -31,11 +32,23 @@ const getAvailability = asyncHandler(async (req, res) => {
 const bookAppointment = asyncHandler(async (req, res) => {
   const { error, value } = bookAppointmentSchema.validate(req.body, { abortEarly: false });
   if (error) {
+    royalHayatLogJson('booking', 'API request validation failed', {
+      body: req.body ?? {},
+      errors: error.details.map((detail) => detail.message),
+    });
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       error.details.map((detail) => detail.message).join(', ')
     );
   }
+
+  royalHayatLogJson('booking', 'API request received (from website)', {
+    patientId: value.patientId,
+    slotBookingId: value.slotBookingId,
+    doctorId: value.doctorId ?? null,
+    date: value.date ?? null,
+    slotTime: value.slotTime ?? null,
+  });
 
   const result = await royalHayatService.bookAppointment(value.patientId, value.slotBookingId, {
     doctorId: value.doctorId,
@@ -43,11 +56,14 @@ const bookAppointment = asyncHandler(async (req, res) => {
     slotTime: value.slotTime,
   });
 
-  res.status(httpStatus.OK).json({
+  const apiResponse = {
     success: true,
     message: 'Appointment booked successfully',
-    data: result
-  });
+    data: result,
+  };
+  royalHayatLogJson('booking', 'API success response (to website)', apiResponse);
+
+  res.status(httpStatus.OK).json(apiResponse);
 });
 
 const getPatient = asyncHandler(async (req, res) => {

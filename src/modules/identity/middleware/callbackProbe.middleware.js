@@ -2,21 +2,22 @@ export const callbackProbe = (req, res, next) => {
   const ts = new Date().toISOString();
   console.log('');
   console.log('============================================================');
-  console.log('[CALLBACK URL HIT] YES — request reached /api/callback');
-  console.log(`[CALLBACK URL HIT] time=${ts} method=${req.method} url=${req.originalUrl}`);
-  console.log(`[CALLBACK URL HIT] ip=${req.ip} x-forwarded-for=${req.headers['x-forwarded-for'] || '-'}`);
-  console.log(`[CALLBACK URL HIT] content-type=${req.headers['content-type'] || '-'}`);
-  console.log(`[CALLBACK URL HIT] user-agent=${req.headers['user-agent'] || '-'}`);
+  console.log('[identity][callback] POST /api/callback received');
+  console.log(`[identity][callback] time=${ts} url=${req.originalUrl}`);
+  console.log(`[identity][callback] ip=${req.ip} x-forwarded-for=${req.headers['x-forwarded-for'] || '-'}`);
+  console.log(`[identity][callback] content-type=${req.headers['content-type'] || '-'}`);
+  console.log(`[identity][callback] user-agent=${req.headers['user-agent'] || '-'}`);
   try {
-    console.log(`[CALLBACK URL HIT] body=${JSON.stringify(req.body ?? {})}`);
+    console.log('[identity][callback] body (data sent by Sharper):');
+    console.log(JSON.stringify(req.body ?? {}, null, 2));
   } catch {
-    console.log('[CALLBACK URL HIT] body=(unserializable)');
+    console.log('[identity][callback] body=(unserializable)');
   }
   console.log('============================================================');
   console.log('');
 
   if (req.method !== 'POST') {
-    console.log(`[CALLBACK URL HIT] REJECTED — expected POST, got ${req.method}`);
+    console.log(`[identity][callback] REJECTED — expected POST, got ${req.method}`);
     return res.status(405).json({
       success: false,
       message: 'Method not allowed. Sharper callback must use POST.',
