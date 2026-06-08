@@ -25,11 +25,21 @@ const loadPerson1Data = () => {
   return cachedPerson1Data;
 };
 
+const isPerson1MockEnabled = () => loadPerson1Data()?.enabled === true;
+
 const getPerson1Entry = (civilId) => {
   const data = loadPerson1Data();
   const normalized = String(civilId || '').trim();
+  if (!isPerson1MockEnabled()) return null;
   if (!data || String(data.civilId || '').trim() !== normalized) return null;
   return data;
+};
+
+export const getPerson1MockBootInfo = () => {
+  const data = loadPerson1Data();
+  const civilId = String(data?.civilId || '').trim();
+  if (!civilId) return null;
+  return { civilId, enabled: data?.enabled === true };
 };
 
 const loadConfig = () => {

@@ -4,7 +4,7 @@ import connectDB from './config/db.js';
 import { initSocket } from './config/socket.js';
 import seedAdmins from './scripts/seedAdmins.js';
 import { logChatBootConfig } from './modules/chat/utils/chatBootLog.js';
-import { getMockCivilIds } from './modules/identity/data/identity.mock.js';
+import { getMockCivilIds, getPerson1MockBootInfo } from './modules/identity/data/identity.mock.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -27,6 +27,13 @@ connectDB()
     const mockIds = getMockCivilIds();
     if (mockIds.length) {
       console.log('[identity][boot] MOCK civil IDs (identity.mock.json):', mockIds.join(', '));
+    }
+    const person1Mock = getPerson1MockBootInfo();
+    if (person1Mock) {
+      console.log(
+        `[identity][boot] person1 fixture (${person1Mock.civilId}):`,
+        person1Mock.enabled ? 'ENABLED' : 'DISABLED (set enabled: true in person1-data.json)',
+      );
     }
     });
 
