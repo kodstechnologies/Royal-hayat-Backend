@@ -2340,9 +2340,9 @@ export const doctorsWithClinicCodes: DoctorWithClinicCode[] = [
       'Fellowship in Maternal-Fetal Medicine, Dalhousie University, Canada',
     ],
     qualificationsAr: [
-      'كلية الطب في جامعة الكويت.',
-      'البورد الكويتي للنساء والولادة.',
-      'الزمالة التخصصية في الحمل العالي الخطورة والسونارات الدقيقة للأجنة، جامعة الهاوي، كندا.',
+      'كلية الطب في جامعة الكويت',
+      'البورد الكويتي للنساء والولادة',
+      'الزمالة التخصصية في الحمل العالي الخطورة والسونارات الدقيقة للأجنة، جامعة الهاوي، كندا',
     ],
     expertise: [
       'Obstetrics ultrasound at any stage of pregnancy',
