@@ -31,7 +31,7 @@ const doctorFeedbackSchema = new mongoose.Schema({
 
     shownOnWebsite: {
         type: Boolean,
-        default: true
+        default: false
     },
     addedBy: {
         type: String,
@@ -41,7 +41,15 @@ const doctorFeedbackSchema = new mongoose.Schema({
     doctor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Doctor",
-        required: true
+        // required: true
+    },
+    doctorName: {
+        type: String,
+        trim: true
+    },
+    doctorNameAr: {
+        type: String,
+        trim: true
     },
     isViewed: {
         type: Boolean,

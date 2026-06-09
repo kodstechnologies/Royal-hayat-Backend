@@ -39,7 +39,7 @@ export const createHospitalFeedback =
                 shownOnWebsite:
                     typeof req.body.shownOnWebsite === "boolean"
                         ? req.body.shownOnWebsite
-                        : true,
+                        : false,
                 addedBy: addedBy || "patient",
                 userName: req.body.userName,
                 feedback: req.body.feedback,
