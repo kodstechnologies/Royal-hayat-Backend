@@ -3,8 +3,10 @@ import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";
 import {
     createDoctorFeedbackService,
+    createDoctorFeedbackByNameService,
     getAllDoctorFeedbacksService,
     getDoctorFeedbacksByDoctorIdService,
+    getDoctorFeedbacksByDoctorNameService,
     updateDoctorFeedbackService,
     deleteDoctorFeedbackService,
     getFeedbackCounts,
@@ -40,7 +42,7 @@ export const createDoctorFeedback = async (req, res) => {
             shownOnWebsite:
                 typeof req.body.shownOnWebsite === "boolean"
                     ? req.body.shownOnWebsite
-                    : true,
+                    : false,
             addedBy: addedBy || "patient",
             userName: req.body.userName,
             feedback: req.body.feedback,
@@ -58,6 +60,76 @@ export const createDoctorFeedback = async (req, res) => {
             success: true,
             message: "Doctor feedback created successfully",
             data: feedback,
+        });
+    } catch (error) {
+        return handleError(res, error);
+    }
+};
+
+export const createDoctorFeedbackByName = async (req, res) => {
+    try {
+        const { addedBy } = req.query;
+        const doctorName =
+            req.body.doctorName ?? req.body.name ?? req.query.doctorName;
+
+        if (!doctorName) {
+            throw new ApiError(
+                httpStatus.BAD_REQUEST,
+                "doctorName is required",
+            );
+        }
+
+        const payload = {
+            stars: req.body.stars,
+            shownOnWebsite:
+                typeof req.body.shownOnWebsite === "boolean"
+                    ? req.body.shownOnWebsite
+                    : false,
+            addedBy: addedBy || "patient",
+            userName: req.body.userName,
+            feedback: req.body.feedback,
+            arabicUserName: req.body.arabicUserName,
+            arabicFeedback: req.body.arabicFeedback,
+        };
+
+        Object.keys(payload).forEach(
+            (key) => payload[key] === undefined && delete payload[key]
+        );
+
+        const feedback = await createDoctorFeedbackByNameService(
+            doctorName,
+            payload,
+        );
+
+        return res.status(201).json({
+            success: true,
+            message: "Doctor feedback created successfully",
+            data: feedback,
+        });
+    } catch (error) {
+        return handleError(res, error);
+    }
+};
+
+export const getDoctorFeedbackByName = async (req, res) => {
+    try {
+        const doctorName =
+            req.query.doctorName ?? req.query.name ?? req.params.doctorName;
+
+        if (!doctorName) {
+            throw new ApiError(
+                httpStatus.BAD_REQUEST,
+                "doctorName is required",
+            );
+        }
+
+        const feedbacks = await getDoctorFeedbacksByDoctorNameService(
+            doctorName,
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: feedbacks,
         });
     } catch (error) {
         return handleError(res, error);

@@ -5,8 +5,10 @@ const router = express.Router();
 
 import {
     createDoctorFeedback,
+    createDoctorFeedbackByName,
     getAllDoctorFeedbacks,
     getDoctorFeedbackById,
+    getDoctorFeedbackByName,
     updateDoctorFeedback,
     deleteDoctorFeedback,
     getFeedbackCountsForAll,
@@ -14,10 +16,13 @@ import {
 } from "../controller/doctorFeedback.controller.js";
 
 router.post("/create", createDoctorFeedback);
+router.post("/create/by-name", createDoctorFeedbackByName);
 
 router.get("/all", getAllDoctorFeedbacks);
 
 router.get("/counts", getFeedbackCountsForAll);
+
+router.get("/by-name", getDoctorFeedbackByName);
 
 router.patch("/view/:feedbackId", markDoctorFeedbackViewed);
 
