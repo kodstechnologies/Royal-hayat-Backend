@@ -56,6 +56,10 @@ const medicalRecordRequestSchema = new mongoose.Schema(
       required: true,
     },
 
+    specificAuthorizationDate: {
+      type: Date,
+    },
+
     specificFromDate: {
       type: Date,
     },
@@ -220,28 +224,32 @@ medicalRecordRequestSchema.pre("validate", function (next) {
     return next(new Error("specificAuthorization is invalid"));
   }
 
-  if (!this.specificFromDate) {
-    return next(new Error("specificFromDate is required"));
-  }
-  if (!this.specificToDate) {
-    return next(new Error("specificToDate is required"));
-  }
-
-  if (this.specificFromDate > this.specificToDate) {
-    return next(
-      new Error("specificToDate must be on or after specificFromDate"),
-    );
-  }
-
   if (this.specificAuthorization === "Discharge Summary") {
     this.specificDocumentTypes = undefined;
     this.specificDocumentsOther = undefined;
-    if (this.specificFromDate && !this.specificToDate) {
-      this.specificToDate = this.specificFromDate;
+    this.specificFromDate = undefined;
+    this.specificToDate = undefined;
+
+    if (!this.specificAuthorizationDate) {
+      return next(new Error("specificAuthorizationDate is required"));
     }
   }
 
   if (this.specificAuthorization === "specific documents") {
+    this.specificAuthorizationDate = undefined;
+
+    if (!this.specificFromDate) {
+      return next(new Error("specificFromDate is required"));
+    }
+    if (!this.specificToDate) {
+      return next(new Error("specificToDate is required"));
+    }
+
+    if (this.specificFromDate > this.specificToDate) {
+      return next(
+        new Error("specificToDate must be on or after specificFromDate"),
+      );
+    }
     const documentTypes = Array.isArray(this.specificDocumentTypes)
       ? this.specificDocumentTypes
       : [];

@@ -62,6 +62,17 @@ const sanitizeAuthorizationPayload = (payload) => {
   if (sanitized.specificAuthorization === "Discharge Summary") {
     delete sanitized.specificDocumentTypes;
     delete sanitized.specificDocumentsOther;
+
+    if (!sanitized.specificAuthorizationDate && sanitized.specificFromDate) {
+      sanitized.specificAuthorizationDate = sanitized.specificFromDate;
+    }
+
+    delete sanitized.specificFromDate;
+    delete sanitized.specificToDate;
+  }
+
+  if (sanitized.specificAuthorization === "specific documents") {
+    delete sanitized.specificAuthorizationDate;
   }
 
   return sanitized;

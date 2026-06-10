@@ -40,8 +40,14 @@ const renderRow = (label, value) => `
 `;
 
 const buildRequestFields = (request) => {
-  const dateFrom = formatDate(request.specificFromDate);
-  const dateTo = formatDate(request.specificToDate);
+  const isDischargeSummary =
+    request.specificAuthorization === "Discharge Summary";
+  const dateFrom = isDischargeSummary
+    ? formatDate(request.specificAuthorizationDate)
+    : formatDate(request.specificFromDate);
+  const dateTo = isDischargeSummary
+    ? "—"
+    : formatDate(request.specificToDate);
   const specialRequest = request.specialRequest?.trim() || "—";
 
   const purpose =

@@ -5,13 +5,8 @@ import { sendEventBookingNotificationEmail } from "../../../utils/eventBookingNo
 
 const GENERIC_ERROR_MESSAGE = "Something went wrong";
 
-const normalizeHall = (hall) => {
-  if (hall === "in-room-event-services") return "in-room-event";
-  return hall;
-};
-
 const normalizeCreatePayload = (body) => ({
-  hall: normalizeHall(body.hall),
+  hall: body.hall,
   dueDateOfExpectingMother:
     body.dueDateOfExpectingMother ?? body.dueDate,
   eventType: body.eventType,
