@@ -353,9 +353,27 @@ const getMedicalReports = async (civilId) => {
   url.searchParams.set('idn', civilId);
   url.searchParams.set('externalauth', 'KuwaitMobileID');
 
-  identityLog('reports', `service: fetching medical reports civilId=${civilId}`);
+  identityLogJson('reports', 'request sent (to afyati)', {
+    method: 'GET',
+    url: url.toString(),
+    query: {
+      idn: civilId,
+      externalauth: 'KuwaitMobileID'
+    }
+  });
 
-  const response = await fetch(url, { method: 'GET', redirect: 'follow' });
+  let response;
+  try {
+    response = await fetch(url, { method: 'GET', redirect: 'follow' });
+  } catch (err) {
+    identityLogJson('reports', 'request FAILED (network/TLS error from afyati)', {
+      url: url.toString(),
+      error: err?.message || String(err),
+      cause: err?.cause?.code || err?.cause?.message || null
+    });
+    throw new ApiError(httpStatus.BAD_GATEWAY, 'Medical reports service is unreachable');
+  }
+
   const contentType = response.headers.get('content-type') || '';
 
   let data = null;
@@ -365,7 +383,16 @@ const getMedicalReports = async (civilId) => {
     data = await response.text().catch(() => null);
   }
 
-  identityLog('reports', `service: medical reports HTTP status=${response.status} contentType=${contentType}`);
+  const bodyPreview = typeof data === 'string' ? data.slice(0, 500) : data;
+  identityLogJson('reports', 'response received (from afyati)', {
+    status: response.status,
+    ok: response.ok,
+    finalUrl: response.url,
+    redirected: response.redirected,
+    contentType,
+    bodyLength: typeof data === 'string' ? data.length : null,
+    bodyPreview
+  });
 
   if (!response.ok) {
     throw new ApiError(
