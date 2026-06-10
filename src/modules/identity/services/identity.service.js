@@ -13,6 +13,7 @@ import {
   buildMockIdentityRaw,
   buildMockStartResult,
   isMockCivilId,
+  isMockCivilIdForStart,
 } from '../data/identity.mock.js';
 
 const getRequiredEnv = (key) => {
@@ -107,8 +108,8 @@ const persistAndEmit = async (operationId, entry) => {
   const effectiveCivilId = entry.civilId || null;
 
   if (entry.verified === true && effectiveCivilId && !identityData) {
-    if (isMockCivilId(effectiveCivilId)) {
-      identityData = buildMockIdentityRaw(effectiveCivilId);
+    if (isMockCivilId(effectiveCivilId) || entry.mockBypass === true) {
+      identityData = buildMockIdentityRaw(effectiveCivilId, entry.mockReason);
     } else {
       identityData = await fetchIdentityDataRaw(effectiveCivilId, { allowMissing: true });
     }
@@ -134,9 +135,9 @@ const persistAndEmit = async (operationId, entry) => {
 };
 
 const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, reason }) => {
-  if (isMockCivilId(civilId)) {
+  if (isMockCivilIdForStart(civilId, serviceName, reason)) {
     identityLog('start', `service: mock bypass civilId=${civilId} (simulated callback)`);
-    const mockResult = buildMockStartResult(civilId);
+    const mockResult = buildMockStartResult(civilId, reason);
     const operationId = mockResult.operationId || `mock-${civilId}`;
 
     setOperation(operationId, {
@@ -148,6 +149,8 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
       callbackData: null,
       identityData: null,
       latestStatusRaw: null,
+      mockBypass: true,
+      mockReason: reason || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });

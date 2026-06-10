@@ -1,5 +1,6 @@
 {
   "enabled": false,
+  "medicalRecordBypassEnable": true,
   "civilId": "271060903599",
   "identityStart": {
     "request": {
@@ -12,8 +13,8 @@
           "en": "Appointment Request"
         },
         "reason": {
-          "ar": "تجربة",
-          "en": "test"
+          "ar": "الوصول إلى التقارير الطبية",
+          "en": "Access medical reports"
         }
       }
     },

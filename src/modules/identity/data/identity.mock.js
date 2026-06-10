@@ -27,19 +27,47 @@ const loadPerson1Data = () => {
 
 const isPerson1MockEnabled = () => loadPerson1Data()?.enabled === true;
 
-const getPerson1Entry = (civilId) => {
+const isPerson1MedicalRecordBypassEnabled = () =>
+  loadPerson1Data()?.medicalRecordBypassEnable === true;
+
+const getPerson1Raw = (civilId) => {
   const data = loadPerson1Data();
   const normalized = String(civilId || '').trim();
-  if (!isPerson1MockEnabled()) return null;
   if (!data || String(data.civilId || '').trim() !== normalized) return null;
   return data;
 };
+
+const getPerson1Entry = (civilId) => {
+  if (!isPerson1MockEnabled()) return null;
+  return getPerson1Raw(civilId);
+};
+
+const getPerson1MedicalRecordEntry = (civilId) => {
+  if (!isPerson1MedicalRecordBypassEnabled()) return null;
+  return getPerson1Raw(civilId);
+};
+
+const isMedicalReportsReason = (reason) => {
+  const en = String(reason?.en || '').trim();
+  const ar = String(reason?.ar || '').trim();
+  return en === 'Access medical reports' || ar === 'الوصول إلى التقارير الطبية';
+};
+
+const isPerson1MedicalRecordBypass = (civilId, reason) =>
+  isMedicalReportsReason(reason) && getPerson1MedicalRecordEntry(civilId) !== null;
+
+const getPerson1Fixture = (civilId, reason) =>
+  getPerson1Entry(civilId) || (isPerson1MedicalRecordBypass(civilId, reason) ? getPerson1Raw(civilId) : null);
 
 export const getPerson1MockBootInfo = () => {
   const data = loadPerson1Data();
   const civilId = String(data?.civilId || '').trim();
   if (!civilId) return null;
-  return { civilId, enabled: data?.enabled === true };
+  return {
+    civilId,
+    enabled: data?.enabled === true,
+    medicalRecordBypassEnable: data?.medicalRecordBypassEnable === true,
+  };
 };
 
 const loadConfig = () => {
@@ -81,12 +109,23 @@ export const isMockCivilId = (civilId) => {
   return entryByCivilId().has(normalized);
 };
 
+/** Identity start only — person1 medical-record bypass does not affect HMS patient lookup. */
+export const isMockCivilIdForStart = (civilId, serviceName, reason) => {
+  const normalized = String(civilId || '').trim();
+  if (!normalized) return false;
+  if (getPerson1Entry(normalized)) return true;
+  if (isPerson1MedicalRecordBypass(normalized, reason)) return true;
+  return entryByCivilId().has(normalized);
+};
+
 export const getMockCivilIds = () => [...entryByCivilId().keys()];
 
 const getMockEntry = (civilId) => entryByCivilId().get(String(civilId || '').trim()) || null;
 
-export const buildMockIdentityRaw = (civilId) => {
-  const person1Raw = getPerson1Entry(civilId)?.identityData?.response?.data?.raw;
+export const buildMockIdentityRaw = (civilId, reason) => {
+  const person1Raw = reason
+    ? getPerson1Fixture(civilId, reason)?.identityData?.response?.data?.raw
+    : getPerson1Entry(civilId)?.identityData?.response?.data?.raw;
   if (person1Raw) return person1Raw;
 
   const entry = getMockEntry(civilId);
@@ -127,9 +166,9 @@ const mockPersonName = (civilId) => {
   };
 };
 
-export const buildMockStartResult = (civilId) => {
-  const person1 = getPerson1Entry(civilId);
-  const raw = buildMockIdentityRaw(civilId);
+export const buildMockStartResult = (civilId, reason) => {
+  const person1 = getPerson1Fixture(civilId, reason);
+  const raw = buildMockIdentityRaw(civilId, reason);
   const personName = person1
     ? {
         english: raw?.name?.english || '',
@@ -154,9 +193,9 @@ export const buildMockStartResult = (civilId) => {
   };
 };
 
-export const buildMockDataResult = (civilId) => {
-  const person1 = getPerson1Entry(civilId);
-  const raw = buildMockIdentityRaw(civilId);
+export const buildMockDataResult = (civilId, reason) => {
+  const person1 = getPerson1Fixture(civilId, reason);
+  const raw = buildMockIdentityRaw(civilId, reason);
   const personName = person1
     ? {
         english: raw?.name?.english || '',

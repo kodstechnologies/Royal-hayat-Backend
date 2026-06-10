@@ -34,6 +34,12 @@ connectDB()
         `[identity][boot] person1 fixture (${person1Mock.civilId}):`,
         person1Mock.enabled ? 'ENABLED' : 'DISABLED (set enabled: true in person1-data.json)',
       );
+      console.log(
+        `[identity][boot] person1 medical-record bypass:`,
+        person1Mock.medicalRecordBypassEnable
+          ? 'ENABLED (Access medical reports reason + matching civilId)'
+          : 'DISABLED (set medicalRecordBypassEnable: true in person1-data.json)',
+      );
     }
     });
 
