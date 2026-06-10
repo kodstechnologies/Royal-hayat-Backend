@@ -8,8 +8,8 @@
       "body": {
         "civilId": "271060903599",
         "serviceName": {
-          "ar": "تجربة",
-          "en": "Service Test"
+          "ar": "طلب موعد",
+          "en": "Appointment Request"
         },
         "reason": {
           "ar": "تجربة",

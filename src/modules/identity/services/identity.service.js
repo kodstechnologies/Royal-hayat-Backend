@@ -183,7 +183,7 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
   const payload = {
     civilId,
     callbackUrl: callbackUrl || SHARPER_CALLBACK_URL,
-    serviceName: serviceName || { ar: 'تجربة', en: 'Service Test' },
+    serviceName: serviceName || { ar: 'طلب موعد', en: 'Appointment Request' },
     reason: reason || { ar: 'تجربة', en: 'test' }
   };
 

@@ -1,7 +1,10 @@
 
 import httpStatus from "http-status";
 import ApiError from "../../../utils/ApiError.js";
-import { resolveDoctorByMongoId } from "../utils/resolveDoctor.js";
+import {
+    resolveDoctorByMongoId,
+    resolveDoctorByName,
+} from "../utils/resolveDoctor.js";
 import {
     createDoctorFeedbackRepo,
     getAllDoctorFeedbacksRepo,
@@ -44,6 +47,28 @@ export const getAllDoctorFeedbacksService = async () => {
 export const getDoctorFeedbacksByDoctorIdService = async (doctorMongoId) => {
     const doctorObjectId = await resolveDoctorObjectId(doctorMongoId);
     return await getDoctorFeedbacksByDoctorIdRepo(doctorObjectId);
+};
+
+export const createDoctorFeedbackByNameService = async (doctorName, body) => {
+    const doctor = await resolveDoctorByName(doctorName);
+
+    const {
+        doctorId: _doctorId,
+        doctor: _doctorRef,
+        doctorName: _doctorName,
+        name: _name,
+        ...rest
+    } = body;
+
+    return await createDoctorFeedbackRepo({
+        ...rest,
+        doctor: doctor._id,
+    });
+};
+
+export const getDoctorFeedbacksByDoctorNameService = async (doctorName) => {
+    const doctor = await resolveDoctorByName(doctorName);
+    return await getDoctorFeedbacksByDoctorIdRepo(doctor._id);
 };
 
 export const updateDoctorFeedbackService = async (doctorMongoId, feedbackId, body) => {

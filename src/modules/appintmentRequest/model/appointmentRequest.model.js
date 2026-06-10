@@ -105,7 +105,11 @@ const appointmentRequestSchema = new mongoose.Schema(
     },
     requestType:{
       type:String,
-      enum:['doctor unavailability request','first time visitor request'],
+      enum:[
+        'doctor unavailability request',
+        'first time visitor request',
+        'registered patient booking fallback',
+      ],
     }
   },
   { timestamps: true },
