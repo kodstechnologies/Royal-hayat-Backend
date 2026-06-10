@@ -27,8 +27,8 @@ const createUpload = upload.fields([
 /**
  * Public create — multipart/form-data.
  * specificAuthorization: "Discharge Summary" | "specific documents"
- * - Discharge Summary: requires specificFromDate, specificToDate; optional specialRequest
- * - specific documents: also requires specificDocumentTypes (+ specificDocumentsOther if Others)
+ * - Discharge Summary: requires specificAuthorizationDate; optional specialRequest
+ * - specific documents: requires specificFromDate, specificToDate, specificDocumentTypes (+ specificDocumentsOther if Others)
  */
 router.post("/create", createUpload, createMedicalRecordRequest);
 
