@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import ApiError from './utils/ApiError.js';
 import { formatMongooseValidationError } from './utils/mongooseValidationMessages.js';
 import routes from './routes/index.js';
+import runtimePdfPublicRoutes from './modules/runtimePdfViewer/routes/runtimePdfPublicRoutes.js';
+import wpContentPdfPublicRoutes from './modules/runtimePdfViewer/routes/wpContentPdfPublicRoutes.js';
 
 dotenv.config();
 
@@ -60,6 +62,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/Runtime/uploads', runtimePdfPublicRoutes);
+app.use('/wp-content/uploads', wpContentPdfPublicRoutes);
 app.use('/', routes);
 
 app.get('/health', (req, res) => {
