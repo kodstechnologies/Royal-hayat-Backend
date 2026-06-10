@@ -4,6 +4,7 @@ import {
   startIdentityVerification,
   getIdentityStatus,
   getIdentityData,
+  getMedicalReports,
   identityCallback
 } from '../controllers/identity.controller.js';
 import { logIdentityHttp } from '../utils/identity.logger.js';
@@ -37,6 +38,7 @@ const statusLimiter = rateLimit({
 router.post('/start', logIdentityHttp('POST /api/v1/identity/start'), startLimiter, startIdentityVerification);
 router.get('/status/:operationId', logIdentityHttp('GET /api/v1/identity/status'), statusLimiter, getIdentityStatus);
 router.get('/data/:civilId', logIdentityHttp('GET /api/v1/identity/data'), getIdentityData);
+router.get('/medical-reports/:civilId', logIdentityHttp('GET /api/v1/identity/medical-reports'), statusLimiter, getMedicalReports);
 router.post('/callback', logIdentityHttp('POST /api/v1/identity/callback'), identityCallback);
 
 export default router;

@@ -5,6 +5,7 @@ import {
   buildClientPayload,
   extractName,
   getOperation,
+  operationStore,
   setOperation
 } from '../store/identity.store.js';
 import { identityLog, identityLogJson } from '../utils/identity.logger.js';
@@ -28,6 +29,8 @@ const SHARPER_BASE_URL = getRequiredEnv('SHARPER_BASE_URL');
 const SHARPER_USER = getRequiredEnv('SHARPER_USER');
 const SHARPER_PASS = getRequiredEnv('SHARPER_PASS');
 const SHARPER_CALLBACK_URL = getRequiredEnv('SHARPER_CALLBACK_URL');
+
+const MEDICAL_REPORTS_BASE_URL = getRequiredEnv('MEDICAL_REPORTS_CALLBACK_URL');
 
 const basicAuth = `Basic ${Buffer.from(`${SHARPER_USER}:${SHARPER_PASS}`).toString('base64')}`;
 
@@ -328,6 +331,57 @@ const getIdentityData = async (civilId) => {
   };
 };
 
+const hasVerifiedOperationForCivilId = (civilId) => {
+  for (const entry of operationStore.values()) {
+    if (entry?.civilId === civilId && entry?.verified === true) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const getMedicalReports = async (civilId) => {
+  if (!hasVerifiedOperationForCivilId(civilId)) {
+    identityLog('reports', `service: BLOCKED unverified civilId=${civilId}`);
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'Identity verification is required before accessing medical reports'
+    );
+  }
+
+  const url = new URL(MEDICAL_REPORTS_BASE_URL);
+  url.searchParams.set('idn', civilId);
+  url.searchParams.set('externalauth', 'KuwaitMobileID');
+
+  identityLog('reports', `service: fetching medical reports civilId=${civilId}`);
+
+  const response = await fetch(url, { method: 'GET', redirect: 'follow' });
+  const contentType = response.headers.get('content-type') || '';
+
+  let data = null;
+  if (contentType.includes('application/json')) {
+    data = await response.json().catch(() => null);
+  } else {
+    data = await response.text().catch(() => null);
+  }
+
+  identityLog('reports', `service: medical reports HTTP status=${response.status} contentType=${contentType}`);
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status || httpStatus.BAD_GATEWAY,
+      'Failed to fetch medical reports',
+      typeof data === 'object' ? data : null
+    );
+  }
+
+  return {
+    civilId,
+    contentType,
+    data
+  };
+};
+
 const handleIdentityCallback = async (callbackBody) => {
   identityLog('callback', 'service: handleIdentityCallback entered');
   identityLogJson('callback', 'received from Sharper (raw body)', callbackBody);
@@ -392,5 +446,6 @@ export default {
   startIdentityVerification,
   getIdentityStatus,
   getIdentityData,
+  getMedicalReports,
   handleIdentityCallback
 };

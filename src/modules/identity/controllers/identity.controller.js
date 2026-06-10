@@ -112,6 +112,38 @@ const getIdentityData = asyncHandler(async (req, res) => {
 
 });
 
+const getMedicalReports = asyncHandler(async (req, res) => {
+
+  const { error, value } = dataParamsSchema.validate(req.params, { abortEarly: false });
+
+  if (error) {
+
+    throw new ApiError(
+
+      httpStatus.BAD_REQUEST,
+
+      error.details.map((detail) => detail.message).join(', ')
+
+    );
+
+  }
+
+  identityLog('reports', `controller: civilId=${value.civilId}`);
+
+  const result = await identityService.getMedicalReports(value.civilId);
+
+  res.status(httpStatus.OK).json({
+
+    success: true,
+
+    message: 'Medical reports fetched successfully',
+
+    data: result
+
+  });
+
+});
+
 const identityCallback = asyncHandler(async (req, res) => {
   identityLog('callback', 'controller: handler entered');
   identityLogJson('callback', 'HTTP request body (from Sharper)', req.body ?? {});
@@ -135,6 +167,8 @@ export {
   getIdentityStatus,
 
   getIdentityData,
+
+  getMedicalReports,
 
   identityCallback
 
