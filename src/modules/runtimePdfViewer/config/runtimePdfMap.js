@@ -13,7 +13,7 @@ const f = (filename) => path.join(uploadsDir, filename);
 export const RUNTIME_PDF_MAP = {
   // /Runtime/uploads/
   "AlLiwan_ menu_2021.pdf": f("AlLiwan_menu_2021.pdf"),
-  "Birth plan booklet_27May2021_final.pdf": f("Birth_plan_booklet_27May2021_final.pdf"),
+  "Birth plan booklet_27May2021_final.pdf": f("Birth plan booklet_27May2021_final.pdf"),
   "Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients.pdf":
     f("Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients.pdf"),
   "Birthing-Packages-for-Visiting-Inhouse-Physicians-for-insurance-patients.pdf":
