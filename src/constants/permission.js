@@ -98,4 +98,6 @@ export const PERMISSIONS = {
 
   EVENT_VIEW: 'event.view',
   EVENT_DELETE: 'event.delete',
+
+  CHAT_LOG_VIEW: 'chat.log.view',
 };
