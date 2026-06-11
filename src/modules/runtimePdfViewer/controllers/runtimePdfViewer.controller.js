@@ -58,6 +58,42 @@ export function serveWpContentPdf(req, res, next) {
   }
 }
 
+/** Same-origin stream under /api/v1/runtime-pdf-viewer/file/... (hides backend host in the viewer). */
+export function serveLegacyPdfFile(req, res, next) {
+  try {
+    const fromWildcard = req.params.splat ?? req.params[0];
+    const parts = Array.isArray(fromWildcard)
+      ? fromWildcard
+      : fromWildcard !== undefined && fromWildcard !== null
+        ? [fromWildcard]
+        : [];
+    const fullPath = decodeURIComponent(parts.join("/"))
+      .trim()
+      .replace(/^\/+/, "");
+
+    let filePath = null;
+    let filename = fullPath;
+
+    if (fullPath.startsWith("Runtime/uploads/")) {
+      const relativePath = fullPath.slice("Runtime/uploads/".length);
+      filePath = resolveRuntimePdfPath(relativePath);
+      filename = relativePath;
+    } else if (fullPath.startsWith("wp-content/uploads/")) {
+      const relativePath = fullPath.slice("wp-content/uploads/".length);
+      filePath = resolveWpContentPdfPath(relativePath);
+      filename = relativePath;
+    }
+
+    if (!filePath || !fs.existsSync(filePath)) {
+      throw new ApiError(404, `PDF not found: ${fullPath}`);
+    }
+
+    return sendPdfFile(res, filePath, filename);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 export function resolveRuntimePdf(req, res, next) {
   try {
     const relativePath = decodeURIComponent(req.params.filename || "").trim();

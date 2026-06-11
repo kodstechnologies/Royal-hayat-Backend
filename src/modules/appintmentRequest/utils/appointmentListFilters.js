@@ -7,6 +7,7 @@ const DEFAULT_STATUS_QUERY = 'pending';
 export const APPOINTMENT_REQUEST_TYPES = {
   DOCTOR_UNAVAILABILITY: 'doctor unavailability request',
   FIRST_TIME_VISITOR: 'first time visitor request',
+  APPOINTMENT_REQUEST: 'appointment request',
   REGISTERED_PATIENT_BOOKING_FALLBACK: 'registered patient booking fallback',
 };
 
@@ -23,6 +24,9 @@ export const normalizeRequestType = (value) => {
     'first time visitor request': APPOINTMENT_REQUEST_TYPES.FIRST_TIME_VISITOR,
     first_time_visitor_request: APPOINTMENT_REQUEST_TYPES.FIRST_TIME_VISITOR,
     'first-time-visitor-request': APPOINTMENT_REQUEST_TYPES.FIRST_TIME_VISITOR,
+    'appointment request': APPOINTMENT_REQUEST_TYPES.APPOINTMENT_REQUEST,
+    appointment_request: APPOINTMENT_REQUEST_TYPES.APPOINTMENT_REQUEST,
+    'appointment-request': APPOINTMENT_REQUEST_TYPES.APPOINTMENT_REQUEST,
     'registered patient booking fallback':
       APPOINTMENT_REQUEST_TYPES.REGISTERED_PATIENT_BOOKING_FALLBACK,
     registered_patient_booking_fallback:
