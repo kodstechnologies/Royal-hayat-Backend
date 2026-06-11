@@ -1,18 +1,6 @@
 import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
-import { verifyJWT } from '../../../middlewares/authMiddleware.js';
-import checkPermission from '../../../middlewares/checkPermission.js';
-import { PERMISSIONS } from '../../../constants/permission.js';
-import {
-  getChatSession,
-  getAllChatLogs,
-  getChatLogsBySession,
-  getChatLogsByReference,
-  getChatLogById,
-  postChat,
-  postChatLog,
-  postChatStream,
-} from '../controller/chat.controller.js';
+import { postChat, postChatStream } from '../controller/chat.controller.js';
 
 const router = Router();
 
@@ -47,20 +35,7 @@ router.get('/health', (req, res) => {
   });
 });
 
-router.get('/session', chatLimiter, getChatSession);
-
-const chatLogAuth = [verifyJWT, checkPermission(PERMISSIONS.CHAT_LOG_VIEW)];
-
-router.get('/logs', ...chatLogAuth, getAllChatLogs);
-
-router.get('/logs/session/:sessionId', ...chatLogAuth, getChatLogsBySession);
-
-router.get('/logs/reference/:referenceId', ...chatLogAuth, getChatLogsByReference);
-
-router.get('/logs/:id', ...chatLogAuth, getChatLogById);
-
 router.post('/', chatLimiter, postChat);
-router.post('/log', chatLimiter, postChatLog);
 router.post('/stream', chatLimiter, postChatStream);
 
 export default router;

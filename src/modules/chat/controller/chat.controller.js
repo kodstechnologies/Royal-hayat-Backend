@@ -1,31 +1,12 @@
-import { randomUUID } from 'node:crypto';
 import httpStatus from 'http-status';
 import asyncHandler from '../../../utils/asyncHandler.js';
 import ApiError from '../../../utils/ApiError.js';
-import { postChatSchema, postChatLogSchema } from '../validators/chat.validator.js';
+import { postChatSchema } from '../validators/chat.validator.js';
 import { generateChatReply, streamChatReply } from '../service/chat.service.js';
-import { buildChatReferenceId } from '../models/chatLog.model.js';
-import {
-  fetchAllChatLogs,
-  fetchChatLogById,
-  fetchChatLogsByReferenceId,
-  fetchChatLogsBySessionId,
-  logChatExchange,
-} from '../service/chatLog.service.js';
+import { logChatExchange } from '../service/chatLog.service.js';
 
 function validateChatBody(body) {
   const { error, value } = postChatSchema.validate(body, { abortEarly: false });
-  if (error) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      error.details.map((detail) => detail.message).join(', '),
-    );
-  }
-  return value;
-}
-//for logging non AI chats
-function validateChatLogBody(body) {
-  const { error, value } = postChatLogSchema.validate(body, { abortEarly: false });
   if (error) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
@@ -46,60 +27,6 @@ function requestMeta(req, value) {
   };
 }
 
-export const getChatSession = asyncHandler(async (req, res) => {
-  const sessionId = randomUUID();
-
-  res.status(httpStatus.OK).json({
-    success: true,
-    message: 'Chat session created successfully',
-    data: {
-      sessionId,
-      referenceId: buildChatReferenceId(sessionId),
-    },
-  });
-});
-
-export const getAllChatLogs = asyncHandler(async (req, res) => {
-  const { rows, meta } = await fetchAllChatLogs(req.query);
-
-  res.status(httpStatus.OK).json({
-    success: true,
-    message: 'Chat logs fetched successfully',
-    data: rows,
-    meta,
-  });
-});
-
-export const getChatLogsBySession = asyncHandler(async (req, res) => {
-  const rows = await fetchChatLogsBySessionId(req.params.sessionId);
-
-  res.status(httpStatus.OK).json({
-    success: true,
-    message: 'Chat logs fetched successfully',
-    data: rows,
-  });
-});
-
-export const getChatLogsByReference = asyncHandler(async (req, res) => {
-  const rows = await fetchChatLogsByReferenceId(req.params.referenceId);
-
-  res.status(httpStatus.OK).json({
-    success: true,
-    message: 'Chat logs fetched successfully',
-    data: rows,
-  });
-});
-
-export const getChatLogById = asyncHandler(async (req, res) => {
-  const row = await fetchChatLogById(req.params.id);
-
-  res.status(httpStatus.OK).json({
-    success: true,
-    message: 'Chat log fetched successfully',
-    data: row,
-  });
-});
-
 export const postChat = asyncHandler(async (req, res) => {
   const value = validateChatBody(req.body);
   const startedAt = Date.now();
@@ -117,7 +44,6 @@ export const postChat = asyncHandler(async (req, res) => {
       stream: false,
       latencyMs: Date.now() - startedAt,
       modelsAttempted,
-      source: 'ai',
       ...meta,
     });
 
@@ -137,37 +63,10 @@ export const postChat = asyncHandler(async (req, res) => {
       stream: false,
       latencyMs: Date.now() - startedAt,
       modelsAttempted: err instanceof ApiError ? err.meta?.modelsAttempted : undefined,
-      source: 'ai',
       ...meta,
     });
     throw err;
   }
-});
-
-export const postChatLog = asyncHandler(async (req, res) => {
-  const value = validateChatLogBody(req.body);
-  const meta = requestMeta(req, value);
-
-  logChatExchange({
-    messages: value.messages,
-    lang: value.lang,
-    assistantReply: value.assistantReply,
-    model: 'guided',
-    success: true,
-    stream: false,
-    latencyMs: 0,
-    source: 'guided_topic',
-    topicId: value.topicId?.trim() || undefined,
-    ...meta,
-  });
-
-  res.status(httpStatus.OK).json({
-    success: true,
-    message: 'Chat exchange logged successfully',
-    data: {
-      referenceId: buildChatReferenceId(meta.sessionId),
-    },
-  });
 });
 
 export const postChatStream = asyncHandler(async (req, res) => {
@@ -203,7 +102,6 @@ export const postChatStream = asyncHandler(async (req, res) => {
       stream: true,
       latencyMs: Date.now() - startedAt,
       modelsAttempted,
-      source: 'ai',
       ...meta,
     });
   } catch (err) {
@@ -222,7 +120,6 @@ export const postChatStream = asyncHandler(async (req, res) => {
       stream: true,
       latencyMs: Date.now() - startedAt,
       modelsAttempted: err instanceof ApiError ? err.meta?.modelsAttempted : undefined,
-      source: 'ai',
       ...meta,
     });
 
