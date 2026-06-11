@@ -1,0 +1,490 @@
+[
+  {
+    "id": "6a1d50b277813d425f7a56c1",
+    "title": "AlLiwan menu 2021",
+    "category": "Brochure",
+    "s3Key": "documents/1780306587012-AlLiwan__menu_2021.pdf",
+    "localFile": "AlLiwan_menu_2021_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\AlLiwan_menu_2021_1.pdf"
+  },
+  {
+    "id": "6a1d50b277813d425f7a56c4",
+    "title": "Birth plan booklet 27May2021 final",
+    "category": "Brochure",
+    "s3Key": "documents/1780306590365-Birth_plan_booklet_27May2021_final.pdf",
+    "localFile": "Birth_plan_booklet_27May2021_final_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Birth_plan_booklet_27May2021_final_1.pdf"
+  },
+  {
+    "id": "6a1d50b277813d425f7a56c7",
+    "title": "Birthing Packages for Royale Orchid and Orchid Patients",
+    "category": "Brochure",
+    "s3Key": "documents/1780306591321-Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients.pdf",
+    "localFile": "Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients_1.pdf"
+  },
+  {
+    "id": "6a1d50b277813d425f7a56ca",
+    "title": "Birthing Packages for Visiting Inhouse Physicians for insurance patients",
+    "category": "Brochure",
+    "s3Key": "documents/1780306592010-Birthing-Packages-for-Visiting-Inhouse-Physicians-for-insurance-patients.pdf",
+    "localFile": "Birthing-Packages-for-Visiting-Inhouse-Physicians-for-insurance-patients_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Birthing-Packages-for-Visiting-Inhouse-Physicians-for-insurance-patients_1.pdf"
+  },
+  {
+    "id": "6a1d50b277813d425f7a56cd",
+    "title": "Birthing Packages for Visiting Inhouse Physicians for noninsurance patients",
+    "category": "Brochure",
+    "s3Key": "documents/1780306592622-Birthing-Packages-for-Visiting-Inhouse-Physicians-for-noninsurance-patients.pdf",
+    "localFile": "Birthing-Packages-for-Visiting-Inhouse-Physicians-for-noninsurance-patients_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Birthing-Packages-for-Visiting-Inhouse-Physicians-for-noninsurance-patients_1.pdf"
+  },
+  {
+    "id": "6a1d50b277813d425f7a56d0",
+    "title": "BreastCancerAwarenessHandbookAR",
+    "category": "Brochure",
+    "s3Key": "documents/1780306593939-BreastCancerAwarenessHandbookAR.pdf",
+    "localFile": "BreastCancerAwarenessHandbookAR_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\BreastCancerAwarenessHandbookAR_1.pdf"
+  },
+  {
+    "id": "6a1d50b277813d425f7a56d3",
+    "title": "BreastCancerAwarenessHandbookEN",
+    "category": "Brochure",
+    "s3Key": "documents/1780306594842-BreastCancerAwarenessHandbookEN.pdf",
+    "localFile": "BreastCancerAwarenessHandbookEN_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\BreastCancerAwarenessHandbookEN_1.pdf"
+  },
+  {
+    "id": "6a1d50b277813d425f7a56d6",
+    "title": "certificatSe of completion htmlS",
+    "category": "Brochure",
+    "s3Key": "documents/1780306595620-certificatSe_of_completion_htmlS.pdf",
+    "localFile": "certificatSe_of_completion_htmlS_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\certificatSe_of_completion_htmlS_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56d9",
+    "title": "Dental Post Procedure Care ar1",
+    "category": "Brochure",
+    "s3Key": "documents/1780306629723-Dental-Post-Procedure-Care-ar1.pdf",
+    "localFile": "Dental-Post-Procedure-Care-ar1_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Dental-Post-Procedure-Care-ar1_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56dc",
+    "title": "Dental Post Procedure Care en",
+    "category": "Brochure",
+    "s3Key": "documents/1780306635135-Dental-Post-Procedure-Care-en.pdf",
+    "localFile": "Dental-Post-Procedure-Care-en_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Dental-Post-Procedure-Care-en_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56df",
+    "title": "Dental Post Procedure Care",
+    "category": "Brochure",
+    "s3Key": "documents/1780306640121-Dental-Post-Procedure-Care.pdf",
+    "localFile": "Dental-Post-Procedure-Care_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Dental-Post-Procedure-Care_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56e2",
+    "title": "Elements spa menu arb",
+    "category": "Brochure",
+    "s3Key": "documents/1780306644554-Elements_spa_menu_arb.pdf",
+    "localFile": "Elements_spa_menu_arb_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Elements_spa_menu_arb_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56e5",
+    "title": "Elements spa menu Eng",
+    "category": "Brochure",
+    "s3Key": "documents/1780306649612-Elements_spa_menu_Eng.pdf",
+    "localFile": "Elements_spa_menu_Eng_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Elements_spa_menu_Eng_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56e8",
+    "title": "ghtettet",
+    "category": "Brochure",
+    "s3Key": "documents/1780306656986-ghtettet.pdf",
+    "localFile": "ghtettet_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\ghtettet_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56eb",
+    "title": "Healthy menu",
+    "category": "Brochure",
+    "s3Key": "documents/1780306674212-Healthy_menu.pdf",
+    "localFile": "Healthy_menu_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Healthy_menu_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56ee",
+    "title": "home health mini book services 2025",
+    "category": "Brochure",
+    "s3Key": "documents/1780306681220-home_health_mini_book_services_2025.pdf",
+    "localFile": "home_health_mini_book_services_2025_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\home_health_mini_book_services_2025_1.pdf"
+  },
+  {
+    "id": "6a1d50b377813d425f7a56f1",
+    "title": "In Room Events Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306685684-In-Room-Events-Packages.pdf",
+    "localFile": "In-Room-Events-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\In-Room-Events-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a56f4",
+    "title": "Lost and found guide",
+    "category": "Brochure",
+    "s3Key": "documents/1780306689734-Lost-and-found-guide.pdf",
+    "localFile": "Lost-and-found-guide_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Lost-and-found-guide_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a56f7",
+    "title": "New Halls Events Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306700795-New-Halls-Events-Packages.pdf",
+    "localFile": "New-Halls-Events-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\New-Halls-Events-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a56fa",
+    "title": "New Home Care Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306707823-New-Home-Care-Packages.pdf",
+    "localFile": "New-Home-Care-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\New-Home-Care-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a56fd",
+    "title": "PATIENT INFORMATION LEAFLET for IV Iron Therapy V1.1",
+    "category": "Brochure",
+    "s3Key": "documents/1780306711951-PATIENT_INFORMATION_LEAFLET_for_IV_Iron_Therapy_V1.1.pdf",
+    "localFile": "PATIENT_INFORMATION_LEAFLET_for_IV_Iron_Therapy_V1.1_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\PATIENT_INFORMATION_LEAFLET_for_IV_Iron_Therapy_V1.1_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a5700",
+    "title": "Post Surgery Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306716150-Post-Surgery-Packages.pdf",
+    "localFile": "Post-Surgery-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Post-Surgery-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a5703",
+    "title": "RHH A La Carte menu Mar 2021",
+    "category": "Brochure",
+    "s3Key": "documents/1780306720105-RHH_A_La_Carte_menu_Mar_2021.pdf",
+    "localFile": "RHH_A_La_Carte_menu_Mar_2021_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_A_La_Carte_menu_Mar_2021_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a5706",
+    "title": "RHH Celebrating my Birth Support",
+    "category": "Brochure",
+    "s3Key": "documents/1780306722687-RHH_Celebrating_my_Birth_Support.pdf",
+    "localFile": "RHH_Celebrating_my_Birth_Support_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_Celebrating_my_Birth_Support_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a5709",
+    "title": "RHH Discharge Instructions for Postpartum Patients QR coded Mar2021",
+    "category": "Brochure",
+    "s3Key": "documents/1780306723996-RHH_Discharge_Instructions_for_Postpartum_Patients_QR_coded_Mar2021.pdf",
+    "localFile": "RHH_Discharge_Instructions_for_Postpartum_Patients_QR_coded_Mar2021_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_Discharge_Instructions_for_Postpartum_Patients_QR_coded_Mar2021_1.pdf"
+  },
+  {
+    "id": "6a1d50b477813d425f7a570c",
+    "title": "RHH Discharge Instructions for Postpartum Patients",
+    "category": "Brochure",
+    "s3Key": "documents/1780306726822-RHH_Discharge_Instructions_for_Postpartum_Patients.pdf",
+    "localFile": "RHH_Discharge_Instructions_for_Postpartum_Patients_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_Discharge_Instructions_for_Postpartum_Patients_1.pdf"
+  },
+  {
+    "id": "6a1d50b577813d425f7a570f",
+    "title": "RHH ebook 30 Jan 2023",
+    "category": "Brochure",
+    "s3Key": "documents/1780306728565-RHH_ebook_30_Jan_2023.pdf",
+    "localFile": "RHH_ebook_30_Jan_2023_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_ebook_30_Jan_2023_1.pdf"
+  },
+  {
+    "id": "6a1d50b577813d425f7a5712",
+    "title": "rhh vbac",
+    "category": "Brochure",
+    "s3Key": "documents/1780306767176-rhh_vbac.pdf",
+    "localFile": "rhh_vbac_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\rhh_vbac_1.pdf"
+  },
+  {
+    "id": "6a1d50b677813d425f7a5715",
+    "title": "RHH My birth plan 2021",
+    "category": "Brochure",
+    "s3Key": "documents/1780306780038-RHH-My-birth-plan-2021.pdf",
+    "localFile": "RHH-My-birth-plan-2021_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH-My-birth-plan-2021_1.pdf"
+  },
+  {
+    "id": "6a1d50b677813d425f7a5718",
+    "title": "Royale Hayat Dental Pricelist 3 Oct 2022",
+    "category": "Brochure",
+    "s3Key": "documents/1780306783635-Royale_Hayat_Dental_Pricelist_3_Oct_2022.pdf",
+    "localFile": "Royale_Hayat_Dental_Pricelist_3_Oct_2022_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale_Hayat_Dental_Pricelist_3_Oct_2022_1.pdf"
+  },
+  {
+    "id": "6a1d50b677813d425f7a571b",
+    "title": "RoyaleHayatDentalPricelist",
+    "category": "Brochure",
+    "s3Key": "documents/1780306786244-RoyaleHayatDentalPricelist.pdf",
+    "localFile": "RoyaleHayatDentalPricelist_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RoyaleHayatDentalPricelist_1.pdf"
+  },
+  {
+    "id": "6a1d50b677813d425f7a571e",
+    "title": "SPA MENU AR",
+    "category": "Brochure",
+    "s3Key": "documents/1780306789105-SPA_MENU_AR.pdf",
+    "localFile": "SPA_MENU_AR_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\SPA_MENU_AR_1.pdf"
+  },
+  {
+    "id": "6a1d50b677813d425f7a5721",
+    "title": "The Cafe Menu 2022",
+    "category": "Brochure",
+    "s3Key": "documents/1780306792342-The-Cafe-Menu-2022.pdf",
+    "localFile": "The-Cafe-Menu-2022_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\The-Cafe-Menu-2022_1.pdf"
+  },
+  {
+    "id": "6a1d50b677813d425f7a5724",
+    "title": "world patient safety day invitation",
+    "category": "Brochure",
+    "s3Key": "documents/1780306794295-world_patient_safety_day_invitation.pdf",
+    "localFile": "world_patient_safety_day_invitation_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\world_patient_safety_day_invitation_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a5727",
+    "title": "Kids menu inside",
+    "category": "Brochure",
+    "s3Key": "documents/1780306795454-Kids-menu-inside.pdf",
+    "localFile": "Kids-menu-inside_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Kids-menu-inside_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a572a",
+    "title": "Royale Home Health Cosmetic Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306796370-Royale-Home-Health-Cosmetic-Packages.pdf",
+    "localFile": "Royale-Home-Health-Cosmetic-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-Cosmetic-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a572d",
+    "title": "Royale Home Health Dental Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306798755-Royale-Home-Health-Dental-Packages.pdf",
+    "localFile": "Royale-Home-Health-Dental-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-Dental-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a5730",
+    "title": "Royale Home Health Geriatric Care Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306800033-Royale-Home-Health-Geriatric-Care-Packages.pdf",
+    "localFile": "Royale-Home-Health-Geriatric-Care-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-Geriatric-Care-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a5733",
+    "title": "Royale Home Health IVF Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306801348-Royale-Home-Health-IVF-Packages.pdf",
+    "localFile": "Royale-Home-Health-IVF-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-IVF-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a5736",
+    "title": "Royale Home Health Mother and baby care Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306803514-Royale-Home-Health-Mother-and-baby-care-Packages.pdf",
+    "localFile": "Royale-Home-Health-Mother-and-baby-care-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-Mother-and-baby-care-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a5739",
+    "title": "Royale Home Health New Home Care Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306805137-Royale-Home-Health-New-Home-Care-Packages.pdf",
+    "localFile": "Royale-Home-Health-New-Home-Care-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-New-Home-Care-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a573c",
+    "title": "Royale Home Health Physiotherapy Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306809267-Royale-Home-Health-Physiotherapy-Packages.pdf",
+    "localFile": "Royale-Home-Health-Physiotherapy-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-Physiotherapy-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a573f",
+    "title": "Royale Home Health Post Circumcision Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306811103-Royale-Home-Health-Post-Circumcision-Packages.pdf",
+    "localFile": "Royale-Home-Health-Post-Circumcision-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-Post-Circumcision-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a5742",
+    "title": "Royale Home Health Post Surgery Packages",
+    "category": "Brochure",
+    "s3Key": "documents/1780306813867-Royale-Home-Health-Post-Surgery-Packages.pdf",
+    "localFile": "Royale-Home-Health-Post-Surgery-Packages_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Royale-Home-Health-Post-Surgery-Packages_1.pdf"
+  },
+  {
+    "id": "6a1d50b777813d425f7a5745",
+    "title": "RHH Hospitality Ebook",
+    "category": "Brochure",
+    "s3Key": "documents/1780306816620-RHH_Hospitality-Ebook.pdf",
+    "localFile": "RHH_Hospitality-Ebook_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_Hospitality-Ebook_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a5748",
+    "title": "RHH Table Measurements in Suites and Halls Final",
+    "category": "Brochure",
+    "s3Key": "documents/1780306826902-RHH-Table-Measurements-in-Suites-and-Halls-Final.pdf",
+    "localFile": "RHH-Table-Measurements-in-Suites-and-Halls-Final_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH-Table-Measurements-in-Suites-and-Halls-Final_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a574b",
+    "title": "RHH Umbilical cord care",
+    "category": "Brochure",
+    "s3Key": "documents/1780306857725-RHH-Umbilical-cord-care.pdf",
+    "localFile": "RHH-Umbilical-cord-care_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH-Umbilical-cord-care_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a574e",
+    "title": "NIGHT MENU QR AR",
+    "category": "Brochure",
+    "s3Key": "documents/1780306912749-NIGHT_MENU_QR_AR.pdf",
+    "localFile": "NIGHT_MENU_QR_AR_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\NIGHT_MENU_QR_AR_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a5751",
+    "title": "NIGHT MENU QR EN",
+    "category": "Brochure",
+    "s3Key": "documents/1780307289364-NIGHT_MENU_QR_EN.pdf",
+    "localFile": "NIGHT_MENU_QR_EN_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\NIGHT_MENU_QR_EN_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a5754",
+    "title": "NIGHT MENU QR AR1",
+    "category": "Brochure",
+    "s3Key": "documents/1780307081947-NIGHT_MENU_QR_AR1.pdf",
+    "localFile": "NIGHT_MENU_QR_AR1_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\NIGHT_MENU_QR_AR1_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a5757",
+    "title": "Al Liwan QR Food Menu",
+    "category": "Brochure",
+    "s3Key": "documents/1780307102873-Al_Liwan_QR_Food_Menu.pdf",
+    "localFile": "Al_Liwan_QR_Food_Menu_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Al_Liwan_QR_Food_Menu_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a575a",
+    "title": "RHH 5th Floor Food Menu",
+    "category": "Brochure",
+    "s3Key": "documents/1780307124956-RHH_5th_Floor_Food_Menu.pdf",
+    "localFile": "RHH_5th_Floor_Food_Menu_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_5th_Floor_Food_Menu_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a575d",
+    "title": "RHH QR Food Menu",
+    "category": "Brochure",
+    "s3Key": "documents/1780307140624-RHH_QR_Food_Menu.pdf",
+    "localFile": "RHH_QR_Food_Menu_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_QR_Food_Menu_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a5760",
+    "title": "Allergy Patch Testing Quick Guide 2026",
+    "category": "Brochure",
+    "s3Key": "documents/1780307149026-Allergy_Patch_Testing_Quick_Guide_2026.pdf",
+    "localFile": "Allergy_Patch_Testing_Quick_Guide_2026_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Allergy_Patch_Testing_Quick_Guide_2026_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a5763",
+    "title": "Patient Instructions for Allergy Skin Prick Test 2026",
+    "category": "Brochure",
+    "s3Key": "documents/1780307153238-Patient_Instructions_for_Allergy_Skin_Prick_Test_2026.pdf",
+    "localFile": "Patient_Instructions_for_Allergy_Skin_Prick_Test_2026_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Patient_Instructions_for_Allergy_Skin_Prick_Test_2026_1.pdf"
+  },
+  {
+    "id": "6a1d50b877813d425f7a5766",
+    "title": "AL LIWAN MENU May 2026",
+    "category": "Brochure",
+    "s3Key": "documents/1780307174333-AL_LIWAN_MENU_May_2026.pdf",
+    "localFile": "AL_LIWAN_MENU_May_2026_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\AL_LIWAN_MENU_May_2026_1.pdf"
+  },
+  {
+    "id": "6a1d50b977813d425f7a5769",
+    "title": "Ask Me Flyers March 2026",
+    "category": "Brochure",
+    "s3Key": "documents/1780307186808-Ask_Me_Flyers_March_2026.pdf",
+    "localFile": "Ask_Me_Flyers_March_2026_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Ask_Me_Flyers_March_2026_1.pdf"
+  },
+  {
+    "id": "6a1d50b977813d425f7a576c",
+    "title": "Clinical Awareness Flyers March 2026",
+    "category": "Brochure",
+    "s3Key": "documents/1780307195300-Clinical_Awareness_Flyers_March_2026.pdf",
+    "localFile": "Clinical_Awareness_Flyers_March_2026_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\Clinical_Awareness_Flyers_March_2026_1.pdf"
+  },
+  {
+    "id": "6a1d50ba77813d425f7a576f",
+    "title": "RHH QR Food Menu Dec 2025",
+    "category": "Brochure",
+    "s3Key": "documents/1780307204495-RHH_QR_Food_Menu_Dec_2025.pdf",
+    "localFile": "RHH_QR_Food_Menu_Dec_2025_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\RHH_QR_Food_Menu_Dec_2025_1.pdf"
+  },
+  {
+    "id": "6a1d50ba77813d425f7a5772",
+    "title": "5th FLOOR QR Food Menu Dec 2025",
+    "category": "Brochure",
+    "s3Key": "documents/1780307215209-5th_FLOOR_QR_Food_Menu_Dec_2025.pdf",
+    "localFile": "5th_FLOOR_QR_Food_Menu_Dec_2025_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\5th_FLOOR_QR_Food_Menu_Dec_2025_1.pdf"
+  },
+  {
+    "id": "6a1d50ba77813d425f7a5775",
+    "title": "5th FLOOR QR Food Menu",
+    "category": "Brochure",
+    "s3Key": "documents/1780307226916-5th_FLOOR_QR_Food_Menu.pdf",
+    "localFile": "5th_FLOOR_QR_Food_Menu_1.pdf",
+    "localPath": "D:\\PRAJWALA\\Royal-hayat-main\\Royal-hayat-Backend\\storage\\runtime-uploads\\5th_FLOOR_QR_Food_Menu_1.pdf"
+  }
+]

@@ -13,7 +13,9 @@
     "seed:categories": "node src/scripts/seedCategories.js",
     "seed:subspecialities": "node src/scripts/seedSubspecialities.js",
     "seed:doctors": "node src/scripts/seedDoctors.js",
-    "seed:relink-refs": "node src/scripts/relinkDepartmentRefs.js"
+    "seed:relink-refs": "node src/scripts/relinkDepartmentRefs.js",
+    "download:runtime-pdfs": "node src/scripts/downloadRuntimePdfs.js",
+    "validate:runtime-pdfs": "node src/scripts/validateRuntimePdfMap.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1049.0",
