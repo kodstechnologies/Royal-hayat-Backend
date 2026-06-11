@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -6,6 +7,35 @@ const uploadsDir = path.resolve(__dirname, "../../../../storage/runtime-uploads"
 
 const f = (filename) => path.join(uploadsDir, filename);
 
+const filenameVariants = (filename) => {
+  const base = path.basename(filename);
+  return [...new Set([base, base.replace(/ /g, "_"), base.replace(/_/g, " ")])];
+};
+
+const resolveFromMap = (decodedKey, map) => {
+  const mapped = map[decodedKey];
+  if (mapped && fs.existsSync(mapped)) {
+    return mapped;
+  }
+
+  if (!decodedKey.includes("/")) {
+    for (const candidate of filenameVariants(decodedKey)) {
+      if (map[candidate]) {
+        const candidatePath = map[candidate];
+        if (fs.existsSync(candidatePath)) {
+          return candidatePath;
+        }
+      }
+      const directPath = path.join(uploadsDir, candidate);
+      if (fs.existsSync(directPath)) {
+        return directPath;
+      }
+    }
+  }
+
+  return mapped && fs.existsSync(mapped) ? mapped : null;
+};
+
 /**
  * Legacy public path (decoded, relative to mount point) → local PDF file.
  * Keys match old royalehayat.com QR / Runtime URL filenames exactly.
@@ -13,7 +43,8 @@ const f = (filename) => path.join(uploadsDir, filename);
 export const RUNTIME_PDF_MAP = {
   // /Runtime/uploads/
   "AlLiwan_ menu_2021.pdf": f("AlLiwan_menu_2021.pdf"),
-  "Birth plan booklet_27May2021_final.pdf": f("Birth plan booklet_27May2021_final.pdf"),
+  "Birth plan booklet_27May2021_final.pdf": f("Birth_plan_booklet_27May2021_final.pdf"),
+  "Birth_plan_booklet_27May2021_final.pdf": f("Birth_plan_booklet_27May2021_final.pdf"),
   "Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients.pdf":
     f("Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients.pdf"),
   "Birthing-Packages-for-Visiting-Inhouse-Physicians-for-insurance-patients.pdf":
@@ -115,13 +146,13 @@ export const WP_CONTENT_PDF_MAP = {
 export function resolveRuntimePdfPath(relativePath) {
   if (!relativePath) return null;
   const decoded = decodeURIComponent(relativePath).trim().replace(/^\/+/, "");
-  return RUNTIME_PDF_MAP[decoded] ?? null;
+  return resolveFromMap(decoded, RUNTIME_PDF_MAP);
 }
 
 export function resolveWpContentPdfPath(relativePath) {
   if (!relativePath) return null;
   const decoded = decodeURIComponent(relativePath).trim().replace(/^\/+/, "");
-  return WP_CONTENT_PDF_MAP[decoded] ?? null;
+  return resolveFromMap(decoded, WP_CONTENT_PDF_MAP);
 }
 
 export function listRuntimePdfs() {

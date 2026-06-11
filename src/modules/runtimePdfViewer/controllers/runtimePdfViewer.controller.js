@@ -20,12 +20,13 @@ const getRelativePath = (req) => {
 };
 
 const sendPdfFile = (res, filePath, filename) => {
+  const absolutePath = path.resolve(filePath);
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
     "Content-Disposition",
-    `inline; filename="${path.basename(filename || filePath)}"`,
+    `inline; filename="${path.basename(filename || absolutePath)}"`,
   );
-  return res.sendFile(filePath);
+  return res.sendFile(absolutePath);
 };
 
 export function serveRuntimePdf(req, res, next) {
