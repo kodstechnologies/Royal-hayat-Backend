@@ -19,25 +19,18 @@ const appointmentBookingManagePermissions = [
   PERMISSIONS.APPOINTMENT_REQUEST_REJECT,
 ];
 
+// Public — website fallback when live HMS booking fails (no admin JWT).
+router.post('/', createAppointmentBookingRecord);
+
 router.use(verifyJWT);
-
-router.post(
-  '/',
-
-  createAppointmentBookingRecord,
-);
 
 router.get(
   '/',
-  checkPermission( PERMISSIONS.APPOINTMENT_BOOKING_VIEW),
+  checkPermission(PERMISSIONS.APPOINTMENT_BOOKING_VIEW),
   getAllAppointmentBookingRecords,
 );
 
-router.get(
-  '/counts',
-  
-  getAppointmentCounts,
-);
+router.get('/counts', getAppointmentCounts);
 
 router.get(
   '/:id',

@@ -10,3 +10,8 @@ export const postChatSchema = Joi.object({
   lang: Joi.string().valid('en', 'ar').default('en'),
   sessionId: Joi.string().trim().max(64).optional().allow(''),
 });
+
+export const postChatLogSchema = postChatSchema.keys({
+  assistantReply: Joi.string().trim().min(1).max(8000).required(),
+  topicId: Joi.string().trim().max(64).optional().allow(''),
+});
