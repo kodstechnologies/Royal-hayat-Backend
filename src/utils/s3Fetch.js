@@ -23,6 +23,46 @@ const extractKey = (keyOrUrl) => {
     }
 };
 
+const streamToBuffer = async (stream) => {
+    const chunks = [];
+    for await (const chunk of stream) {
+        chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
+};
+
+const filenameFromKey = (key) => {
+    const basename = key.split("/").pop() || "attachment";
+    return basename.replace(/^\d+-/, "");
+};
+
+export const getS3ObjectBuffer = async (keyOrUrl) => {
+    const cleanKey = extractKey(keyOrUrl);
+    if (!cleanKey) return null;
+
+    try {
+        const response = await s3.send(
+            new GetObjectCommand({
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: cleanKey,
+            }),
+        );
+
+        if (!response.Body) return null;
+
+        const buffer = await streamToBuffer(response.Body);
+
+        return {
+            buffer,
+            filename: filenameFromKey(cleanKey),
+            contentType: response.ContentType || "application/octet-stream",
+        };
+    } catch (error) {
+        console.error("Error downloading S3 object for key:", keyOrUrl, error);
+        return null;
+    }
+};
+
 export const getFileUrl = async (key) => {
     if (!key || typeof key !== "string") {
         console.warn("Skipping invalid S3 key:", key);

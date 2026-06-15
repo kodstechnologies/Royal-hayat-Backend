@@ -228,6 +228,15 @@ const departmentIdSchema =
       .required(),
   });
 
+const departmentParamSchema =
+  Joi.object({
+    id: Joi.string()
+      .trim()
+      .min(1)
+      .max(100)
+      .required(),
+  });
+
 export {
   createDepartmentSchema,
 
@@ -236,4 +245,6 @@ export {
   getDepartmentsSchema,
 
   departmentIdSchema,
+
+  departmentParamSchema,
 };

@@ -1,35 +1,9 @@
-import mongoose from 'mongoose';
 import asyncHandler from '../../../utils/asyncHandler.js';
 import ApiResponse from '../../../utils/ApiResponse.js';
 import ApiError from '../../../utils/ApiError.js';
 import authService from '../services/auth.service.js';
-import User from '../models/user.model.js';
-
-const RESERVED_ROLES = ['admin'];
-
-const normalizeRole = (role) =>
-  String(role || '').trim().toLowerCase().replace(/\s+/g, '_');
-
-const assertManagedRole = (role) => {
-  const normalized = normalizeRole(role);
-
-  if (!normalized) {
-    throw new ApiError(400, 'Role is required');
-  }
-
-  if (RESERVED_ROLES.includes(normalized)) {
-    throw new ApiError(400, 'Admin role cannot be assigned to managed users');
-  }
-
-  if (!/^[a-z][a-z0-9_]{0,49}$/.test(normalized)) {
-    throw new ApiError(
-      400,
-      'Role must start with a letter and contain only letters, numbers, and underscores',
-    );
-  }
-
-  return normalized;
-};
+import userService from '../services/user.service.js';
+import { getUsersQuerySchema } from '../validations/auth.validation.js';
 
 const cookieOptions = {
   httpOnly: true,
@@ -133,191 +107,51 @@ export const getMe = asyncHandler(async (req, res) => {
 });
 
 export const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({ role: { $ne: 'admin' } })
-    .select('-password -refreshToken')
-    .sort({ createdAt: -1 })
-    .lean();
-
-  res.json(ApiResponse.success(users, 'Users fetched successfully'));
-});
-
-export const createSubadmin =
-  asyncHandler(async (req, res) => {
-
-    const {
-      name,
-      email,
-      password,
-      role,
-      permissions,
-    } = req.body;
-
-    const normalizedRole = assertManagedRole(role);
-
-    const existingUser =
-      await User.findOne({
-        email: String(email)
-          .trim()
-          .toLowerCase(),
-      });
-
-    if (existingUser) {
-
-      throw new ApiError(
-        400,
-        'Email already exists'
-      );
-    }
-
-    const subadmin = await User.create({
-      name: String(name).trim(),
-
-      email: String(email)
-        .trim()
-        .toLowerCase(),
-
-      password,
-
-      role: normalizedRole,
-
-      permissions:
-        Array.isArray(permissions)
-          ? permissions
-          : [],
-    });
-
-    const safeUser =
-      await User.findById(subadmin._id)
-        .select('-password -refreshToken');
-
-    res.status(201).json(
-      ApiResponse.success(
-        safeUser,
-        'User created successfully'
-      )
-    );
+  const { error, value } = getUsersQuerySchema.validate(req.query, {
+    abortEarly: false,
   });
 
+  if (error) {
+    throw new ApiError(400, error.details.map((detail) => detail.message).join(', '));
+  }
+
+  const { users, meta } = await userService.getAllUsers(value);
+
+  res.json(ApiResponse.success(users, 'Users fetched successfully', meta));
+});
+
+export const getUserById = asyncHandler(async (req, res) => {
+  const user = await userService.getUserById(req.params.id);
+
+  res.json(ApiResponse.success(user, 'User fetched successfully'));
+});
+
+export const createSubadmin = asyncHandler(async (req, res) => {
+  const safeUser = await userService.createSubadmin(req.body);
+
+  res.status(201).json(
+    ApiResponse.success(safeUser, 'User created successfully'),
+  );
+});
+
 export const updateUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new ApiError(400, 'Invalid user ID');
-  }
-
-  const user = await User.findById(id);
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
-
-  if (user.role === 'admin') {
-    throw new ApiError(403, 'Cannot modify admin user');
-  }
-
-  const { name, email, password, role, permissions, isActive } = req.body;
-
-  if (name !== undefined) {
-    user.name = String(name).trim();
-  }
-
-  if (email !== undefined) {
-    const normalizedEmail = String(email).trim().toLowerCase();
-    const duplicate = await User.findOne({
-      email: normalizedEmail,
-      _id: { $ne: id },
-    });
-
-    if (duplicate) {
-      throw new ApiError(400, 'Email already exists');
-    }
-
-    user.email = normalizedEmail;
-  }
-
-  if (role !== undefined) {
-    user.role = assertManagedRole(role);
-  }
-
-  if (permissions !== undefined) {
-    user.permissions = Array.isArray(permissions) ? permissions : [];
-  }
-
-  if (isActive !== undefined) {
-    user.isActive = Boolean(isActive);
-  }
-
-  if (password !== undefined && String(password).trim()) {
-    user.password = password;
-  }
-
-  await user.save();
-
-  const safeUser = await User.findById(id).select('-password -refreshToken');
+  const safeUser = await userService.updateUser(req.params.id, req.body);
 
   res.json(ApiResponse.success(safeUser, 'User updated successfully'));
 });
 
 export const updateUserStatus = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { isActive } = req.body;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new ApiError(400, 'Invalid user ID');
-  }
-
-  if (String(req.user._id) === String(id) && isActive === false) {
-    throw new ApiError(400, 'You cannot deactivate your own account');
-  }
-
-  const user = await User.findById(id);
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
-
-  if (user.role === 'admin') {
-    throw new ApiError(403, 'Cannot change status of admin user');
-  }
-
-  user.isActive = Boolean(isActive);
-
-  if (!user.isActive) {
-    user.refreshToken = null;
-  }
-
-  await user.save();
-
-  const safeUser = await User.findById(id).select('-password -refreshToken');
-  const statusLabel = user.isActive ? 'active' : 'inactive';
-
-  res.json(
-    ApiResponse.success(
-      safeUser,
-      `User marked as ${statusLabel} successfully`,
-    ),
+  const { user, message } = await userService.updateUserStatus(
+    req.params.id,
+    req.body.isActive,
+    req.user._id,
   );
+
+  res.json(ApiResponse.success(user, message));
 });
 
 export const deleteUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new ApiError(400, 'Invalid user ID');
-  }
-
-  if (String(req.user._id) === String(id)) {
-    throw new ApiError(400, 'You cannot delete your own account');
-  }
-
-  const user = await User.findById(id);
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
-
-  if (user.role === 'admin') {
-    throw new ApiError(403, 'Cannot delete admin user');
-  }
-
-  await User.findByIdAndDelete(id);
+  await userService.deleteUser(req.params.id, req.user._id);
 
   res.json(ApiResponse.success(null, 'User deleted successfully'));
 });

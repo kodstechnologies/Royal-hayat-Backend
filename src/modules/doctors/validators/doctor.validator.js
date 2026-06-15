@@ -11,6 +11,21 @@ const stringArrayOptional = Joi.array()
   .items(Joi.string().trim().min(1).max(200))
   .optional();
 
+const expertiseItemSchema = Joi.alternatives().try(
+  objectIdString,
+  Joi.object({
+    id: objectIdString.optional(),
+    _id: objectIdString.optional(),
+    subHeading: Joi.string().trim().allow('').optional(),
+    subHeadingAr: Joi.string().trim().allow('').optional(),
+    points: Joi.array().items(Joi.string().trim()).optional(),
+    pointsAr: Joi.array().items(Joi.string().trim()).optional(),
+  }),
+);
+
+const expertiseArray = Joi.array().items(expertiseItemSchema).optional().default([]);
+const expertiseArrayOptional = Joi.array().items(expertiseItemSchema).optional();
+
 const createDoctorSchema = Joi.object({
   doctorId: Joi.string().trim().min(1).max(50).required(),
   name: Joi.string().trim().min(2).max(100).required(),
@@ -18,12 +33,11 @@ const createDoctorSchema = Joi.object({
   department: objectIdString.required(),
   subspecialities: stringArray,
   subspecialitiesAr: stringArray,
-  title: Joi.string().trim().min(2).max(100).optional(),
-  titleAr: Joi.string().trim().min(2).max(100).optional(),
+  title: Joi.string().trim().min(1).max(100).allow('').optional(),
+  titleAr: Joi.string().trim().min(1).max(100).allow('').optional(),
   qualifications: Joi.array().items(Joi.string().trim()).optional(),
   qualificationsAr: Joi.array().items(Joi.string().trim()).optional(),
-  expertise: Joi.array().items(Joi.string().trim()).optional(),
-  expertiseAr: Joi.array().items(Joi.string().trim()).optional(),
+  expertise: expertiseArray,
   languages: Joi.array().items(Joi.string().trim()).optional(),
   languagesAr: Joi.array().items(Joi.string().trim()).optional(),
   initials: Joi.string().trim().min(1).max(10).optional(),
@@ -40,12 +54,11 @@ const updateDoctorSchema = Joi.object({
   department: objectIdString.optional(),
   subspecialities: stringArrayOptional,
   subspecialitiesAr: stringArrayOptional,
-  title: Joi.string().trim().min(2).max(100).optional(),
-  titleAr: Joi.string().trim().min(2).max(100).optional(),
+  title: Joi.string().trim().min(1).max(100).allow('').optional(),
+  titleAr: Joi.string().trim().min(1).max(100).allow('').optional(),
   qualifications: Joi.array().items(Joi.string().trim()).optional(),
   qualificationsAr: Joi.array().items(Joi.string().trim()).optional(),
-  expertise: Joi.array().items(Joi.string().trim()).optional(),
-  expertiseAr: Joi.array().items(Joi.string().trim()).optional(),
+  expertise: expertiseArrayOptional,
   languages: Joi.array().items(Joi.string().trim()).optional(),
   languagesAr: Joi.array().items(Joi.string().trim()).optional(),
   initials: Joi.string().trim().min(1).max(10).optional(),

@@ -27,15 +27,21 @@ const csrSchema = new mongoose.Schema(
     },
 
     description: {
-      type: String,
+      type: [String],
       required: true,
-      trim: true,
+      validate: [
+        (val) => val.length > 0,
+        "At least one description is required",
+      ],
     },
 
     descriptionArabic: {
-      type: String,
+      type: [String],
       required: true,
-      trim: true,
+      validate: [
+        (val) => val.length > 0,
+        "At least one Arabic description is required",
+      ],
     },
 
     images: {

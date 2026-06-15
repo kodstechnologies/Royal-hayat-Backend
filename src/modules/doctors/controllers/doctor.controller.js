@@ -11,16 +11,11 @@ import {
 } from '../validators/doctor.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
-import { uploadToCloudinary } from '../../../utils/cloudinary.js';
-import fs from 'fs-extra';
-
 const ARRAY_FIELDS = [
   'subspecialities',
   'subspecialitiesAr',
   'qualifications',
   'qualificationsAr',
-  'expertise',
-  'expertiseAr',
   'languages',
   'languagesAr',
 ];
@@ -58,10 +53,41 @@ function coerceStringArrayField(formData, field) {
   }
 }
 
+function coerceExpertiseField(formData) {
+  if (formData.expertise === undefined) return;
+
+  const raw = formData.expertise;
+
+  if (Array.isArray(raw)) return;
+
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      formData.expertise = [];
+      return;
+    }
+
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        formData.expertise = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        formData.expertise = [];
+      }
+      return;
+    }
+
+    formData.expertise = [trimmed];
+  }
+}
+
 function coerceDoctorFormArrays(formData) {
   for (const field of ARRAY_FIELDS) {
     coerceStringArrayField(formData, field);
   }
+
+  coerceExpertiseField(formData);
+  delete formData.expertiseAr;
 }
 
 function coerceDoctorBooleans(formData) {
@@ -84,28 +110,9 @@ function trimOptionalString(formData, field) {
 }
 
 const createDoctor = asyncHandler(async (req, res) => {
-  let imageUrl = '';
-
-  if (req.file) {
-    try {
-      const result = await uploadToCloudinary(
-        req.file.path,
-        'royale-hayat/doctors',
-      );
-      imageUrl = result.url;
-      await fs.remove(req.file.path);
-    } catch {
-      if (req.file?.path) {
-        await fs.remove(req.file.path);
-      }
-      throw new ApiError(
-        httpStatus.INTERNAL_SERVER_ERROR,
-        'Failed to upload image',
-      );
-    }
-  }
-
-  const formData = { ...req.body, image: imageUrl };
+  const formData = { ...req.body };
+  if (!formData.image) formData.image = '';
+  delete formData.imageKey;
 
   if (typeof formData.doctorId === 'string') {
     formData.doctorId = formData.doctorId.trim();
@@ -252,28 +259,12 @@ const updateDoctor = asyncHandler(async (req, res) => {
     );
   }
 
-  let imageUrl = req.body.image;
+  const formData = { ...req.body };
+  delete formData.imageKey;
 
-  if (req.file) {
-    try {
-      const result = await uploadToCloudinary(
-        req.file.path,
-        'royale-hayat/doctors',
-      );
-      imageUrl = result.url;
-      await fs.remove(req.file.path);
-    } catch {
-      if (req.file?.path) {
-        await fs.remove(req.file.path);
-      }
-      throw new ApiError(
-        httpStatus.INTERNAL_SERVER_ERROR,
-        'Failed to upload image',
-      );
-    }
+  if (!req.file) {
+    delete formData.image;
   }
-
-  const formData = { ...req.body, image: imageUrl };
 
   trimOptionalString(formData, 'title');
   trimOptionalString(formData, 'titleAr');

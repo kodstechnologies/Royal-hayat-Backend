@@ -1,14 +1,12 @@
+import './config/env.js';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
 import ApiError from './utils/ApiError.js';
 import { formatMongooseValidationError } from './utils/mongooseValidationMessages.js';
 import routes from './routes/index.js';
 import runtimePdfPublicRoutes from './modules/runtimePdfViewer/routes/runtimePdfPublicRoutes.js';
 import wpContentPdfPublicRoutes from './modules/runtimePdfViewer/routes/wpContentPdfPublicRoutes.js';
-
-dotenv.config();
 
 const app = express();
 

@@ -3,6 +3,7 @@ import Department from '../../departments/models/department.model.js';
 import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
+import { resolveExpertiseRefs } from '../utils/expertise.util.js';
 
 const OID = /^[0-9a-fA-F]{24}$/i;
 
@@ -64,6 +65,7 @@ class DoctorService {
       subspecialitiesAr: normalizeStringArray(
         doctorData.subspecialitiesAr,
       ),
+      expertise: await resolveExpertiseRefs(doctorData.expertise),
     };
 
     return await doctorRepository.create(payload);
@@ -226,6 +228,10 @@ class DoctorService {
 
     const patch = { ...updateData };
 
+    if (patch.image === undefined || patch.image === '') {
+      delete patch.image;
+    }
+
     if (updateData.subspecialities !== undefined) {
       patch.subspecialities = normalizeStringArray(
         updateData.subspecialities,
@@ -236,6 +242,10 @@ class DoctorService {
       patch.subspecialitiesAr = normalizeStringArray(
         updateData.subspecialitiesAr,
       );
+    }
+
+    if (updateData.expertise !== undefined) {
+      patch.expertise = await resolveExpertiseRefs(updateData.expertise);
     }
 
     return await doctorRepository.updateById(id, patch);

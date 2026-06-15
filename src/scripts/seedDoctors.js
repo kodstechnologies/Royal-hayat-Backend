@@ -7,6 +7,11 @@ import { fileURLToPath, pathToFileURL } from "url";
 import connectDB from "../config/db.js";
 import Department from "../modules/departments/models/department.model.js";
 import Doctor from "../modules/doctors/models/doctor.model.js";
+import {
+  buildExpertisePayloads,
+  cleanInvalidDoctorExpertiseRefs,
+  resolveExpertiseRefs,
+} from "../modules/doctors/utils/expertise.util.js";
 
 dotenv.config();
 
@@ -110,11 +115,12 @@ const resolveDoctorId = (entry, usedProviderCodes) => {
   return slug;
 };
 
-const mapDoctorPayload = (entry, departmentId, doctorId) => {
+const mapDoctorPayload = async (entry, departmentId, doctorId) => {
   const name = String(entry.name || "").trim();
   const nameAr = String(entry.nameAr || "").trim();
   const title = String(entry.title || "").trim();
   const titleArRaw = String(entry.titleAr || "").trim();
+  const initials = String(entry.initials || "Dr.").trim() || "Dr.";
 
   const subspecialities = toStringArray(entry.specialty);
   const subspecialitiesAr = toStringArray(entry.specialtyAr);
@@ -128,13 +134,17 @@ const mapDoctorPayload = (entry, departmentId, doctorId) => {
     subspecialitiesAr,
     qualifications: toStringArray(entry.qualifications),
     qualificationsAr: toStringArray(entry.qualificationsAr),
-    expertise: toStringArray(entry.expertise),
-    expertiseAr: toStringArray(entry.expertiseAr),
+    expertise: await resolveExpertiseRefs(
+      buildExpertisePayloads(
+        toStringArray(entry.expertise),
+        toStringArray(entry.expertiseAr),
+      ),
+    ),
     languages: toStringArray(entry.languages),
     languagesAr: toStringArray(entry.languagesAr),
-    availableOnline: true,
+    availableOnline: entry.availableOnline !== false,
     isActive: true,
-    initials: "Dr.",
+    initials,
     initialsAr: "د.",
   };
 
@@ -166,6 +176,11 @@ const seedDoctors = async () => {
   const usedProviderCodes = new Set();
 
   try {
+    const cleaned = await cleanInvalidDoctorExpertiseRefs(Doctor);
+    if (cleaned > 0) {
+      console.log(`🧹 Cleaned invalid expertise refs on ${cleaned} doctor(s).`);
+    }
+
     for (const entry of frontendDoctors) {
       const slug = String(entry.id || "").trim();
       const departmentName = resolveDepartmentName(entry.department);
@@ -181,7 +196,7 @@ const seedDoctors = async () => {
       }
 
       const doctorId = resolveDoctorId(entry, usedProviderCodes);
-      const payload = mapDoctorPayload(entry, departmentId, doctorId);
+      const payload = await mapDoctorPayload(entry, departmentId, doctorId);
 
       if (!payload.doctorId || !payload.name || !payload.nameAr) {
         console.warn(`⚠️ Skipped "${slug}" — missing doctorId, name, or nameAr.`);

@@ -26,17 +26,25 @@ export const createCSRValidator = Joi.object({
     "any.required": "Arabic subheading is required",
   }),
 
-  description: Joi.string().trim().required().messages({
-    "string.base": "Description must be a string",
-    "string.empty": "Description is required",
-    "any.required": "Description is required",
-  }),
+  description: Joi.array()
+    .items(Joi.string().trim().min(1))
+    .min(1)
+    .required()
+    .messages({
+      "array.base": "Description must be an array of strings",
+      "array.min": "At least one description is required",
+      "any.required": "Description is required",
+    }),
 
-  descriptionArabic: Joi.string().trim().required().messages({
-    "string.base": "Arabic description must be a string",
-    "string.empty": "Arabic description is required",
-    "any.required": "Arabic description is required",
-  }),
+  descriptionArabic: Joi.array()
+    .items(Joi.string().trim().min(1))
+    .min(1)
+    .required()
+    .messages({
+      "array.base": "Arabic description must be an array of strings",
+      "array.min": "At least one Arabic description is required",
+      "any.required": "Arabic description is required",
+    }),
 
   images: Joi.array().items(Joi.string().uri()).optional(),
   imagesKey: Joi.array().items(Joi.string()).optional(),
@@ -59,13 +67,23 @@ export const updateCSRValidator = Joi.object({
     "string.base": "Arabic subheading must be a string",
   }),
 
-  description: Joi.string().trim().messages({
-    "string.base": "Description must be a string",
-  }),
+  description: Joi.array()
+    .items(Joi.string().trim().min(1))
+    .min(1)
+    .optional()
+    .messages({
+      "array.base": "Description must be an array of strings",
+      "array.min": "At least one description is required",
+    }),
 
-  descriptionArabic: Joi.string().trim().messages({
-    "string.base": "Arabic description must be a string",
-  }),
+  descriptionArabic: Joi.array()
+    .items(Joi.string().trim().min(1))
+    .min(1)
+    .optional()
+    .messages({
+      "array.base": "Arabic description must be an array of strings",
+      "array.min": "At least one Arabic description is required",
+    }),
 
   images: Joi.array().items(Joi.string().uri()).optional(),
   imagesKey: Joi.array().items(Joi.string()).optional(),

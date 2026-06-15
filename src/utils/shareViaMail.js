@@ -39,56 +39,156 @@ const renderRow = (label, value) => `
   </tr>
 `;
 
-const buildRequestFields = (request) => {
-  const isDischargeSummary =
-    request.specificAuthorization === "Discharge Summary";
-  const dateFrom = isDischargeSummary
-    ? formatDate(request.specificAuthorizationDate)
-    : formatDate(request.specificFromDate);
-  const dateTo = isDischargeSummary
-    ? "—"
-    : formatDate(request.specificToDate);
-  const specialRequest = request.specialRequest?.trim() || "—";
+const renderAttachmentCell = (hasAttachment, fileUrl, hasEmailAttachments) => {
+  if (!hasAttachment) return "N/A";
 
-  const purpose =
-    request.purposeOfDisclosure === "Others" && request.otherPurpose
-      ? `${request.purposeOfDisclosure} — ${request.otherPurpose}`
-      : request.purposeOfDisclosure;
+  if (hasEmailAttachments) {
+    return "Included as email attachment";
+  }
 
-  const isPassportId = request.validIdentification === "passportORGovtId";
-  const documentType = isPassportId ? "Passport / Government ID" : "Civil ID";
-  const civilId = request.civilIdNumber || request.civilId || "N/A";
+  if (fileUrl) {
+    return `<a href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener noreferrer" style="color: #7f1d1d; font-weight: 600;">View file</a>`;
+  }
 
-  let requestedDocumentType = request.specificAuthorization || "N/A";
+  return "N/A";
+};
+
+const buildRequestedDocumentType = (request) => {
   if (request.specificAuthorization === "specific documents") {
     const types = Array.isArray(request.specificDocumentTypes)
       ? request.specificDocumentTypes.join(", ")
       : "";
-    requestedDocumentType = types
-      ? `specific documents: ${types}${request.specificDocumentsOther ? ` — ${request.specificDocumentsOther}` : ""}`
-      : "specific documents";
+
+    if (!types) return "specific documents";
+
+    const other = request.specificDocumentsOther?.trim();
+    return other && request.specificDocumentTypes?.includes("Others")
+      ? `specific documents: ${types} — ${other}`
+      : `specific documents: ${types}`;
+  }
+
+  return request.specificAuthorization || "N/A";
+};
+
+const buildPatientInformationRows = (request, attachmentUrls, hasEmailAttachments) => {
+  const rows = [
+    renderRow("Patient Name", escapeHtml(request.patientFullName)),
+    renderRow("Patient File No.", escapeHtml(request.patientFileNo)),
+    renderRow("Date of Birth", formatDate(request.dateOfBirth)),
+    renderRow(
+      "Identification Type",
+      request.validIdentification === "passportORGovtId"
+        ? "Passport / Government ID"
+        : "Civil ID",
+    ),
+  ];
+
+  if (request.validIdentification === "civilId") {
+    rows.push(
+      renderRow("Civil ID Number", escapeHtml(request.civilIdNumber)),
+      renderRow(
+        "Civil ID Attachment",
+        renderAttachmentCell(
+          Boolean(request.civilIdAttachment),
+          attachmentUrls.civilIdAttachment,
+          hasEmailAttachments,
+        ),
+      ),
+    );
+  }
+
+  if (request.validIdentification === "passportORGovtId") {
+    rows.push(
+      renderRow(
+        "Passport / Government ID Attachment",
+        renderAttachmentCell(
+          Boolean(request.passportOrGovernmentIdAttachment),
+          attachmentUrls.passportOrGovernmentIdAttachment,
+          hasEmailAttachments,
+        ),
+      ),
+    );
+  }
+
+  return rows.join("");
+};
+
+const buildMedicalRecordRequestRows = (request) => {
+  const isDischargeSummary =
+    request.specificAuthorization === "Discharge Summary";
+  const specialRequest = request.specialRequest?.trim() || "—";
+
+  const rows = [
+    renderRow(
+      "Requested Document Type",
+      escapeHtml(buildRequestedDocumentType(request)),
+    ),
+  ];
+
+  if (isDischargeSummary) {
+    rows.push(
+      renderRow(
+        "Discharge Date",
+        formatDate(request.specificAuthorizationDate),
+      ),
+    );
+  } else {
+    rows.push(
+      renderRow("Date From", formatDate(request.specificFromDate)),
+      renderRow("Date To", formatDate(request.specificToDate)),
+    );
+  }
+
+  rows.push(renderRow("Special Request", escapeHtml(specialRequest)));
+
+  return rows.join("");
+};
+
+const buildRequesterRows = (request, attachmentUrls, hasEmailAttachments) => {
+  const rows = [
+    renderRow("Requested By", escapeHtml(request.requestedBy)),
+  ];
+
+  if (request.requestedBy === "Legal Representative") {
+    rows.push(
+      renderRow(
+        "Legal Representative Full Name",
+        escapeHtml(request.legalRepresentativeFullName),
+      ),
+      renderRow(
+        "Relationship with Patient",
+        escapeHtml(request.relationshipWithPatient),
+      ),
+      renderRow(
+        "Valid Proof of Representation",
+        renderAttachmentCell(
+          Boolean(request.validProof),
+          attachmentUrls.validProof,
+          hasEmailAttachments,
+        ),
+      ),
+    );
+  }
+
+  if (request.requestedBy === "Patient") {
+    rows.push(
+      renderRow(
+        "Patient Name Confirmation",
+        escapeHtml(request.patientNameConfirmation),
+      ),
+    );
   }
 
   const signatureName =
     request.requestedBy === "Legal Representative"
       ? request.legalRepresentativeFullName
-      : request.patientNameConfirmation || request.patientFullName || "N/A";
+      : request.patientNameConfirmation || request.patientFullName;
 
-  return {
-    patientName: escapeHtml(request.patientFullName),
-    documentType,
-    civilId: escapeHtml(civilId),
-    requestedDocumentType: escapeHtml(requestedDocumentType),
-    dateFrom,
-    dateTo,
-    specialRequest: escapeHtml(specialRequest),
-    recipientName: escapeHtml(request.recipientName),
-    recipientEmail: escapeHtml(request.recipientEmailAddress),
-    recipientPhone: escapeHtml(request.recipientContactNumber),
-    purpose: escapeHtml(purpose),
-    signatureName: escapeHtml(signatureName),
-    mrrId: escapeHtml(request.mrrId || "N/A"),
-  };
+  rows.push(
+    renderRow("Electronic Signature", escapeHtml(signatureName)),
+  );
+
+  return rows.join("");
 };
 
 const sectionShell = (title, tableRows) => `
@@ -102,51 +202,44 @@ const sectionShell = (title, tableRows) => `
   </div>
 `;
 
-const buildEmailBody = (fields, passportFileUrl) => {
-  const passportCell = passportFileUrl
-    ? `<a href="${passportFileUrl}" target="_blank" style="color: #7f1d1d; font-weight: 600;">View attached file</a>`
-    : "N/A";
+const buildEmailBody = (request, attachmentUrls = {}, hasEmailAttachments = false) => {
+  const purpose =
+    request.purposeOfDisclosure === "Others" && request.otherPurpose
+      ? `${request.purposeOfDisclosure} — ${request.otherPurpose}`
+      : request.purposeOfDisclosure;
+
+  const mrrId = escapeHtml(request.mrrId || "N/A");
 
   return `
     <div style="margin-bottom: 28px; padding-bottom: 24px; border-bottom: 2px solid #fecaca;">
       <h1 style="margin: 0; font-size: 20px; line-height: 1.4; color: #0f172a; font-weight: 700;">
         ${EMAIL_SUBJECT}
       </h1>
-      <p style="margin: 8px 0 0; font-size: 13px; color: #64748b;">MRR ID: <strong>${fields.mrrId}</strong></p>
+      <p style="margin: 8px 0 0; font-size: 13px; color: #64748b;">MRR ID: <strong>${mrrId}</strong></p>
     </div>
 
     ${sectionShell(
       "Patient Information",
-      `
-        ${renderRow("Patient Name", fields.patientName)}
-        ${renderRow("Document Type", fields.documentType)}
-        ${renderRow("Civil ID Number", fields.civilId)}
-        ${renderRow("Passport / Government ID", passportCell)}
-      `,
+      buildPatientInformationRows(request, attachmentUrls, hasEmailAttachments),
     )}
 
     ${sectionShell(
       "Medical Record Request Information",
-      `
-        ${renderRow("Requested Document Type", fields.requestedDocumentType)}
-        ${renderRow("Date From", fields.dateFrom)}
-        ${renderRow("Date To", fields.dateTo)}
-        ${renderRow("Special Request", fields.specialRequest)}
-      `,
+      buildMedicalRecordRequestRows(request),
     )}
 
     ${sectionShell(
       "Recipient Information",
       `
-        ${renderRow("Recipient Name", fields.recipientName)}
-        ${renderRow("Recipient Email Address", fields.recipientEmail)}
-        ${renderRow("Recipient Contact Number", fields.recipientPhone)}
+        ${renderRow("Recipient Name", escapeHtml(request.recipientName))}
+        ${renderRow("Recipient Email Address", escapeHtml(request.recipientEmailAddress))}
+        ${renderRow("Recipient Contact Number", escapeHtml(request.recipientContactNumber))}
       `,
     )}
 
     ${sectionShell(
       "Purpose of Disclosure",
-      renderRow("Purpose of Disclosure", fields.purpose),
+      renderRow("Purpose of Disclosure", escapeHtml(purpose)),
     )}
 
     ${sectionShell(
@@ -155,8 +248,8 @@ const buildEmailBody = (fields, passportFileUrl) => {
     )}
 
     ${sectionShell(
-      "Electronic Signature",
-      renderRow("Signature Name", fields.signatureName),
+      "Requester Information",
+      buildRequesterRows(request, attachmentUrls, hasEmailAttachments),
     )}
   `;
 };
@@ -177,9 +270,12 @@ const buildConfidentialityFooter = (mrrId) => `
 
 export const resolveEmailSubject = () => EMAIL_SUBJECT;
 
-export const medicalRecordRequestEmailTemplate = (request, passportFileUrl) => {
-  const fields = buildRequestFields(request);
-  const body = buildEmailBody(fields, passportFileUrl);
+export const medicalRecordRequestEmailTemplate = (
+  request,
+  { attachmentUrls = {}, hasEmailAttachments = false } = {},
+) => {
+  const body = buildEmailBody(request, attachmentUrls, hasEmailAttachments);
+  const mrrId = escapeHtml(request.mrrId || "N/A");
 
   return `
 <!DOCTYPE html>
@@ -211,7 +307,7 @@ export const medicalRecordRequestEmailTemplate = (request, passportFileUrl) => {
             </tr>
             <tr>
               <td style="padding: 22px 32px 28px; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
-                ${buildConfidentialityFooter(fields.mrrId)}
+                ${buildConfidentialityFooter(mrrId)}
               </td>
             </tr>
           </table>

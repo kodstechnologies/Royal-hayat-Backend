@@ -7,6 +7,7 @@ import {
   updateDepartmentSchema,
   getDepartmentsSchema,
   departmentIdSchema,
+  departmentParamSchema,
 } from '../validators/department.validator.js';
 
 import ApiError from '../../../utils/ApiError.js';
@@ -184,6 +185,45 @@ const getAllDepartments =
         data: result.departments,
 
         meta: result.meta,
+      });
+    }
+  );
+
+const getDepartmentSubspecialitiesAndDoctors =
+  asyncHandler(
+    async (req, res) => {
+      const {
+        error,
+        value,
+      } =
+        departmentParamSchema.validate(
+          req.params,
+          {
+            abortEarly: false,
+          }
+        );
+
+      if (error) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          error.details
+            .map((d) => d.message)
+            .join(', ')
+        );
+      }
+
+      const result =
+        await departmentService.getDepartmentSubspecialitiesAndDoctors(
+          value.id
+        );
+
+      res.status(200).json({
+        success: true,
+
+        message:
+          'Department subspecialities and doctors fetched successfully',
+
+        data: result,
       });
     }
   );
@@ -367,6 +407,8 @@ export {
   createDepartment,
 
   getAllDepartments,
+
+  getDepartmentSubspecialitiesAndDoctors,
 
   getDepartmentById,
 

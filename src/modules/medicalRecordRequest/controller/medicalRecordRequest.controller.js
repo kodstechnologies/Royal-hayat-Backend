@@ -8,6 +8,8 @@ import {
     shareMedicalRecordRequestViaEmailService
 } from "../service/medicalRecordRequest.service.js";
 
+import { getMedicalRecordRequestsQuerySchema } from "../validators/medicalRecordRequest.validator.js";
+
 export const createMedicalRecordRequest =
     async (req, res) => {
 
@@ -40,12 +42,26 @@ export const getAllMedicalRecordRequests =
 
         try {
 
-            const requests =
-                await getAllMedicalRecordRequestsService();
+            const { error, value } = getMedicalRecordRequestsQuerySchema.validate(
+                req.query,
+                { abortEarly: false },
+            );
+
+            if (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: error.details.map((detail) => detail.message).join(", "),
+                });
+            }
+
+            const { requests, meta } =
+                await getAllMedicalRecordRequestsService(value);
 
             return res.status(200).json({
                 success: true,
-                data: requests
+                message: "Medical record requests fetched successfully",
+                data: requests,
+                meta,
             });
 
         } catch (error) {

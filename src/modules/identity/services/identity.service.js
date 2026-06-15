@@ -25,6 +25,7 @@ const getRequiredEnv = (key) => {
   return value.trim();
 };
 
+
 const SHARPER_BASE_URL = getRequiredEnv('SHARPER_BASE_URL');
 const SHARPER_USER = getRequiredEnv('SHARPER_USER');
 const SHARPER_PASS = getRequiredEnv('SHARPER_PASS');

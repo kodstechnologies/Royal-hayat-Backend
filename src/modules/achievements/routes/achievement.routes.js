@@ -19,45 +19,34 @@ import { PERMISSIONS } from "../../../constants/permission.js";
 
 const router = express.Router();
 
-router.use(verifyJWT);
+router.get("/", getAllAchievements);
+router.get("/:id", getAchievementById);
 
 router.post(
   "/",
+  verifyJWT,
   checkPermission([PERMISSIONS.ACHIEVEMENT_CREATE, PERMISSIONS.ACHIEVEMENT_VIEW]),
   upload.single("image"),
   validate(createAchievementValidator),
   uploadToS3("achievements", { image: "image" }),
-  createAchievement
-);
-
-router.get(
-  "/",
-  checkPermission(PERMISSIONS.ACHIEVEMENT_VIEW  ),
-  getAllAchievements
-);
-
-router.get(
-  "/:id",
-  checkPermission(
-    PERMISSIONS.ACHIEVEMENT_VIEW,
-
-  ),
-  getAchievementById
+  createAchievement,
 );
 
 router.put(
   "/:id",
+  verifyJWT,
   checkPermission([PERMISSIONS.ACHIEVEMENT_UPDATE, PERMISSIONS.ACHIEVEMENT_VIEW]),
   upload.single("image"),
   validate(updateAchievementValidator),
   uploadToS3("achievements", { image: "image" }),
-  updateAchievement
+  updateAchievement,
 );
 
 router.delete(
   "/:id",
+  verifyJWT,
   checkPermission([PERMISSIONS.ACHIEVEMENT_DELETE, PERMISSIONS.ACHIEVEMENT_VIEW]),
-  deleteAchievement
+  deleteAchievement,
 );
 
 export default router;

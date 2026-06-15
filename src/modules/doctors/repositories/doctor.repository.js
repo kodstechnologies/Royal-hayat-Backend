@@ -1,5 +1,11 @@
 import Doctor from '../models/doctor.model.js';
 import '../../departments/models/department.model.js';
+import '../models/expertise.model.js';
+import { attachExpertiseToDoctors } from '../utils/expertise.util.js';
+
+const DOCTOR_POPULATE = [
+  { path: 'department', select: 'departmentId name arabicName' },
+];
 
 class DoctorRepository {
   async create(doctorData) {
@@ -8,9 +14,11 @@ class DoctorRepository {
   }
 
   async findById(id) {
-    return await Doctor.findById(id)
-      .populate('department', 'departmentId name arabicName')
+    const doctor = await Doctor.findById(id)
+      .populate(DOCTOR_POPULATE)
       .lean();
+    if (!doctor) return null;
+    return attachExpertiseToDoctors(doctor);
   }
 
   async findOne(query) {
@@ -25,18 +33,22 @@ class DoctorRepository {
 
     const skip = (page - 1) * limit;
 
-    return await Doctor.find(query)
-      .populate('department', 'departmentId name arabicName')
+    const doctors = await Doctor.find(query)
+      .populate(DOCTOR_POPULATE)
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
       .lean();
+
+    return attachExpertiseToDoctors(doctors);
   }
 
   async findAll(query) {
-    return await Doctor.find(query)
-      .populate('department', 'departmentId name arabicName')
+    const doctors = await Doctor.find(query)
+      .populate(DOCTOR_POPULATE)
       .lean();
+
+    return attachExpertiseToDoctors(doctors);
   }
 
   async countDocuments(query) {
@@ -44,12 +56,15 @@ class DoctorRepository {
   }
 
   async updateById(id, updateData) {
-    return await Doctor.findByIdAndUpdate(id, updateData, {
+    const doctor = await Doctor.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     })
-      .populate('department', 'departmentId name arabicName')
+      .populate(DOCTOR_POPULATE)
       .lean();
+
+    if (!doctor) return null;
+    return attachExpertiseToDoctors(doctor);
   }
 
   async findOneAndUpdate(query, updateData, options = {}) {
@@ -90,16 +105,18 @@ class DoctorRepository {
     const skip = (page - 1) * limit;
 
     const doctors = await Doctor.find(query)
-      .populate('department', 'departmentId name arabicName')
+      .populate(DOCTOR_POPULATE)
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
       .lean();
 
+    const enrichedDoctors = await attachExpertiseToDoctors(doctors);
+
     const total = await Doctor.countDocuments(query);
 
     return {
-      doctors,
+      doctors: enrichedDoctors,
       total,
       page,
       limit,

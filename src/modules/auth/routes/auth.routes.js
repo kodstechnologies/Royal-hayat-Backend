@@ -10,6 +10,7 @@ import {
   resetPassword,
   createSubadmin,
   getAllUsers,
+  getUserById,
   updateUser,
   updateUserStatus,
   deleteUser,
@@ -44,6 +45,14 @@ router.get(
   checkPermission(PERMISSIONS.USER_VIEW),
   getAllUsers,
 );
+
+router.get(
+  '/users/:id',
+  verifyJWT,
+  checkPermission(PERMISSIONS.USER_VIEW),
+  getUserById,
+);
+
 router.post(
   '/subadmin',
   verifyJWT,

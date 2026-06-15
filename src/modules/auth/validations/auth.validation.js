@@ -70,3 +70,9 @@ export const updateUserSchema = Joi.object({
 export const updateUserStatusSchema = Joi.object({
   isActive: Joi.boolean().required(),
 });
+
+export const getUsersQuerySchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
+  search: Joi.string().trim().allow('').optional(),
+});

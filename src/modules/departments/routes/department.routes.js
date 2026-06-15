@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createDepartment,
   getAllDepartments,
+  getDepartmentSubspecialitiesAndDoctors,
   getDepartmentById,
   updateDepartment,
   deleteDepartment
@@ -11,6 +12,7 @@ import upload from "../../../utils/multer.js";
 const router = Router();
   
 router.get('/', getAllDepartments);
+router.get('/:id/subspecialities-doctors', getDepartmentSubspecialitiesAndDoctors);
 router.get('/:id', getDepartmentById);
 
 router.post('/', upload.single("image"), createDepartment);

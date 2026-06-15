@@ -2,13 +2,14 @@ import nodemailer from "nodemailer";
 
 import {
   createMedicalRecordRequestRepo,
-  getAllMedicalRecordRequestsRepo,
+  getMedicalRecordRequestsPaginatedRepo,
+  countMedicalRecordRequestsRepo,
   getMedicalRecordRequestByIdRepo,
   deleteMedicalRecordRequestRepo,
 } from "../repository/medicalRecordRequest.repository.js";
 
 import { uploadToS3 } from "../../../utils/s3Upload.js";
-import { getFileUrl } from "../../../utils/s3Fetch.js";
+import { getFileUrl, getS3ObjectBuffer } from "../../../utils/s3Fetch.js";
 import {
   medicalRecordRequestEmailTemplate,
   resolveEmailSubject,
@@ -19,7 +20,7 @@ import toPlainObject from "../../../utils/toPlainObject.js";
 const DEFAULT_CREATE_NOTIFICATION_RECIPIENTS = [
   "medicalrecords@royalehayat.com",
   "marketing@royalehayat.com",
-  "prajwalanagekar@gmail.com",
+
 ];
 
 const ATTACHMENT_FIELDS = [
@@ -27,6 +28,12 @@ const ATTACHMENT_FIELDS = [
   "passportOrGovernmentIdAttachment",
   "validProof",
 ];
+
+const ATTACHMENT_FIELD_LABELS = {
+  civilIdAttachment: "civil-id",
+  passportOrGovernmentIdAttachment: "passport-id",
+  validProof: "valid-proof",
+};
 
 const getUploadedFile = (files, fieldName) => files?.[fieldName]?.[0] ?? null;
 
@@ -92,14 +99,38 @@ const enrichRequestWithAttachmentUrls = async (request) => {
   return plain;
 };
 
-const resolvePrimaryAttachmentUrl = async (request) => {
-  const key =
-    request.civilIdAttachment ||
-    request.passportOrGovernmentIdAttachment ||
-    request.validProof;
+const resolveAttachmentUrls = async (request) => {
+  const urls = {};
 
-  if (!key) return null;
-  return getFileUrl(key);
+  await Promise.all(
+    ATTACHMENT_FIELDS.map(async (field) => {
+      if (request[field]) {
+        urls[field] = await getFileUrl(request[field]);
+      }
+    }),
+  );
+
+  return urls;
+};
+
+const buildEmailAttachments = async (request) => {
+  const results = await Promise.all(
+    ATTACHMENT_FIELDS.map(async (field) => {
+      const key = request[field];
+      if (!key) return null;
+
+      const file = await getS3ObjectBuffer(key);
+      if (!file) return null;
+
+      return {
+        filename: `${ATTACHMENT_FIELD_LABELS[field]}-${file.filename}`,
+        content: file.buffer,
+        contentType: file.contentType,
+      };
+    }),
+  );
+
+  return results.filter(Boolean);
 };
 
 const normalizeRecipients = (emailId) => {
@@ -136,12 +167,17 @@ const normalizeLanguages = (languages) => {
 };
 
 const sendMedicalRecordRequestEmail = async (request, recipients, languages = ["en", "ar"]) => {
+  const plainRequest = toPlainObject(request);
   const normalizedRecipients = Array.isArray(recipients)
     ? recipients.map((email) => String(email).trim()).filter(Boolean)
     : normalizeRecipients(recipients);
 
   const normalizedLanguages = normalizeLanguages(languages);
-  const passportFileUrl = await resolvePrimaryAttachmentUrl(request);
+  const [attachmentUrls, emailAttachments] = await Promise.all([
+    resolveAttachmentUrls(plainRequest),
+    buildEmailAttachments(plainRequest),
+  ]);
+  const hasEmailAttachments = emailAttachments.length > 0;
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -151,11 +187,10 @@ const sendMedicalRecordRequestEmail = async (request, recipients, languages = ["
     },
   });
 
-  const htmlContent = medicalRecordRequestEmailTemplate(
-    request,
-    passportFileUrl,
-    normalizedLanguages,
-  );
+  const htmlContent = medicalRecordRequestEmailTemplate(plainRequest, {
+    attachmentUrls,
+    hasEmailAttachments,
+  });
 
   const subject = resolveEmailSubject(normalizedLanguages);
 
@@ -164,6 +199,7 @@ const sendMedicalRecordRequestEmail = async (request, recipients, languages = ["
     to: normalizedRecipients.join(", "),
     subject,
     html: htmlContent,
+    attachments: emailAttachments,
   });
 
   return normalizedRecipients.length;
@@ -221,12 +257,36 @@ export const createMedicalRecordRequestService = async (body, files = {}) => {
   return request;
 };
 
-export const getAllMedicalRecordRequestsService = async () => {
-  const requests = await getAllMedicalRecordRequestsRepo();
+export const getAllMedicalRecordRequestsService = async (query = {}) => {
+  const page = Math.max(1, Number(query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
+  const search = String(query.search || "").trim();
+  const status = ["all", "pending", "received"].includes(query.status)
+    ? query.status
+    : "all";
 
-  return Promise.all(
-    requests.map((request) => enrichRequestWithAttachmentUrls(request)),
-  );
+  const [[requests, totalRecords], totalCount, pendingCount, receivedCount] =
+    await Promise.all([
+      getMedicalRecordRequestsPaginatedRepo({ page, limit, search, status }),
+      countMedicalRecordRequestsRepo({}),
+      countMedicalRecordRequestsRepo({ isViewed: false }),
+      countMedicalRecordRequestsRepo({ isViewed: true }),
+    ]);
+
+  return {
+    requests,
+    meta: {
+      page,
+      limit,
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit) || 0,
+      counts: {
+        total: totalCount,
+        pending: pendingCount,
+        received: receivedCount,
+      },
+    },
+  };
 };
 
 export const getMedicalRecordRequestByIdService = async (id) => {

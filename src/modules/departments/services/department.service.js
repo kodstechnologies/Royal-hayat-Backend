@@ -6,9 +6,19 @@ import CustomExplainantion from '../models/customExplainantion.model.js';
 
 import Catagory from '../../catagory/model/catagory.model.js';
 
+import Doctor from '../../doctors/models/doctor.model.js';
+
+import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
+
+import '../../subspeciality/model/customSubspeciality.model.js';
+
+import { attachExpertiseToDoctors } from '../../doctors/utils/expertise.util.js';
+
 import ApiError from '../../../utils/ApiError.js';
 
 import httpStatus from 'http-status';
+
+const OID = /^[0-9a-fA-F]{24}$/i;
 
 async function replaceCustomExplainantionsForDepartment(
   departmentId,
@@ -99,6 +109,45 @@ async function replaceCustomExplainantionsForDepartment(
     );
 
   return docs.map((d) => d._id);
+}
+
+async function resolveDepartmentId(departmentParam) {
+  const param = String(departmentParam || '').trim();
+
+  if (!param) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Department id is required'
+    );
+  }
+
+  if (OID.test(param)) {
+    const exists = await departmentRepository.exists(param);
+
+    if (!exists) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        'Department not found'
+      );
+    }
+
+    return param;
+  }
+
+  const dept = await Department.findOne({
+    $or: [{ departmentId: param }, { name: param }],
+  })
+    .select('_id')
+    .lean();
+
+  if (!dept) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'Department not found'
+    );
+  }
+
+  return String(dept._id);
 }
 
 class DepartmentService {
@@ -201,6 +250,49 @@ class DepartmentService {
     }
 
     return department;
+  }
+
+  async getDepartmentSubspecialitiesAndDoctors(departmentParam) {
+    const departmentId = await resolveDepartmentId(
+      departmentParam
+    );
+
+    const department = await this.getDepartmentById(
+      departmentId
+    );
+
+    const subspecialities = await Subspeciality.find({
+      department: departmentId,
+    })
+      .sort({ name: 1 })
+      .populate({
+        path: 'customSubspecialities',
+        select:
+          'heading subHeading explanations arabicHeading arabicSubHeading arabicExplanations',
+      })
+      .lean();
+
+    const doctors = await Doctor.find({
+      department: departmentId,
+      isActive: true,
+    })
+      .populate({
+        path: 'department',
+        select: 'departmentId name arabicName',
+      })
+      .sort({ name: 1 })
+      .lean();
+
+    const doctorsWithExpertise =
+      await attachExpertiseToDoctors(doctors);
+
+    return {
+      department,
+
+      subspecialities,
+
+      doctors: doctorsWithExpertise || [],
+    };
   }
 
   async updateDepartment(
