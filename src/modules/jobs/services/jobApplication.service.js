@@ -67,11 +67,20 @@ class JobApplicationService {
     );
 
     try {
-      await sendJobApplicationNotificationEmail(application, job);
+      await sendJobApplicationNotificationEmail(
+        application.toObject?.() ?? application,
+        job,
+        resumeFile,
+      );
+      console.info(
+        'Job application notification email sent:',
+        application.applicationId,
+      );
     } catch (mailError) {
       console.error(
         'Job application notification email failed:',
         mailError?.message || mailError,
+        mailError?.stack || '',
       );
     }
 

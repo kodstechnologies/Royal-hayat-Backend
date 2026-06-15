@@ -84,6 +84,16 @@ const createDepartmentSchema =
         .label('Arabic description')
         .messages(stringFieldMessages),
 
+    medicalField:
+      optionalTrimmedString
+        .max(200)
+        .label('Medical field'),
+
+    medicalFieldAr:
+      optionalTrimmedString
+        .max(200)
+        .label('Arabic medical field'),
+
     catagory: Joi.string()
       .pattern(
         objectIdPattern
@@ -153,6 +163,16 @@ const updateDepartmentSchema =
         .optional()
         .label('Arabic description')
         .messages(stringFieldMessages),
+
+    medicalField:
+      optionalTrimmedString
+        .max(200)
+        .label('Medical field'),
+
+    medicalFieldAr:
+      optionalTrimmedString
+        .max(200)
+        .label('Arabic medical field'),
 
     catagory: Joi.string()
       .pattern(

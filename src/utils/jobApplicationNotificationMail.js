@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { getMailFromAddress } from "./mailFrom.js";
+import { getS3ObjectBuffer } from "./s3Fetch.js";
 
 const DEFAULT_RECIPIENTS =
   "hr@royalehayat.com,marketing@royalehayat.com,prajwalanagekar@gmail.com";
@@ -27,6 +28,8 @@ const escapeHtml = (value) => {
     .replace(/'/g, "&#39;");
 };
 
+const escapeHtmlAttr = (value) => escapeHtml(value).replace(/`/g, "&#96;");
+
 const renderRow = (label, value) => `
   <tr>
     <td style="padding: 10px 16px; width: 36%; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9; vertical-align: top;">
@@ -38,12 +41,19 @@ const renderRow = (label, value) => `
   </tr>
 `;
 
-export const jobApplicationNotificationEmailTemplate = (application, job) => {
+export const jobApplicationNotificationEmailTemplate = (
+  application,
+  job,
+  { hasResumeAttachment = false } = {},
+) => {
   const applicationId = escapeHtml(application.applicationId || "—");
   const submittedAt = formatDateTime(application.appliedDate || application.createdAt);
   const resumeUrl = application.resume
-    ? `<a href="${escapeHtml(application.resume)}" style="color: #991b1b; text-decoration: underline;">View resume</a>`
+    ? `<a href="${escapeHtmlAttr(application.resume)}" style="color: #991b1b; text-decoration: underline;">View resume</a>`
     : "N/A";
+  const resumeCell = hasResumeAttachment
+    ? `${resumeUrl}<br /><span style="font-size:12px;color:#64748b;">Resume attached to this email</span>`
+    : resumeUrl;
   const coverLetter = application.coverLetter
     ? escapeHtml(application.coverLetter).replace(/\n/g, "<br />")
     : "N/A";
@@ -115,7 +125,7 @@ export const jobApplicationNotificationEmailTemplate = (application, job) => {
                   ${renderRow("Full Name", escapeHtml(application.fullName))}
                   ${renderRow("Email", escapeHtml(application.email))}
                   ${renderRow("Phone", escapeHtml(application.phone))}
-                  ${renderRow("Resume", resumeUrl)}
+                  ${renderRow("Resume", resumeCell)}
                   ${renderRow("Cover Letter", coverLetter)}
                 </table>
               </td>
@@ -136,7 +146,36 @@ export const jobApplicationNotificationEmailTemplate = (application, job) => {
   `.trim();
 };
 
-export const sendJobApplicationNotificationEmail = async (application, job) => {
+const buildResumeAttachment = async (application, resumeFile) => {
+  if (resumeFile?.buffer?.length) {
+    return {
+      filename: resumeFile.originalname || "resume.pdf",
+      content: resumeFile.buffer,
+      contentType: resumeFile.mimetype || "application/pdf",
+    };
+  }
+
+  if (!application?.resume) return null;
+
+  const s3File = await getS3ObjectBuffer(application.resume);
+  if (!s3File?.buffer?.length) return null;
+
+  return {
+    filename: s3File.filename || "resume.pdf",
+    content: s3File.buffer,
+    contentType: s3File.contentType || "application/pdf",
+  };
+};
+
+export const sendJobApplicationNotificationEmail = async (
+  application,
+  job,
+  resumeFile,
+) => {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    throw new Error("SMTP_USER or SMTP_PASS missing");
+  }
+
   const recipients = (
     process.env.JOB_APPLICATION_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS
   )
@@ -147,6 +186,9 @@ export const sendJobApplicationNotificationEmail = async (application, job) => {
   if (recipients.length === 0) {
     throw new Error("No job application notification recipients configured");
   }
+
+  const resumeAttachment = await buildResumeAttachment(application, resumeFile);
+  const attachments = resumeAttachment ? [resumeAttachment] : [];
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -163,6 +205,9 @@ export const sendJobApplicationNotificationEmail = async (application, job) => {
     to: recipients.join(", "),
     replyTo: application.email,
     subject: `New Job Application — ${applicationId} (${jobTitle})`,
-    html: jobApplicationNotificationEmailTemplate(application, job),
+    html: jobApplicationNotificationEmailTemplate(application, job, {
+      hasResumeAttachment: attachments.length > 0,
+    }),
+    attachments,
   });
 };

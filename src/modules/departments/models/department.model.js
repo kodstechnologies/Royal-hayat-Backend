@@ -39,6 +39,18 @@ const departmentSchema = new mongoose.Schema(
       maxlength: 1000,
     },
 
+    medicalField: {
+      type: String,
+      trim: true,
+      maxlength: 200,
+    },
+
+    medicalFieldAr: {
+      type: String,
+      trim: true,
+      maxlength: 200,
+    },
+
     catagory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Catagory',
