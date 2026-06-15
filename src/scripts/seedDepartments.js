@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
 import connectDB from "../config/db.js";
+import { toPointerArray } from "./seedText.util.js";
 import Department from "../modules/departments/models/department.model.js";
 import Catagory from "../modules/catagory/model/catagory.model.js";
 import CustomExplainantion from "../modules/departments/models/customExplainantion.model.js";
@@ -133,10 +134,10 @@ const mapSectionToCustomBlocks = (section) => {
   const appendBlock = (block) => {
     const heading = trimOrUndefined(block.title);
     const subHeading = trimOrUndefined(block.content);
-    const explaination = toStringArray(block.items);
+    const explaination = toPointerArray(block.items);
     const arabicHeading = trimOrUndefined(block.titleAr);
     const arabicSubHeading = trimOrUndefined(block.contentAr);
-    const arabicExplaination = toStringArray(block.itemsAr);
+    const arabicExplaination = toPointerArray(block.itemsAr);
 
     if (
       !heading &&
@@ -239,10 +240,10 @@ async function replaceCustomExplainantionsForDepartment(
     list.map((item) => ({
       heading: trimOrUndefined(item.heading),
       subHeading: trimOrUndefined(item.subHeading),
-      explaination: toStringArray(item.explaination),
+      explaination: toPointerArray(item.explaination),
       arabicHeading: trimOrUndefined(item.arabicHeading),
       arabicSubHeading: trimOrUndefined(item.arabicSubHeading),
-      arabicExplaination: toStringArray(item.arabicExplaination),
+      arabicExplaination: toPointerArray(item.arabicExplaination),
     })),
   );
 
@@ -336,6 +337,8 @@ const seedDepartments = async () => {
         arabicName,
         description,
         arabicDescription,
+        medicalField: trimOrUndefined(dept.category),
+        medicalFieldAr: trimOrUndefined(dept.medicalFieldAr),
         catagory,
         image: String(dept.img || "").trim(),
         isActive: true,

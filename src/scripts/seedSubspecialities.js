@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
 import connectDB from "../config/db.js";
+import { toPointerArray } from "./seedText.util.js";
 import Department from "../modules/departments/models/department.model.js";
 import Subspeciality from "../modules/subspeciality/model/subspeciality.model.js";
 import CustomSubspeciality from "../modules/subspeciality/model/customSubspeciality.model.js";
@@ -119,10 +120,10 @@ const mapSectionToCustomBlocks = (section) => {
   const appendBlock = (block) => {
     const heading = trimOrUndefined(block.title);
     const subHeading = trimOrUndefined(block.content);
-    const explanations = toStringArray(block.items);
+    const explanations = toPointerArray(block.items);
     const arabicHeading = trimOrUndefined(block.titleAr);
     const arabicSubHeading = trimOrUndefined(block.contentAr);
-    const arabicExplanations = toStringArray(block.itemsAr);
+    const arabicExplanations = toPointerArray(block.itemsAr);
 
     if (
       !heading &&
@@ -256,10 +257,10 @@ async function replaceCustomSubspecialitiesForSubspeciality(
     list.map((item) => ({
       heading: trimOrUndefined(item.heading),
       subHeading: trimOrUndefined(item.subHeading),
-      explanations: toStringArray(item.explanations),
+      explanations: toPointerArray(item.explanations),
       arabicHeading: trimOrUndefined(item.arabicHeading),
       arabicSubHeading: trimOrUndefined(item.arabicSubHeading),
-      arabicExplanations: toStringArray(item.arabicExplanations),
+      arabicExplanations: toPointerArray(item.arabicExplanations),
     })),
   );
 

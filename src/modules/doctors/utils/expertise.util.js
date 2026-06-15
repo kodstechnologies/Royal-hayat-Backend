@@ -57,6 +57,11 @@ function isSectionHeading(text) {
   return trimmed.endsWith(':') || trimmed.endsWith('：');
 }
 
+function stripTrailingPeriod(text) {
+  const trimmed = String(text).trim();
+  return trimmed.replace(/\.+$/u, '');
+}
+
 function parseFlatExpertise(items) {
   const sections = [];
   let current = null;
@@ -72,7 +77,7 @@ function parseFlatExpertise(items) {
     }
 
     if (!current) current = { heading: '', points: [] };
-    current.points.push(item);
+    current.points.push(stripTrailingPeriod(item));
   }
 
   if (current) sections.push(current);
@@ -99,7 +104,7 @@ export function buildExpertisePayloads(expertiseEn = [], expertiseAr = []) {
 
 function normalizePoints(value) {
   if (!Array.isArray(value)) return [];
-  return value.map((item) => String(item).trim()).filter(Boolean);
+  return value.map((item) => stripTrailingPeriod(item)).filter(Boolean);
 }
 
 export async function resolveExpertiseRefs(expertiseInput) {
@@ -118,7 +123,7 @@ export async function resolveExpertiseRefs(expertiseInput) {
     }
 
     if (typeof item === 'string') {
-      const text = item.trim();
+      const text = stripTrailingPeriod(item);
       if (!text) continue;
 
       const created = await Expertise.create({
