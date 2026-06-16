@@ -24,20 +24,34 @@ const filenameVariants = (filename) => {
   return [...new Set(variants)];
 };
 
+const tryResolveUploadFile = (filePath) => {
+  if (!filePath) return null;
+  if (fs.existsSync(filePath)) return filePath;
+
+  const basename = path.basename(filePath);
+  for (const candidate of filenameVariants(basename)) {
+    const directPath = path.join(uploadsDir, candidate);
+    if (fs.existsSync(directPath)) {
+      return directPath;
+    }
+  }
+
+  return null;
+};
+
 const resolveFromMap = (decodedKey, map) => {
-  const mapped = map[decodedKey];
-  if (mapped && fs.existsSync(mapped)) {
+  const mapped = tryResolveUploadFile(map[decodedKey]);
+  if (mapped) {
     return mapped;
   }
 
   if (!decodedKey.includes("/")) {
     for (const candidate of filenameVariants(decodedKey)) {
-      if (map[candidate]) {
-        const candidatePath = map[candidate];
-        if (fs.existsSync(candidatePath)) {
-          return candidatePath;
-        }
+      const mappedCandidate = tryResolveUploadFile(map[candidate]);
+      if (mappedCandidate) {
+        return mappedCandidate;
       }
+
       const directPath = path.join(uploadsDir, candidate);
       if (fs.existsSync(directPath)) {
         return directPath;
@@ -45,7 +59,7 @@ const resolveFromMap = (decodedKey, map) => {
     }
   }
 
-  return mapped && fs.existsSync(mapped) ? mapped : null;
+  return null;
 };
 
 /**
