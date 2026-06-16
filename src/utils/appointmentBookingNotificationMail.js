@@ -134,7 +134,7 @@ export const appointmentBookingNotificationEmailTemplate = (booking) => {
 
 export const sendAppointmentBookingNotificationEmail = async (booking) => {
   const recipients = parseEmails(
-    process.env.APPOINTMENT_BOOKING_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS,
+    process.env.APPOINTMENT_REQUEST_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS,
   );
 
   if (recipients.length === 0) {
