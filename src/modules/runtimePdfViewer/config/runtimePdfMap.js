@@ -9,7 +9,19 @@ const f = (filename) => path.join(uploadsDir, filename);
 
 const filenameVariants = (filename) => {
   const base = path.basename(filename);
-  return [...new Set([base, base.replace(/ /g, "_"), base.replace(/_/g, " ")])];
+  const variants = [
+    base,
+    base.replace(/ /g, "_"),
+    base.replace(/_/g, " "),
+  ];
+
+  for (const variant of [...variants]) {
+    if (variant.endsWith(".pdf") && !variant.endsWith("_1.pdf")) {
+      variants.push(variant.replace(/\.pdf$/, "_1.pdf"));
+    }
+  }
+
+  return [...new Set(variants)];
 };
 
 const resolveFromMap = (decodedKey, map) => {
@@ -43,7 +55,8 @@ const resolveFromMap = (decodedKey, map) => {
 export const RUNTIME_PDF_MAP = {
   // /Runtime/uploads/
   "AlLiwan_ menu_2021.pdf": f("AlLiwan_menu_2021.pdf"),
-  "Birth plan booklet_27May2021_final.pdf": f("Birth plan booklet_27May2021_final.pdf"),
+  "Birth plan booklet_27May2021_final.pdf": f("Birth_plan_booklet_27May2021_final.pdf"),
+  "Birth_plan_booklet_27May2021_final.pdf": f("Birth_plan_booklet_27May2021_final.pdf"),
   "Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients.pdf":
     f("Birthing-Packages-for-Royale-Orchid-and-Orchid-Patients.pdf"),
   "Birthing-Packages-for-Visiting-Inhouse-Physicians-for-insurance-patients.pdf":
