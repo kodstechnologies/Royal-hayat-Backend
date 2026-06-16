@@ -26,6 +26,9 @@ const sendPdfFile = (res, filePath, filename) => {
     "Content-Disposition",
     `inline; filename="${path.basename(filename || absolutePath)}"`,
   );
+  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Cache-Control", "public, max-age=3600");
   return res.sendFile(absolutePath);
 };
 
