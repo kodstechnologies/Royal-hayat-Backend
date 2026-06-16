@@ -1,6 +1,6 @@
 {
   "enabled": false,
-  "medicalRecordBypassEnable": true,
+  "medicalRecordBypassEnable": false,
   "civilId": "271060903599",
   "identityStart": {
     "request": {
