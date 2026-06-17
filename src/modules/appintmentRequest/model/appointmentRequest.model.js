@@ -68,8 +68,11 @@ const appointmentRequestSchema = new mongoose.Schema(
     date: {
       type: String
     },
-    time: {
-      type: String
+    slot_from_time: {
+      type: String,
+    },
+    slot_to_time: {
+      type: String,
     },
     nationality: {
 

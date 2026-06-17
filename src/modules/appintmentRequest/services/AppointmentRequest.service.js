@@ -8,6 +8,7 @@ import {
   VALID_REQUEST_TYPES,
 } from '../utils/appointmentListFilters.js';
 import { sendAppointmentRequestNotificationEmail } from '../../../utils/appointmentRequestNotificationMail.js';
+import { applySlotTimesToPayload } from '../utils/appointmentSlotTimes.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 const VALID_STATUS = ['received', 'accepted', 'cancelled'];
@@ -175,14 +176,7 @@ const sanitizePayload = (body = {}) => {
     payload.date = String(preferredDate).trim();
   }
 
-  const timeSlot = body.timeSlot ?? body.time;
-  if (timeSlot !== undefined && timeSlot !== '') {
-    if (typeof timeSlot === 'object' && timeSlot !== null) {
-      payload.time = String(timeSlot.time ?? timeSlot.label ?? '').trim();
-    } else {
-      payload.time = String(timeSlot).trim();
-    }
-  }
+  applySlotTimesToPayload(payload, body);
 
   return payload;
 };
@@ -230,7 +224,8 @@ const mapRequestToBookingPayload = (request) => ({
   operationId: request.operationId,
   paciRequestId: request.paciRequestId,
   date: request.date,
-  time: request.time,
+  slot_from_time: request.slot_from_time,
+  slot_to_time: request.slot_to_time,
   nationality: request.nationality,
   passportNumber: request.passportNumber,
   symptoms: request.symptoms,

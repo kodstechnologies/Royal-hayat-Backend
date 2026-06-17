@@ -4,6 +4,7 @@ import appointmentBookingRecordRepository from '../repository/AppointmentBooking
 import appointmentRequestRepository from '../repository/AppointmentRequest.repository.js';
 import { sendAppointmentBookingNotificationEmail } from '../../../utils/appointmentBookingNotificationMail.js';
 import { buildAppointmentListFilter, APPOINTMENT_REQUEST_TYPES } from '../utils/appointmentListFilters.js';
+import { applySlotTimesToPayload } from '../utils/appointmentSlotTimes.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 
@@ -118,9 +119,7 @@ const sanitizePayload = (body = {}) => {
     payload.date = String(body.date).trim();
   }
 
-  if (body.time !== undefined) {
-    payload.time = String(body.time).trim();
-  }
+  applySlotTimesToPayload(payload, body);
 
   if (body.nationality !== undefined) {
     payload.nationality = String(body.nationality).trim();

@@ -83,9 +83,9 @@ export const buildAppointmentListFilter = (
   }
 
   if (fromTime || toTime) {
-    filter.time = {};
-    if (fromTime) filter.time.$gte = fromTime;
-    if (toTime) filter.time.$lte = toTime;
+    filter.slot_from_time = {};
+    if (fromTime) filter.slot_from_time.$gte = fromTime;
+    if (toTime) filter.slot_from_time.$lte = toTime;
   }
 
   if (department) {
