@@ -264,13 +264,13 @@ class AppointmentBookingRecordService {
     const [
       appointmentBookingCount,
       appointmentRequestCount,
-      doctorUnavailabilityCount,
+      appointmentRequestTypeCount,
       firstTimeVisitorCount,
     ] = await Promise.all([
       appointmentBookingRecordRepository.countUnviewed(),
       appointmentRequestRepository.countUnviewed(),
       appointmentRequestRepository.countUnviewedByRequestType(
-        APPOINTMENT_REQUEST_TYPES.DOCTOR_UNAVAILABILITY,
+        APPOINTMENT_REQUEST_TYPES.APPOINTMENT_REQUEST,
       ),
       appointmentRequestRepository.countUnviewedByRequestType(
         APPOINTMENT_REQUEST_TYPES.FIRST_TIME_VISITOR,
@@ -281,7 +281,7 @@ class AppointmentBookingRecordService {
       total: appointmentBookingCount + appointmentRequestCount,
       appointmentBookings: appointmentBookingCount,
       appointmentRequests: appointmentRequestCount,
-      doctorUnavailabilityRequests: doctorUnavailabilityCount,
+      appointmentRequestTypeRequests: appointmentRequestTypeCount,
       firstTimeVisitorRequests: firstTimeVisitorCount,
     };
   }
