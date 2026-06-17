@@ -1,11 +1,17 @@
 import Doctor from '../models/doctor.model.js';
 import '../../departments/models/department.model.js';
 import '../models/expertise.model.js';
+import '../models/qualifications.model.js';
 import { attachExpertiseToDoctors } from '../utils/expertise.util.js';
+import { attachQualificationsToDoctors } from '../utils/qualifications.util.js';
 
 const DOCTOR_POPULATE = [
   { path: 'department', select: 'departmentId name arabicName' },
 ];
+
+async function enrichDoctors(doctors) {
+  return attachQualificationsToDoctors(await attachExpertiseToDoctors(doctors));
+}
 
 class DoctorRepository {
   async create(doctorData) {
@@ -18,7 +24,7 @@ class DoctorRepository {
       .populate(DOCTOR_POPULATE)
       .lean();
     if (!doctor) return null;
-    return attachExpertiseToDoctors(doctor);
+    return enrichDoctors(doctor);
   }
 
   async findOne(query) {
@@ -40,7 +46,7 @@ class DoctorRepository {
       .limit(limit)
       .lean();
 
-    return attachExpertiseToDoctors(doctors);
+    return enrichDoctors(doctors);
   }
 
   async findAll(query) {
@@ -48,7 +54,7 @@ class DoctorRepository {
       .populate(DOCTOR_POPULATE)
       .lean();
 
-    return attachExpertiseToDoctors(doctors);
+    return enrichDoctors(doctors);
   }
 
   async countDocuments(query) {
@@ -64,7 +70,7 @@ class DoctorRepository {
       .lean();
 
     if (!doctor) return null;
-    return attachExpertiseToDoctors(doctor);
+    return enrichDoctors(doctor);
   }
 
   async findOneAndUpdate(query, updateData, options = {}) {
@@ -111,7 +117,7 @@ class DoctorRepository {
       .limit(limit)
       .lean();
 
-    const enrichedDoctors = await attachExpertiseToDoctors(doctors);
+    const enrichedDoctors = await enrichDoctors(doctors);
 
     const total = await Doctor.countDocuments(query);
 

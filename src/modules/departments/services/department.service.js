@@ -13,6 +13,7 @@ import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 import '../../subspeciality/model/customSubspeciality.model.js';
 
 import { attachExpertiseToDoctors } from '../../doctors/utils/expertise.util.js';
+import { attachQualificationsToDoctors } from '../../doctors/utils/qualifications.util.js';
 
 import ApiError from '../../../utils/ApiError.js';
 
@@ -283,15 +284,16 @@ class DepartmentService {
       .sort({ name: 1 })
       .lean();
 
-    const doctorsWithExpertise =
-      await attachExpertiseToDoctors(doctors);
+    const doctorsWithDetails = await attachQualificationsToDoctors(
+      await attachExpertiseToDoctors(doctors),
+    );
 
     return {
       department,
 
       subspecialities,
 
-      doctors: doctorsWithExpertise || [],
+      doctors: doctorsWithDetails || [],
     };
   }
 

@@ -7,11 +7,18 @@ import { fileURLToPath, pathToFileURL } from "url";
 import connectDB from "../config/db.js";
 import Department from "../modules/departments/models/department.model.js";
 import Doctor from "../modules/doctors/models/doctor.model.js";
+import "../modules/doctors/models/qualifications.model.js";
+import Qualifications from "../modules/doctors/models/qualifications.model.js";
 import {
   buildExpertisePayloads,
   cleanInvalidDoctorExpertiseRefs,
+  isValidObjectId,
   resolveExpertiseRefs,
 } from "../modules/doctors/utils/expertise.util.js";
+import {
+  cleanInvalidDoctorQualificationsRefs,
+  resolveQualificationsRefs,
+} from "../modules/doctors/utils/qualifications.util.js";
 
 dotenv.config();
 
@@ -115,6 +122,41 @@ const resolveDoctorId = (entry, usedProviderCodes) => {
   return slug;
 };
 
+const buildQualificationsFromEntry = async (entry) =>
+  resolveQualificationsRefs(
+    buildExpertisePayloads(
+      toStringArray(entry.qualifications),
+      toStringArray(entry.qualificationsAr),
+    ),
+  );
+
+const buildExpertiseFromEntry = async (entry) =>
+  resolveExpertiseRefs(
+    buildExpertisePayloads(
+      toStringArray(entry.expertise),
+      toStringArray(entry.expertiseAr),
+    ),
+  );
+
+/** Drop replaced qualification docs so re-seeding does not leave orphans. */
+const replaceDoctorQualificationRefs = async (existingDoctor, nextQualificationIds) => {
+  const previousIds = (Array.isArray(existingDoctor.qualifications)
+    ? existingDoctor.qualifications
+    : []
+  )
+    .map((id) => String(id))
+    .filter(isValidObjectId);
+
+  const nextIdSet = new Set(nextQualificationIds.map((id) => String(id)));
+  const orphanIds = previousIds.filter((id) => !nextIdSet.has(id));
+
+  if (orphanIds.length > 0) {
+    await Qualifications.deleteMany({ _id: { $in: orphanIds } });
+  }
+
+  return nextQualificationIds;
+};
+
 const mapDoctorPayload = async (entry, departmentId, doctorId) => {
   const name = String(entry.name || "").trim();
   const nameAr = String(entry.nameAr || "").trim();
@@ -132,14 +174,8 @@ const mapDoctorPayload = async (entry, departmentId, doctorId) => {
     department: departmentId,
     subspecialities,
     subspecialitiesAr,
-    qualifications: toStringArray(entry.qualifications),
-    qualificationsAr: toStringArray(entry.qualificationsAr),
-    expertise: await resolveExpertiseRefs(
-      buildExpertisePayloads(
-        toStringArray(entry.expertise),
-        toStringArray(entry.expertiseAr),
-      ),
-    ),
+    qualifications: await buildQualificationsFromEntry(entry),
+    expertise: await buildExpertiseFromEntry(entry),
     languages: toStringArray(entry.languages),
     languagesAr: toStringArray(entry.languagesAr),
     availableOnline: entry.availableOnline !== false,
@@ -176,9 +212,16 @@ const seedDoctors = async () => {
   const usedProviderCodes = new Set();
 
   try {
-    const cleaned = await cleanInvalidDoctorExpertiseRefs(Doctor);
-    if (cleaned > 0) {
-      console.log(`🧹 Cleaned invalid expertise refs on ${cleaned} doctor(s).`);
+    const cleanedExpertise = await cleanInvalidDoctorExpertiseRefs(Doctor);
+    if (cleanedExpertise > 0) {
+      console.log(`🧹 Cleaned invalid expertise refs on ${cleanedExpertise} doctor(s).`);
+    }
+
+    const cleanedQualifications = await cleanInvalidDoctorQualificationsRefs(Doctor);
+    if (cleanedQualifications > 0) {
+      console.log(
+        `🧹 Cleaned invalid qualifications refs on ${cleanedQualifications} doctor(s).`,
+      );
     }
 
     for (const entry of frontendDoctors) {
@@ -207,7 +250,12 @@ const seedDoctors = async () => {
       const existing = await Doctor.findOne({ doctorId: payload.doctorId });
 
       if (existing) {
+        payload.qualifications = await replaceDoctorQualificationRefs(
+          existing,
+          payload.qualifications,
+        );
         existing.set(payload);
+        existing.set("qualificationsAr", undefined);
         await existing.save();
         updated += 1;
         console.log(`↻ Updated doctor: ${payload.name} (${payload.doctorId})`);

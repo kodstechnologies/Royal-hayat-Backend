@@ -4,6 +4,7 @@ import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 import { resolveExpertiseRefs } from '../utils/expertise.util.js';
+import { resolveQualificationsRefs } from '../utils/qualifications.util.js';
 
 const OID = /^[0-9a-fA-F]{24}$/i;
 
@@ -66,6 +67,7 @@ class DoctorService {
         doctorData.subspecialitiesAr,
       ),
       expertise: await resolveExpertiseRefs(doctorData.expertise),
+      qualifications: await resolveQualificationsRefs(doctorData.qualifications),
     };
 
     return await doctorRepository.create(payload);
@@ -246,6 +248,12 @@ class DoctorService {
 
     if (updateData.expertise !== undefined) {
       patch.expertise = await resolveExpertiseRefs(updateData.expertise);
+    }
+
+    if (updateData.qualifications !== undefined) {
+      patch.qualifications = await resolveQualificationsRefs(
+        updateData.qualifications,
+      );
     }
 
     return await doctorRepository.updateById(id, patch);

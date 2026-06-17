@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import './expertise.model.js';
+import './qualifications.model.js';
 import { filterValidObjectIds } from '../utils/expertise.util.js';
 
 const doctorSchema = new mongoose.Schema({
@@ -42,12 +43,8 @@ const doctorSchema = new mongoose.Schema({
   },
 
   qualifications: [{
-    type: String,
-    trim: true
-  }],
-  qualificationsAr: [{
-    type: String,
-    trim: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Qualifications',
   }],
   expertise: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -107,9 +104,12 @@ doctorSchema.index({
   subspecialitiesAr: 'text',
 });
 
-doctorSchema.pre('save', function saveExpertiseRefs(next) {
+doctorSchema.pre('save', function saveDoctorRefs(next) {
   if (Array.isArray(this.expertise)) {
     this.expertise = filterValidObjectIds(this.expertise);
+  }
+  if (Array.isArray(this.qualifications)) {
+    this.qualifications = filterValidObjectIds(this.qualifications);
   }
   next();
 });
