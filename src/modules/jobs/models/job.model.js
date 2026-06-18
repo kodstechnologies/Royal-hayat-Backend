@@ -38,10 +38,59 @@ const jobSchema = new mongoose.Schema(
       trim: true,
       maxlength: 2000,
     },
+    educationAndLicensure: [
+      {
+        type: String,
+        trim: true,
+        maxlength: 500,
+      },
+    ],
+    arabicEducationAndLicensure: [
+      {
+        type: String,
+        trim: true,
+        maxlength: 500,
+      },
+    ],
+    professionalExperience: [
+      {
+        type: String,
+        trim: true,
+        maxlength: 500,
+      },
+    ],
+    arabicProfessionalExperience: [
+      {
+        type: String,
+        trim: true,
+        maxlength: 500,
+      },
+    ],
+    specializedKnowledge: [
+      {
+        type: String,
+        trim: true,
+        maxlength: 500,
+      },
+    ],
+    arabicSpecializedKnowledge: [
+      {
+        type: String,
+        trim: true,
+        maxlength: 500,
+      },
+    ],
 
     classification: {
       type: String,
       required: true,
+      trim: true,
+      maxlength: 100,
+    },
+
+    arabicClassification: {
+      type: String,
+      required: false,
       trim: true,
       maxlength: 100,
     },

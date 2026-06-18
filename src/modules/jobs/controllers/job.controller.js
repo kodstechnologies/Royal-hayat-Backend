@@ -14,6 +14,12 @@ const ARRAY_FIELDS = [
   'arabicResponsibilities',
   'requirements',
   'arabicRequirements',
+  'educationAndLicensure',
+  'arabicEducationAndLicensure',
+  'professionalExperience',
+  'arabicProfessionalExperience',
+  'specializedKnowledge',
+  'arabicSpecializedKnowledge',
 ];
 
 const normalizeJobBody = (body = {}) => {
