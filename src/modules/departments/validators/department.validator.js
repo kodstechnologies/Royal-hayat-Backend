@@ -56,6 +56,26 @@ const createDepartmentSchema =
       .required()
       .label('Department ID'),
 
+    deptTagline:
+      optionalTrimmedString
+        .max(1000)
+        .label('Department tagline'),
+
+    deptTaglineArabic:
+      optionalTrimmedString
+        .max(1000)
+        .label('Arabic department tagline'),
+
+    doctorTagline:
+      optionalTrimmedString
+        .max(1000)
+        .label('Doctor tagline'),
+
+    doctorTaglineArabic:
+      optionalTrimmedString
+        .max(1000)
+        .label('Arabic doctor tagline'),
+
     name: Joi.string()
       .trim()
       .required()
@@ -135,6 +155,26 @@ const updateDepartmentSchema =
       Joi.string()
         .trim()
         .optional(),
+
+    deptTagline:
+      optionalTrimmedString
+        .max(1000)
+        .label('Department tagline'),
+
+    deptTaglineArabic:
+      optionalTrimmedString
+        .max(1000)
+        .label('Arabic department tagline'),
+
+    doctorTagline:
+      optionalTrimmedString
+        .max(1000)
+        .label('Doctor tagline'),
+
+    doctorTaglineArabic:
+      optionalTrimmedString
+        .max(1000)
+        .label('Arabic doctor tagline'),
 
     name: Joi.string()
       .trim()

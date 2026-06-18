@@ -10,7 +10,6 @@ import Doctor from "../modules/doctors/models/doctor.model.js";
 import "../modules/doctors/models/qualifications.model.js";
 import Qualifications from "../modules/doctors/models/qualifications.model.js";
 import {
-  buildExpertisePayloads,
   cleanInvalidDoctorExpertiseRefs,
   isValidObjectId,
   resolveExpertiseRefs,
@@ -110,6 +109,104 @@ const toStringArray = (value) => {
   return single ? [single] : [];
 };
 
+const isManualBullet = (text) => {
+  const trimmed = String(text || "").trim();
+  return trimmed.startsWith("•") || trimmed.startsWith("-");
+};
+
+const stripManualBullet = (text) => {
+  const trimmed = String(text || "").trim();
+  if (trimmed.startsWith("•")) return trimmed.slice(1).trim();
+  if (trimmed.startsWith("-")) return trimmed.slice(1).trim();
+  return trimmed;
+};
+
+const stripTrailingPeriod = (text) => String(text).trim().replace(/\.+$/u, "");
+
+const isSectionHeadingLine = (text, nextText) => {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) return false;
+  if (trimmed.endsWith(":") || trimmed.endsWith("：")) return true;
+
+  const next = String(nextText || "").trim();
+  return !isManualBullet(trimmed) && isManualBullet(next);
+};
+
+const parseFlatDoctorSections = (items) => {
+  const sections = [];
+  let current = null;
+  const list = toStringArray(items);
+
+  for (let index = 0; index < list.length; index += 1) {
+    const item = list[index];
+    const next = list[index + 1];
+
+    if (isSectionHeadingLine(item, next)) {
+      if (current) sections.push(current);
+      current = {
+        heading: stripManualBullet(item).replace(/[:：]\s*$/, "").trim(),
+        points: [],
+      };
+      continue;
+    }
+
+    if (!current) current = { heading: "", points: [] };
+    current.points.push(stripTrailingPeriod(stripManualBullet(item)));
+  }
+
+  if (current) sections.push(current);
+  return sections;
+};
+
+const ensureSectionPointers = (section) => {
+  const result = {
+    subHeading: String(section.subHeading || "").trim(),
+    subHeadingAr: String(section.subHeadingAr || "").trim(),
+    points: (section.points || []).map((point) => String(point).trim()).filter(Boolean),
+    pointsAr: (section.pointsAr || []).map((point) => String(point).trim()).filter(Boolean),
+  };
+
+  if (result.subHeading && result.points.length === 0) {
+    result.points = [result.subHeading];
+    result.subHeading = "";
+  }
+
+  if (result.subHeadingAr && result.pointsAr.length === 0) {
+    result.pointsAr = [result.subHeadingAr];
+    result.subHeadingAr = "";
+  }
+
+  return result;
+};
+
+const buildDoctorSectionPayloads = (itemsEn = [], itemsAr = []) => {
+  const enItems = toStringArray(itemsEn);
+  const arItems = toStringArray(itemsAr);
+  if (!enItems.length && !arItems.length) return [];
+
+  const enSections = parseFlatDoctorSections(enItems);
+  const arSections = parseFlatDoctorSections(arItems);
+  const count = Math.max(enSections.length, arSections.length);
+
+  return Array.from({ length: count }, (_, index) => {
+    const en = enSections[index] || { heading: "", points: [] };
+    const ar = arSections[index] || { heading: "", points: [] };
+
+    return ensureSectionPointers({
+      subHeading: en.heading,
+      subHeadingAr: ar.heading,
+      points: en.points,
+      pointsAr: ar.points,
+    });
+  }).filter(
+    (section) =>
+      section.points.length > 0 ||
+      section.pointsAr.length > 0 ||
+      section.subHeading ||
+      section.subHeadingAr,
+  );
+};
+
 const resolveDoctorId = (entry, usedProviderCodes) => {
   const slug = String(entry.id || "").trim();
   const providerCode = String(entry.providerCode || "").trim();
@@ -124,7 +221,7 @@ const resolveDoctorId = (entry, usedProviderCodes) => {
 
 const buildQualificationsFromEntry = async (entry) =>
   resolveQualificationsRefs(
-    buildExpertisePayloads(
+    buildDoctorSectionPayloads(
       toStringArray(entry.qualifications),
       toStringArray(entry.qualificationsAr),
     ),
@@ -132,7 +229,7 @@ const buildQualificationsFromEntry = async (entry) =>
 
 const buildExpertiseFromEntry = async (entry) =>
   resolveExpertiseRefs(
-    buildExpertisePayloads(
+    buildDoctorSectionPayloads(
       toStringArray(entry.expertise),
       toStringArray(entry.expertiseAr),
     ),

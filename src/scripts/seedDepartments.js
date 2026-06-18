@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from "url";
 
 import connectDB from "../config/db.js";
 import { toPointerArray } from "./seedText.util.js";
+import { resolveDoctorTaglines } from "./doctorTaglines.data.js";
 import Department from "../modules/departments/models/department.model.js";
 import Catagory from "../modules/catagory/model/catagory.model.js";
 import CustomExplainantion from "../modules/departments/models/customExplainantion.model.js";
@@ -330,9 +331,14 @@ const seedDepartments = async () => {
       );
 
       const customBlocks = buildCustomExplainantionsFromDetail(detail);
+      const doctorTaglines = resolveDoctorTaglines(name);
 
       const basePayload = {
         departmentId,
+        deptTagline: trimOrUndefined(dept.desc),
+        deptTaglineArabic: trimOrUndefined(dept.descAr),
+        doctorTagline: trimOrUndefined(doctorTaglines?.en ?? dept.desc),
+        doctorTaglineArabic: trimOrUndefined(doctorTaglines?.ar ?? dept.descAr),
         name,
         arabicName,
         description,
@@ -380,6 +386,10 @@ const seedDepartments = async () => {
           $set: { customExplainantions: customIds },
         });
       }
+
+      await Department.findByIdAndUpdate(departmentDoc._id, {
+        $unset: { tagLine: 1, arabicTagline: 1 },
+      });
 
       if (!detail) {
         console.warn(
