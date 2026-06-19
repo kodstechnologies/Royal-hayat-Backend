@@ -79,12 +79,20 @@ export async function resolveQualificationsRefs(qualificationsInput) {
       if (isValidObjectId(refId)) {
         const existing = await Qualifications.findById(refId);
         if (existing) {
-          existing.set({
-            subHeading: String(item.subHeading || existing.subHeading || '').trim(),
-            subHeadingAr: String(item.subHeadingAr || existing.subHeadingAr || '').trim(),
-            points: normalizePoints(item.points ?? existing.points),
-            pointsAr: normalizePoints(item.pointsAr ?? existing.pointsAr),
-          });
+          const updates = {};
+          if (item.subHeading !== undefined) {
+            updates.subHeading = String(item.subHeading).trim();
+          }
+          if (item.subHeadingAr !== undefined) {
+            updates.subHeadingAr = String(item.subHeadingAr).trim();
+          }
+          if (item.points !== undefined) {
+            updates.points = normalizePoints(item.points);
+          }
+          if (item.pointsAr !== undefined) {
+            updates.pointsAr = normalizePoints(item.pointsAr);
+          }
+          existing.set(updates);
           await existing.save();
           qualificationIds.push(existing._id);
           continue;

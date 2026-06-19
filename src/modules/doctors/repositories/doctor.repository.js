@@ -36,7 +36,7 @@ class DoctorRepository {
   }
 
   async findMany(query, options = {}) {
-    const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc' } = options;
+    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = options;
 
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
@@ -102,7 +102,7 @@ class DoctorRepository {
   }
 
   async search(searchQuery, options = {}) {
-    const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc' } = options;
+    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = options;
     const term = String(searchQuery || '').trim();
     const escaped = escapeRegex(term);
     const compactTerm = term.replace(/[\s.]/g, '');
@@ -154,10 +154,16 @@ class DoctorRepository {
 
         matchedDoctors = [...matchedDoctors, ...extraDoctors];
         matchedDoctors.sort((a, b) => {
+          const direction = sortOrder === 'desc' ? -1 : 1;
+          if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+            const aTime = new Date(a[sortBy] || 0).getTime();
+            const bTime = new Date(b[sortBy] || 0).getTime();
+            if (aTime === bTime) return 0;
+            return aTime > bTime ? direction : -direction;
+          }
           const aVal = String(a[sortBy] ?? '').toLowerCase();
           const bVal = String(b[sortBy] ?? '').toLowerCase();
           if (aVal === bVal) return 0;
-          const direction = sortOrder === 'desc' ? -1 : 1;
           return aVal > bVal ? direction : -direction;
         });
       }

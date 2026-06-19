@@ -70,8 +70,8 @@ class DoctorService {
       subspeciality,
       search,
       availableOnline,
-      sortBy = 'name',
-      sortOrder = 'asc',
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
     } = filters;
 
     const query = { isActive: true };

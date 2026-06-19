@@ -73,8 +73,8 @@ const getDoctorsSchema = Joi.object({
   availableOnline: Joi.boolean().optional(),
   sortBy: Joi.string()
     .valid('name', 'nameAr', 'department', 'createdAt')
-    .default('name'),
-  sortOrder: Joi.string().valid('asc', 'desc').default('asc'),
+    .default('createdAt'),
+  sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
 });
 
 const doctorIdSchema = Joi.object({
