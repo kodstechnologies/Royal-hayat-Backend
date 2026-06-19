@@ -350,17 +350,21 @@ const getMedicalReports = async (civilId) => {
     );
   }
 
-  const url = new URL(MEDICAL_REPORTS_BASE_URL);
-  url.searchParams.set('idn', civilId);
-  url.searchParams.set('externalauth', 'KuwaitMobileID');
+  const afyatiPayload = {
+    idn: civilId,
+    externalauth: 'KuwaitMobileID',
+  };
 
+  const url = new URL(MEDICAL_REPORTS_BASE_URL);
+  url.searchParams.set('idn', afyatiPayload.idn);
+  url.searchParams.set('externalauth', afyatiPayload.externalauth);
+
+  identityLog('reports', `Afyati callback URL: ${url.toString()}`);
+  identityLogJson('reports', 'Afyati callback payload', afyatiPayload);
   identityLogJson('reports', 'request sent (to afyati)', {
     method: 'GET',
     url: url.toString(),
-    query: {
-      idn: civilId,
-      externalauth: 'KuwaitMobileID'
-    }
+    payload: afyatiPayload,
   });
 
   let response;

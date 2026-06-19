@@ -9,8 +9,8 @@
       "body": {
         "civilId": "271060903599",
         "serviceName": {
-          "ar": "طلب موعد",
-          "en": "Appointment Request"
+          "ar": "طلب السجل الطبي",
+          "en": "Medical Record Request"
         },
         "reason": {
           "ar": "الوصول إلى التقارير الطبية",
