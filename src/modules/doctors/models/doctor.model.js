@@ -7,7 +7,8 @@ const doctorSchema = new mongoose.Schema({
   doctorId: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    index: true,
   },
   name: {
     type: String,
@@ -58,16 +59,6 @@ const doctorSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
-  initials: {
-    type: String,
-    trim: true,
-  
-  },
-  initialsAr: {
-    type: String,
-    trim: true,
-
-  },
  
   availableOnline: {
     type: Boolean,
@@ -88,7 +79,6 @@ const doctorSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-doctorSchema.index({ doctorId: 1 });
 doctorSchema.index({ name: 1 });
 doctorSchema.index({ department: 1 });
 doctorSchema.index({ subspecialities: 1 });

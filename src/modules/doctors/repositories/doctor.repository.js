@@ -120,8 +120,6 @@ class DoctorRepository {
         { nameAr: { $regex: escaped, $options: 'i' } },
         { title: { $regex: escaped, $options: 'i' } },
         { titleAr: { $regex: escaped, $options: 'i' } },
-        { initials: { $regex: escaped, $options: 'i' } },
-        { initialsAr: { $regex: escaped, $options: 'i' } },
         { subspecialities: { $regex: escaped, $options: 'i' } },
         { subspecialitiesAr: { $regex: escaped, $options: 'i' } },
       ],
@@ -135,7 +133,7 @@ class DoctorRepository {
     if (compactTerm.length >= 2 && /^[\p{L}]+$/u.test(compactTerm)) {
       const regexIds = new Set(matchedDoctors.map((doctor) => String(doctor._id)));
       const initialsCandidates = await Doctor.find(baseQuery)
-        .select('initials initialsAr name nameAr')
+        .select('name nameAr')
         .lean();
 
       const initialsMatches = initialsCandidates.filter((doctor) =>

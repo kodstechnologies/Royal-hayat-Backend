@@ -185,8 +185,6 @@ const createDoctor = asyncHandler(async (req, res) => {
 
   trimOptionalString(formData, 'title');
   trimOptionalString(formData, 'titleAr');
-  trimOptionalString(formData, 'initials');
-  trimOptionalString(formData, 'initialsAr');
 
   coerceDoctorFormArrays(formData);
   coerceDoctorBooleans(formData);
@@ -333,8 +331,6 @@ const updateDoctor = asyncHandler(async (req, res) => {
 
   trimOptionalString(formData, 'title');
   trimOptionalString(formData, 'titleAr');
-  trimOptionalString(formData, 'initials');
-  trimOptionalString(formData, 'initialsAr');
 
   coerceDoctorFormArrays(formData);
   coerceDoctorBooleans(formData);

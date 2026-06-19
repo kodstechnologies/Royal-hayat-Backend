@@ -259,7 +259,6 @@ const mapDoctorPayload = async (entry, departmentId, doctorId) => {
   const nameAr = String(entry.nameAr || "").trim();
   const title = String(entry.title || "").trim();
   const titleArRaw = String(entry.titleAr || "").trim();
-  const initials = String(entry.initials || "Dr.").trim() || "Dr.";
 
   const subspecialities = toStringArray(entry.specialty);
   const subspecialitiesAr = toStringArray(entry.specialtyAr);
@@ -277,8 +276,6 @@ const mapDoctorPayload = async (entry, departmentId, doctorId) => {
     languagesAr: toStringArray(entry.languagesAr),
     availableOnline: entry.availableOnline !== false,
     isActive: true,
-    initials,
-    initialsAr: "د.",
   };
 
   if (title) payload.title = title;

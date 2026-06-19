@@ -7,23 +7,12 @@ export function extractCombinedInitials(text) {
     .toUpperCase();
 }
 
-export function getDoctorCombinedInitialsVariants(initials, name) {
-  const variants = new Set();
+export function getDoctorCombinedInitialsVariants(name) {
   const trimmedName = String(name || '').trim();
-  const trimmedInitials = String(initials || '').trim();
+  if (!trimmedName) return [];
 
-  const add = (text) => {
-    const value = extractCombinedInitials(text);
-    if (value) variants.add(value);
-  };
-
-  if (trimmedName) add(trimmedName);
-  if (trimmedInitials) {
-    add(trimmedInitials);
-    if (trimmedName) add(`${trimmedInitials} ${trimmedName}`);
-  }
-
-  return [...variants];
+  const value = extractCombinedInitials(trimmedName);
+  return value ? [value] : [];
 }
 
 export function matchesDoctorCombinedInitials(doctor, searchQuery) {
@@ -34,18 +23,12 @@ export function matchesDoctorCombinedInitials(doctor, searchQuery) {
 
   if (compact.length < 2) return false;
 
-  const englishVariants = getDoctorCombinedInitialsVariants(
-    doctor.initials,
-    doctor.name,
-  );
+  const englishVariants = getDoctorCombinedInitialsVariants(doctor.name);
   if (englishVariants.some((variant) => variant.startsWith(compact))) {
     return true;
   }
 
-  const arabicVariants = getDoctorCombinedInitialsVariants(
-    doctor.initialsAr,
-    doctor.nameAr,
-  );
+  const arabicVariants = getDoctorCombinedInitialsVariants(doctor.nameAr);
   return arabicVariants.some((variant) => variant.startsWith(compact));
 }
 

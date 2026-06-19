@@ -47,17 +47,6 @@ class DoctorService {
   async createDoctor(doctorData) {
     await assertDepartmentExists(doctorData.department);
 
-    const existingDoctor = await doctorRepository.findOne({
-      doctorId: doctorData.doctorId,
-    });
-
-    if (existingDoctor) {
-      throw new ApiError(
-        httpStatus.CONFLICT,
-        'Doctor with this doctorId already exists',
-      );
-    }
-
     const payload = {
       ...doctorData,
       subspecialities: normalizeStringArray(
@@ -208,20 +197,6 @@ class DoctorService {
     const existingDoctor = await doctorRepository.findById(id);
     if (!existingDoctor) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Doctor not found');
-    }
-
-    if (updateData.doctorId) {
-      const duplicate = await doctorRepository.findOne({
-        _id: { $ne: id },
-        doctorId: updateData.doctorId,
-      });
-
-      if (duplicate) {
-        throw new ApiError(
-          httpStatus.CONFLICT,
-          'Doctor with this doctorId already exists',
-        );
-      }
     }
 
     if (updateData.department) {
