@@ -56,7 +56,6 @@ const customItemSchema = Joi.alternatives().try(
 
 const customSubspecialitiesArray = Joi.array()
   .items(customItemSchema)
-  .max(50)
   .optional()
   .default([]);
 const customSubspecialitiesUpdateField =
@@ -71,26 +70,18 @@ const createSubspecialitySchema =
   Joi.object({
     name: Joi.string()
       .trim()
-      .min(1)
-      .max(200)
       .required(),
 
     description: Joi.string()
       .trim()
-      .min(1)
-      .max(5000)
       .required(),
 
     arabicName: Joi.string()
       .trim()
-      .min(1)
-      .max(200)
       .required(),
 
     arabicDescription: Joi.string()
       .trim()
-      .min(1)
-      .max(5000)
       .required(),
 
     department: Joi.string()
@@ -105,26 +96,18 @@ const updateSubspecialitySchema =
   Joi.object({
     name: Joi.string()
       .trim()
-      .min(1)
-      .max(200)
       .optional(),
 
     description: Joi.string()
       .trim()
-      .min(1)
-      .max(5000)
       .optional(),
 
     arabicName: Joi.string()
       .trim()
-      .min(1)
-      .max(200)
       .optional(),
 
     arabicDescription: Joi.string()
       .trim()
-      .min(1)
-      .max(5000)
       .optional(),
 
     department: Joi.string()
@@ -133,25 +116,20 @@ const updateSubspecialitySchema =
 
     customSubspecialities:
       customSubspecialitiesUpdateField,
-  }).min(1);
+  });
 
 const getSubspecialitiesSchema =
   Joi.object({
     page: Joi.number()
       .integer()
-      .min(1)
       .default(1),
 
     limit: Joi.number()
       .integer()
-      .min(1)
-      .max(100)
       .default(10),
 
     search: Joi.string()
       .trim()
-      .min(1)
-      .max(200)
       .optional(),
 
     department: Joi.string()

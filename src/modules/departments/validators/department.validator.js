@@ -10,8 +10,6 @@ const objectIdPattern =
   /^[0-9a-fA-F]{24}$/;
 
 const stringFieldMessages = {
-  'string.min': '{{#label}} must be at least {{#limit}} characters',
-  'string.max': '{{#label}} must not exceed {{#limit}} characters',
   'any.required': '{{#label}} is required',
   'string.empty': '{{#label}} is required',
 };
@@ -58,22 +56,18 @@ const createDepartmentSchema =
 
     deptTagline:
       optionalTrimmedString
-        .max(1000)
         .label('Department tagline'),
 
     deptTaglineArabic:
       optionalTrimmedString
-        .max(1000)
         .label('Arabic department tagline'),
 
     doctorTagline:
       optionalTrimmedString
-        .max(1000)
         .label('Doctor tagline'),
 
     doctorTaglineArabic:
       optionalTrimmedString
-        .max(1000)
         .label('Arabic doctor tagline'),
 
     name: Joi.string()
@@ -83,8 +77,6 @@ const createDepartmentSchema =
 
     description: Joi.string()
       .trim()
-      .min(10)
-      .max(1000)
       .required()
       .label('Description')
       .messages(stringFieldMessages),
@@ -98,20 +90,16 @@ const createDepartmentSchema =
     arabicDescription:
       Joi.string()
         .trim()
-        .min(10)
-        .max(1000)
         .required()
         .label('Arabic description')
         .messages(stringFieldMessages),
 
     medicalField:
       optionalTrimmedString
-        .max(200)
         .label('Medical field'),
 
     medicalFieldAr:
       optionalTrimmedString
-        .max(200)
         .label('Arabic medical field'),
 
     catagory: Joi.string()
@@ -145,7 +133,6 @@ const createDepartmentSchema =
 
     order: Joi.number()
       .integer()
-      .min(0)
       .default(0),
   });
 
@@ -158,22 +145,18 @@ const updateDepartmentSchema =
 
     deptTagline:
       optionalTrimmedString
-        .max(1000)
         .label('Department tagline'),
 
     deptTaglineArabic:
       optionalTrimmedString
-        .max(1000)
         .label('Arabic department tagline'),
 
     doctorTagline:
       optionalTrimmedString
-        .max(1000)
         .label('Doctor tagline'),
 
     doctorTaglineArabic:
       optionalTrimmedString
-        .max(1000)
         .label('Arabic doctor tagline'),
 
     name: Joi.string()
@@ -183,8 +166,6 @@ const updateDepartmentSchema =
     description:
       Joi.string()
         .trim()
-        .min(10)
-        .max(1000)
         .optional()
         .label('Description')
         .messages(stringFieldMessages),
@@ -198,20 +179,16 @@ const updateDepartmentSchema =
     arabicDescription:
       Joi.string()
         .trim()
-        .min(10)
-        .max(1000)
         .optional()
         .label('Arabic description')
         .messages(stringFieldMessages),
 
     medicalField:
       optionalTrimmedString
-        .max(200)
         .label('Medical field'),
 
     medicalFieldAr:
       optionalTrimmedString
-        .max(200)
         .label('Arabic medical field'),
 
     catagory: Joi.string()
@@ -237,21 +214,17 @@ const updateDepartmentSchema =
 
     order: Joi.number()
       .integer()
-      .min(0)
       .optional(),
-  }).min(1);
+  });
 
 const getDepartmentsSchema =
   Joi.object({
     page: Joi.number()
       .integer()
-      .min(1)
       .default(1),
 
     limit: Joi.number()
       .integer()
-      .min(1)
-      .max(100)
       .default(10),
 
     isActive:
@@ -292,8 +265,6 @@ const departmentParamSchema =
   Joi.object({
     id: Joi.string()
       .trim()
-      .min(1)
-      .max(100)
       .required(),
   });
 
