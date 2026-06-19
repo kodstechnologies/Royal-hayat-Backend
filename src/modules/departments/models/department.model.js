@@ -8,7 +8,26 @@ const departmentSchema = new mongoose.Schema(
       trim: true,
       maxlength: 50,
     },
-
+    deptTagline: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
+    deptTaglineArabic: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
+    doctorTagline: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
+    doctorTaglineArabic: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
     name: {
       type: String,
       required: true,

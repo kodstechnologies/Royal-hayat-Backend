@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { getMailFromAddress } from "./mailFrom.js";
+import { formatSlotTimesForDisplay } from "../modules/appintmentRequest/utils/appointmentSlotTimes.js";
 
 const DEFAULT_RECIPIENTS =
   "callcenter@royalehayat.com,marketing@royalehayat.com,prajwalanagekar@gmail.com";
@@ -100,7 +101,7 @@ export const appointmentRequestNotificationEmailTemplate = (request) => {
                   ${renderRow("Department", escapeHtml(request.department))}
                   ${renderRow("Doctor", escapeHtml(request.doctor))}
                   ${renderRow("Preferred Date", escapeHtml(request.date))}
-                  ${renderRow("Preferred Time", escapeHtml(request.time))}
+                  ${renderRow("Preferred Time", escapeHtml(formatSlotTimesForDisplay(request)))}
                   ${renderRow("Symptoms", symptoms)}
                   ${renderRow("Additional Notes", escapeHtml(request.additionalNotes).replace(/\n/g, "<br />"))}
                 </table>

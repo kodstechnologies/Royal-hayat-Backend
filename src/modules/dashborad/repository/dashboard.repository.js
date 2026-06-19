@@ -8,6 +8,7 @@ import JobApplication from "../../jobs/models/jobApplication.model.js";
 import AlSafwa from "../../al-safwa/model/alSafwa.model.js";
 import InternationalPatientEnquiry from "../../international-patient/model/internationalPatientEnquiry.js";
 import { Event } from "../../event/model/event.model.js";
+import ChatLog from "../../chat/models/chatLog.model.js";
 import Doctor from "../../doctors/models/doctor.model.js";
 import Department from "../../departments/models/department.model.js";
 
@@ -314,6 +315,7 @@ class DashboardRepository {
       alSafwaEnrollments,
       internationalPatientEnquiries,
       eventBookings,
+      userChats,
     ] = await Promise.all([
       Enquiry.countDocuments(UNVIEWED_FILTER),
       DoctorFeedback.countDocuments({ ...UNVIEWED_FILTER, addedBy: "patient" }),
@@ -328,6 +330,7 @@ class DashboardRepository {
         isActive: true,
       }),
       Event.countDocuments(UNVIEWED_FILTER),
+      ChatLog.countDocuments({ isViewed: { $ne: true } }),
     ]);
 
     return {
@@ -341,6 +344,7 @@ class DashboardRepository {
       alSafwaEnrollments,
       internationalPatientEnquiries,
       eventBookings,
+      userChats,
     };
   }
 

@@ -64,8 +64,11 @@ const appointmentBookingRecordSchema = new mongoose.Schema({
   date: {
     type: String
   },
-  time: {
-    type: String
+  slot_from_time: {
+    type: String,
+  },
+  slot_to_time: {
+    type: String,
   },
   nationality: {
 
@@ -97,7 +100,7 @@ const appointmentBookingRecordSchema = new mongoose.Schema({
 
 appointmentBookingRecordSchema.index({ createdAt: -1 });
 appointmentBookingRecordSchema.index({ phone: 1 });
-appointmentBookingRecordSchema.index({ date: 1, time: 1 });
+appointmentBookingRecordSchema.index({ date: 1, slot_from_time: 1 });
 appointmentBookingRecordSchema.index({ isViewed: 1 });
 
 const AppointmentBookingRecord = mongoose.model(

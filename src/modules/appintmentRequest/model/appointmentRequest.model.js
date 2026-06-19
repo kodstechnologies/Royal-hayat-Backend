@@ -68,8 +68,11 @@ const appointmentRequestSchema = new mongoose.Schema(
     date: {
       type: String
     },
-    time: {
-      type: String
+    slot_from_time: {
+      type: String,
+    },
+    slot_to_time: {
+      type: String,
     },
     nationality: {
 
@@ -106,7 +109,7 @@ const appointmentRequestSchema = new mongoose.Schema(
     requestType:{
       type:String,
       enum:[
-        'doctor unavailability request',
+        // 'doctor unavailability request',
         'first time visitor request',
         'appointment request',
         'registered patient booking fallback',

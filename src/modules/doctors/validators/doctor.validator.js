@@ -25,6 +25,8 @@ const expertiseItemSchema = Joi.alternatives().try(
 
 const expertiseArray = Joi.array().items(expertiseItemSchema).optional().default([]);
 const expertiseArrayOptional = Joi.array().items(expertiseItemSchema).optional();
+const qualificationsArray = Joi.array().items(expertiseItemSchema).optional().default([]);
+const qualificationsArrayOptional = Joi.array().items(expertiseItemSchema).optional();
 
 const createDoctorSchema = Joi.object({
   doctorId: Joi.string().trim().min(1).max(50).required(),
@@ -35,13 +37,10 @@ const createDoctorSchema = Joi.object({
   subspecialitiesAr: stringArray,
   title: Joi.string().trim().min(1).max(100).allow('').optional(),
   titleAr: Joi.string().trim().min(1).max(100).allow('').optional(),
-  qualifications: Joi.array().items(Joi.string().trim()).optional(),
-  qualificationsAr: Joi.array().items(Joi.string().trim()).optional(),
+  qualifications: qualificationsArray,
   expertise: expertiseArray,
   languages: Joi.array().items(Joi.string().trim()).optional(),
   languagesAr: Joi.array().items(Joi.string().trim()).optional(),
-  initials: Joi.string().trim().min(1).max(10).optional(),
-  initialsAr: Joi.string().trim().min(1).max(10).optional(),
   availableOnline: Joi.boolean().default(false),
   image: Joi.string().uri().allow('').optional(),
   isActive: Joi.boolean().default(true),
@@ -56,13 +55,10 @@ const updateDoctorSchema = Joi.object({
   subspecialitiesAr: stringArrayOptional,
   title: Joi.string().trim().min(1).max(100).allow('').optional(),
   titleAr: Joi.string().trim().min(1).max(100).allow('').optional(),
-  qualifications: Joi.array().items(Joi.string().trim()).optional(),
-  qualificationsAr: Joi.array().items(Joi.string().trim()).optional(),
+  qualifications: qualificationsArrayOptional,
   expertise: expertiseArrayOptional,
   languages: Joi.array().items(Joi.string().trim()).optional(),
   languagesAr: Joi.array().items(Joi.string().trim()).optional(),
-  initials: Joi.string().trim().min(1).max(10).optional(),
-  initialsAr: Joi.string().trim().min(1).max(10).optional(),
   availableOnline: Joi.boolean().optional(),
   image: Joi.string().uri().allow('').optional(),
   isActive: Joi.boolean().optional(),

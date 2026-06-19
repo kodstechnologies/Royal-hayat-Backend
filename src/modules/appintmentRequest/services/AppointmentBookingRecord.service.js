@@ -2,8 +2,8 @@ import httpStatus from 'http-status';
 import ApiError from '../../../utils/ApiError.js';
 import appointmentBookingRecordRepository from '../repository/AppointmentBookingRecord.repository.js';
 import appointmentRequestRepository from '../repository/AppointmentRequest.repository.js';
-import { sendAppointmentBookingNotificationEmail } from '../../../utils/appointmentBookingNotificationMail.js';
 import { buildAppointmentListFilter, APPOINTMENT_REQUEST_TYPES } from '../utils/appointmentListFilters.js';
+import { applySlotTimesToPayload } from '../utils/appointmentSlotTimes.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 
@@ -118,9 +118,7 @@ const sanitizePayload = (body = {}) => {
     payload.date = String(body.date).trim();
   }
 
-  if (body.time !== undefined) {
-    payload.time = String(body.time).trim();
-  }
+  applySlotTimesToPayload(payload, body);
 
   if (body.nationality !== undefined) {
     payload.nationality = String(body.nationality).trim();
@@ -169,15 +167,6 @@ class AppointmentBookingRecordService {
     validateCreate(payload);
 
     const record = await appointmentBookingRecordRepository.create(payload);
-
-    try {
-      await sendAppointmentBookingNotificationEmail(record);
-    } catch (mailError) {
-      console.error(
-        'Appointment booking notification email failed:',
-        mailError?.message || mailError,
-      );
-    }
 
     return record;
   }
@@ -265,13 +254,13 @@ class AppointmentBookingRecordService {
     const [
       appointmentBookingCount,
       appointmentRequestCount,
-      doctorUnavailabilityCount,
+      appointmentRequestTypeCount,
       firstTimeVisitorCount,
     ] = await Promise.all([
       appointmentBookingRecordRepository.countUnviewed(),
       appointmentRequestRepository.countUnviewed(),
       appointmentRequestRepository.countUnviewedByRequestType(
-        APPOINTMENT_REQUEST_TYPES.DOCTOR_UNAVAILABILITY,
+        APPOINTMENT_REQUEST_TYPES.APPOINTMENT_REQUEST,
       ),
       appointmentRequestRepository.countUnviewedByRequestType(
         APPOINTMENT_REQUEST_TYPES.FIRST_TIME_VISITOR,
@@ -282,7 +271,7 @@ class AppointmentBookingRecordService {
       total: appointmentBookingCount + appointmentRequestCount,
       appointmentBookings: appointmentBookingCount,
       appointmentRequests: appointmentRequestCount,
-      doctorUnavailabilityRequests: doctorUnavailabilityCount,
+      appointmentRequestTypeRequests: appointmentRequestTypeCount,
       firstTimeVisitorRequests: firstTimeVisitorCount,
     };
   }

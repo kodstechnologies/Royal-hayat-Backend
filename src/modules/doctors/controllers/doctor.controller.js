@@ -11,11 +11,11 @@ import {
 } from '../validators/doctor.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
+import { buildExpertisePayloads } from '../utils/expertise.util.js';
+
 const ARRAY_FIELDS = [
   'subspecialities',
   'subspecialitiesAr',
-  'qualifications',
-  'qualificationsAr',
   'languages',
   'languagesAr',
 ];
@@ -81,11 +81,76 @@ function coerceExpertiseField(formData) {
   }
 }
 
+function coerceQualificationsField(formData) {
+  if (formData.qualifications === undefined) return;
+
+  const raw = formData.qualifications;
+
+  if (Array.isArray(raw)) return;
+
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      formData.qualifications = [];
+      return;
+    }
+
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        formData.qualifications = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        formData.qualifications = [];
+      }
+      return;
+    }
+
+    formData.qualifications = [trimmed];
+  }
+}
+
+function mergeLegacyQualificationsFields(formData) {
+  const en = formData.qualifications;
+  const ar = formData.qualificationsAr;
+
+  const enIsFlatStrings =
+    Array.isArray(en) && en.every((item) => typeof item === 'string');
+  const arIsFlatStrings =
+    ar === undefined ||
+    (Array.isArray(ar) && ar.every((item) => typeof item === 'string'));
+
+  if (!enIsFlatStrings || !arIsFlatStrings) {
+    delete formData.qualificationsAr;
+    return;
+  }
+
+  formData.qualifications = buildExpertisePayloads(
+    Array.isArray(en) ? en : [],
+    Array.isArray(ar) ? ar : [],
+  );
+  delete formData.qualificationsAr;
+}
+
 function coerceDoctorFormArrays(formData) {
   for (const field of ARRAY_FIELDS) {
     coerceStringArrayField(formData, field);
   }
 
+  const qualificationsRaw = formData.qualifications;
+  coerceQualificationsField(formData);
+  if (
+    qualificationsRaw !== undefined &&
+    typeof formData.qualifications === 'string'
+  ) {
+    formData.qualifications = qualificationsRaw;
+    coerceStringArrayField(formData, 'qualifications');
+  }
+
+  if (formData.qualificationsAr !== undefined) {
+    coerceStringArrayField(formData, 'qualificationsAr');
+  }
+
+  mergeLegacyQualificationsFields(formData);
   coerceExpertiseField(formData);
   delete formData.expertiseAr;
 }
@@ -120,8 +185,6 @@ const createDoctor = asyncHandler(async (req, res) => {
 
   trimOptionalString(formData, 'title');
   trimOptionalString(formData, 'titleAr');
-  trimOptionalString(formData, 'initials');
-  trimOptionalString(formData, 'initialsAr');
 
   coerceDoctorFormArrays(formData);
   coerceDoctorBooleans(formData);
@@ -268,8 +331,6 @@ const updateDoctor = asyncHandler(async (req, res) => {
 
   trimOptionalString(formData, 'title');
   trimOptionalString(formData, 'titleAr');
-  trimOptionalString(formData, 'initials');
-  trimOptionalString(formData, 'initialsAr');
 
   coerceDoctorFormArrays(formData);
   coerceDoctorBooleans(formData);

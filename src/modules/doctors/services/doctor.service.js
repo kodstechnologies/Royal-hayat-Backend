@@ -4,6 +4,7 @@ import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 import { resolveExpertiseRefs } from '../utils/expertise.util.js';
+import { resolveQualificationsRefs } from '../utils/qualifications.util.js';
 
 const OID = /^[0-9a-fA-F]{24}$/i;
 
@@ -46,17 +47,6 @@ class DoctorService {
   async createDoctor(doctorData) {
     await assertDepartmentExists(doctorData.department);
 
-    const existingDoctor = await doctorRepository.findOne({
-      doctorId: doctorData.doctorId,
-    });
-
-    if (existingDoctor) {
-      throw new ApiError(
-        httpStatus.CONFLICT,
-        'Doctor with this doctorId already exists',
-      );
-    }
-
     const payload = {
       ...doctorData,
       subspecialities: normalizeStringArray(
@@ -66,6 +56,7 @@ class DoctorService {
         doctorData.subspecialitiesAr,
       ),
       expertise: await resolveExpertiseRefs(doctorData.expertise),
+      qualifications: await resolveQualificationsRefs(doctorData.qualifications),
     };
 
     return await doctorRepository.create(payload);
@@ -208,20 +199,6 @@ class DoctorService {
       throw new ApiError(httpStatus.NOT_FOUND, 'Doctor not found');
     }
 
-    if (updateData.doctorId) {
-      const duplicate = await doctorRepository.findOne({
-        _id: { $ne: id },
-        doctorId: updateData.doctorId,
-      });
-
-      if (duplicate) {
-        throw new ApiError(
-          httpStatus.CONFLICT,
-          'Doctor with this doctorId already exists',
-        );
-      }
-    }
-
     if (updateData.department) {
       await assertDepartmentExists(updateData.department);
     }
@@ -246,6 +223,12 @@ class DoctorService {
 
     if (updateData.expertise !== undefined) {
       patch.expertise = await resolveExpertiseRefs(updateData.expertise);
+    }
+
+    if (updateData.qualifications !== undefined) {
+      patch.qualifications = await resolveQualificationsRefs(
+        updateData.qualifications,
+      );
     }
 
     return await doctorRepository.updateById(id, patch);

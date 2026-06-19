@@ -129,6 +129,11 @@ function buildChatLogFilter(query = {}) {
   if (query.success === 'true') filter.success = true;
   if (query.success === 'false') filter.success = false;
 
+  if (query.isViewed === 'true') filter.isViewed = true;
+  if (query.isViewed === 'false') {
+    filter.isViewed = { $ne: true };
+  }
+
   const search = String(query.search ?? '').trim();
   if (search) {
     filter.$or = [
@@ -141,13 +146,18 @@ function buildChatLogFilter(query = {}) {
   return filter;
 }
 
+export async function countUnviewedChatLogs() {
+  return ChatLog.countDocuments({ isViewed: { $ne: true } });
+}
+
 export async function fetchAllChatLogs(query = {}) {
   const { page, limit, skip } = parsePagination(query);
   const filter = buildChatLogFilter(query);
 
-  const [rows, total] = await Promise.all([
+  const [rows, total, unviewedCount] = await Promise.all([
     ChatLog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
     ChatLog.countDocuments(filter),
+    countUnviewedChatLogs(),
   ]);
 
   return {
@@ -157,6 +167,7 @@ export async function fetchAllChatLogs(query = {}) {
       limit,
       total,
       pages: Math.ceil(total / limit) || 0,
+      unviewedCount,
     },
   };
 }
@@ -203,7 +214,12 @@ export async function fetchChatLogById(id) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid chat log id');
   }
 
-  const row = await ChatLog.findById(id).lean();
+  const row = await ChatLog.findByIdAndUpdate(
+    id,
+    { isViewed: true },
+    { new: true, runValidators: true },
+  ).lean();
+
   if (!row) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Chat log not found');
   }

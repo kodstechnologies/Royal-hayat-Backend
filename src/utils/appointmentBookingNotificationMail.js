@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { getMailFromAddress } from "./mailFrom.js";
+import { formatSlotTimesForDisplay } from "../modules/appintmentRequest/utils/appointmentSlotTimes.js";
 
 const DEFAULT_RECIPIENTS =
   "callcenter@royalehayat.com,marketing@royalehayat.com,prajwalanagekar@gmail.com";
@@ -110,7 +111,7 @@ export const appointmentBookingNotificationEmailTemplate = (booking) => {
                   ${renderRow("Department", escapeHtml(booking.department))}
                   ${renderRow("Doctor", escapeHtml(booking.doctor))}
                   ${renderRow("Appointment Date", escapeHtml(booking.date))}
-                  ${renderRow("Appointment Time", escapeHtml(booking.time))}
+                  ${renderRow("Appointment Time", escapeHtml(formatSlotTimesForDisplay(booking)))}
                   ${renderRow("Symptoms", symptoms)}
                   ${renderRow("Additional Notes", escapeHtml(booking.additionalNotes).replace(/\n/g, "<br />"))}
                 </table>
@@ -134,7 +135,7 @@ export const appointmentBookingNotificationEmailTemplate = (booking) => {
 
 export const sendAppointmentBookingNotificationEmail = async (booking) => {
   const recipients = parseEmails(
-    process.env.APPOINTMENT_BOOKING_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS,
+    process.env.APPOINTMENT_REQUEST_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS,
   );
 
   if (recipients.length === 0) {

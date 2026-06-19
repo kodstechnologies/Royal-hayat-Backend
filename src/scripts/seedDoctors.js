@@ -7,11 +7,17 @@ import { fileURLToPath, pathToFileURL } from "url";
 import connectDB from "../config/db.js";
 import Department from "../modules/departments/models/department.model.js";
 import Doctor from "../modules/doctors/models/doctor.model.js";
+import "../modules/doctors/models/qualifications.model.js";
+import Qualifications from "../modules/doctors/models/qualifications.model.js";
 import {
-  buildExpertisePayloads,
   cleanInvalidDoctorExpertiseRefs,
+  isValidObjectId,
   resolveExpertiseRefs,
 } from "../modules/doctors/utils/expertise.util.js";
+import {
+  cleanInvalidDoctorQualificationsRefs,
+  resolveQualificationsRefs,
+} from "../modules/doctors/utils/qualifications.util.js";
 
 dotenv.config();
 
@@ -103,6 +109,104 @@ const toStringArray = (value) => {
   return single ? [single] : [];
 };
 
+const isManualBullet = (text) => {
+  const trimmed = String(text || "").trim();
+  return trimmed.startsWith("•") || trimmed.startsWith("-");
+};
+
+const stripManualBullet = (text) => {
+  const trimmed = String(text || "").trim();
+  if (trimmed.startsWith("•")) return trimmed.slice(1).trim();
+  if (trimmed.startsWith("-")) return trimmed.slice(1).trim();
+  return trimmed;
+};
+
+const stripTrailingPeriod = (text) => String(text).trim().replace(/\.+$/u, "");
+
+const isSectionHeadingLine = (text, nextText) => {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) return false;
+  if (trimmed.endsWith(":") || trimmed.endsWith("：")) return true;
+
+  const next = String(nextText || "").trim();
+  return !isManualBullet(trimmed) && isManualBullet(next);
+};
+
+const parseFlatDoctorSections = (items) => {
+  const sections = [];
+  let current = null;
+  const list = toStringArray(items);
+
+  for (let index = 0; index < list.length; index += 1) {
+    const item = list[index];
+    const next = list[index + 1];
+
+    if (isSectionHeadingLine(item, next)) {
+      if (current) sections.push(current);
+      current = {
+        heading: stripManualBullet(item).replace(/[:：]\s*$/, "").trim(),
+        points: [],
+      };
+      continue;
+    }
+
+    if (!current) current = { heading: "", points: [] };
+    current.points.push(stripTrailingPeriod(stripManualBullet(item)));
+  }
+
+  if (current) sections.push(current);
+  return sections;
+};
+
+const ensureSectionPointers = (section) => {
+  const result = {
+    subHeading: String(section.subHeading || "").trim(),
+    subHeadingAr: String(section.subHeadingAr || "").trim(),
+    points: (section.points || []).map((point) => String(point).trim()).filter(Boolean),
+    pointsAr: (section.pointsAr || []).map((point) => String(point).trim()).filter(Boolean),
+  };
+
+  if (result.subHeading && result.points.length === 0) {
+    result.points = [result.subHeading];
+    result.subHeading = "";
+  }
+
+  if (result.subHeadingAr && result.pointsAr.length === 0) {
+    result.pointsAr = [result.subHeadingAr];
+    result.subHeadingAr = "";
+  }
+
+  return result;
+};
+
+const buildDoctorSectionPayloads = (itemsEn = [], itemsAr = []) => {
+  const enItems = toStringArray(itemsEn);
+  const arItems = toStringArray(itemsAr);
+  if (!enItems.length && !arItems.length) return [];
+
+  const enSections = parseFlatDoctorSections(enItems);
+  const arSections = parseFlatDoctorSections(arItems);
+  const count = Math.max(enSections.length, arSections.length);
+
+  return Array.from({ length: count }, (_, index) => {
+    const en = enSections[index] || { heading: "", points: [] };
+    const ar = arSections[index] || { heading: "", points: [] };
+
+    return ensureSectionPointers({
+      subHeading: en.heading,
+      subHeadingAr: ar.heading,
+      points: en.points,
+      pointsAr: ar.points,
+    });
+  }).filter(
+    (section) =>
+      section.points.length > 0 ||
+      section.pointsAr.length > 0 ||
+      section.subHeading ||
+      section.subHeadingAr,
+  );
+};
+
 const resolveDoctorId = (entry, usedProviderCodes) => {
   const slug = String(entry.id || "").trim();
   const providerCode = String(entry.providerCode || "").trim();
@@ -115,12 +219,46 @@ const resolveDoctorId = (entry, usedProviderCodes) => {
   return slug;
 };
 
+const buildQualificationsFromEntry = async (entry) =>
+  resolveQualificationsRefs(
+    buildDoctorSectionPayloads(
+      toStringArray(entry.qualifications),
+      toStringArray(entry.qualificationsAr),
+    ),
+  );
+
+const buildExpertiseFromEntry = async (entry) =>
+  resolveExpertiseRefs(
+    buildDoctorSectionPayloads(
+      toStringArray(entry.expertise),
+      toStringArray(entry.expertiseAr),
+    ),
+  );
+
+/** Drop replaced qualification docs so re-seeding does not leave orphans. */
+const replaceDoctorQualificationRefs = async (existingDoctor, nextQualificationIds) => {
+  const previousIds = (Array.isArray(existingDoctor.qualifications)
+    ? existingDoctor.qualifications
+    : []
+  )
+    .map((id) => String(id))
+    .filter(isValidObjectId);
+
+  const nextIdSet = new Set(nextQualificationIds.map((id) => String(id)));
+  const orphanIds = previousIds.filter((id) => !nextIdSet.has(id));
+
+  if (orphanIds.length > 0) {
+    await Qualifications.deleteMany({ _id: { $in: orphanIds } });
+  }
+
+  return nextQualificationIds;
+};
+
 const mapDoctorPayload = async (entry, departmentId, doctorId) => {
   const name = String(entry.name || "").trim();
   const nameAr = String(entry.nameAr || "").trim();
   const title = String(entry.title || "").trim();
   const titleArRaw = String(entry.titleAr || "").trim();
-  const initials = String(entry.initials || "Dr.").trim() || "Dr.";
 
   const subspecialities = toStringArray(entry.specialty);
   const subspecialitiesAr = toStringArray(entry.specialtyAr);
@@ -132,20 +270,12 @@ const mapDoctorPayload = async (entry, departmentId, doctorId) => {
     department: departmentId,
     subspecialities,
     subspecialitiesAr,
-    qualifications: toStringArray(entry.qualifications),
-    qualificationsAr: toStringArray(entry.qualificationsAr),
-    expertise: await resolveExpertiseRefs(
-      buildExpertisePayloads(
-        toStringArray(entry.expertise),
-        toStringArray(entry.expertiseAr),
-      ),
-    ),
+    qualifications: await buildQualificationsFromEntry(entry),
+    expertise: await buildExpertiseFromEntry(entry),
     languages: toStringArray(entry.languages),
     languagesAr: toStringArray(entry.languagesAr),
     availableOnline: entry.availableOnline !== false,
     isActive: true,
-    initials,
-    initialsAr: "د.",
   };
 
   if (title) payload.title = title;
@@ -176,9 +306,16 @@ const seedDoctors = async () => {
   const usedProviderCodes = new Set();
 
   try {
-    const cleaned = await cleanInvalidDoctorExpertiseRefs(Doctor);
-    if (cleaned > 0) {
-      console.log(`🧹 Cleaned invalid expertise refs on ${cleaned} doctor(s).`);
+    const cleanedExpertise = await cleanInvalidDoctorExpertiseRefs(Doctor);
+    if (cleanedExpertise > 0) {
+      console.log(`🧹 Cleaned invalid expertise refs on ${cleanedExpertise} doctor(s).`);
+    }
+
+    const cleanedQualifications = await cleanInvalidDoctorQualificationsRefs(Doctor);
+    if (cleanedQualifications > 0) {
+      console.log(
+        `🧹 Cleaned invalid qualifications refs on ${cleanedQualifications} doctor(s).`,
+      );
     }
 
     for (const entry of frontendDoctors) {
@@ -207,7 +344,12 @@ const seedDoctors = async () => {
       const existing = await Doctor.findOne({ doctorId: payload.doctorId });
 
       if (existing) {
+        payload.qualifications = await replaceDoctorQualificationRefs(
+          existing,
+          payload.qualifications,
+        );
         existing.set(payload);
+        existing.set("qualificationsAr", undefined);
         await existing.save();
         updated += 1;
         console.log(`↻ Updated doctor: ${payload.name} (${payload.doctorId})`);

@@ -34,6 +34,7 @@ const chatLogSchema = new mongoose.Schema(
     source: { type: String, enum: ['ai', 'guided_topic'], trim: true },
     topicId: { type: String, trim: true },
     modelsAttempted: [{ type: String, trim: true }],
+    isViewed: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
@@ -43,6 +44,7 @@ chatLogSchema.index({ success: 1, createdAt: -1 });
 chatLogSchema.index({ sessionId: 1, createdAt: 1 });
 chatLogSchema.index({ referenceId: 1, createdAt: -1 });
 chatLogSchema.index({ source: 1, createdAt: -1 });
+chatLogSchema.index({ isViewed: 1, createdAt: -1 });
 chatLogSchema.index({ lastUserMessage: 'text', assistantReply: 'text' });
 
 chatLogSchema.pre('save', function assignReferenceId(next) {

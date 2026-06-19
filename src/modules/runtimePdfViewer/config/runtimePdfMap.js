@@ -162,6 +162,7 @@ export const WP_CONTENT_PDF_MAP = {
   "2025/12/RHH_QR_Food_Menu_Dec_2025.pdf": f("RHH_QR_Food_Menu_Dec_2025.pdf"),
   "2025/12/5th_FLOOR_QR_Food_Menu_Dec_2025.pdf": f("5th_FLOOR_QR_Food_Menu_Dec_2025.pdf"),
   "2025/11/5th_FLOOR_QR_Food_Menu.pdf": f("5th_FLOOR_QR_Food_Menu.pdf"),
+  "2025/11/RHH_NIGHT_Menu.pdf": f("RHH_NIGHT_Menu.pdf"),
   "2026/06/5th_Floor_Cafe_Menu.pdf": f("5th_Floor_Cafe_Menu.pdf"),
   "2026/06/ALa_Carte_Menu.pdf": f("ALa_Carte_Menu.pdf"),
   "2026/06/Ask_Me_Flyers_June_2026.pdf": f("Ask_Me_Flyers_June_2026.pdf"),

@@ -1,11 +1,21 @@
 import Doctor from '../models/doctor.model.js';
 import '../../departments/models/department.model.js';
 import '../models/expertise.model.js';
+import '../models/qualifications.model.js';
 import { attachExpertiseToDoctors } from '../utils/expertise.util.js';
+import { attachQualificationsToDoctors } from '../utils/qualifications.util.js';
+import {
+  escapeRegex,
+  matchesDoctorCombinedInitials,
+} from '../utils/doctorSearch.util.js';
 
 const DOCTOR_POPULATE = [
   { path: 'department', select: 'departmentId name arabicName' },
 ];
+
+async function enrichDoctors(doctors) {
+  return attachQualificationsToDoctors(await attachExpertiseToDoctors(doctors));
+}
 
 class DoctorRepository {
   async create(doctorData) {
@@ -18,7 +28,7 @@ class DoctorRepository {
       .populate(DOCTOR_POPULATE)
       .lean();
     if (!doctor) return null;
-    return attachExpertiseToDoctors(doctor);
+    return enrichDoctors(doctor);
   }
 
   async findOne(query) {
@@ -40,7 +50,7 @@ class DoctorRepository {
       .limit(limit)
       .lean();
 
-    return attachExpertiseToDoctors(doctors);
+    return enrichDoctors(doctors);
   }
 
   async findAll(query) {
@@ -48,7 +58,7 @@ class DoctorRepository {
       .populate(DOCTOR_POPULATE)
       .lean();
 
-    return attachExpertiseToDoctors(doctors);
+    return enrichDoctors(doctors);
   }
 
   async countDocuments(query) {
@@ -64,7 +74,7 @@ class DoctorRepository {
       .lean();
 
     if (!doctor) return null;
-    return attachExpertiseToDoctors(doctor);
+    return enrichDoctors(doctor);
   }
 
   async findOneAndUpdate(query, updateData, options = {}) {
@@ -93,27 +103,69 @@ class DoctorRepository {
 
   async search(searchQuery, options = {}) {
     const { page = 1, limit = 10, sortBy = 'name', sortOrder = 'asc' } = options;
-
-    const query = {
-      $text: { $search: searchQuery },
-      isActive: true,
-    };
+    const term = String(searchQuery || '').trim();
+    const escaped = escapeRegex(term);
+    const compactTerm = term.replace(/[\s.]/g, '');
 
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
     const skip = (page - 1) * limit;
+    const baseQuery = { isActive: true };
 
-    const doctors = await Doctor.find(query)
+    const regexQuery = {
+      ...baseQuery,
+      $or: [
+        { name: { $regex: escaped, $options: 'i' } },
+        { nameAr: { $regex: escaped, $options: 'i' } },
+        { title: { $regex: escaped, $options: 'i' } },
+        { titleAr: { $regex: escaped, $options: 'i' } },
+        { subspecialities: { $regex: escaped, $options: 'i' } },
+        { subspecialitiesAr: { $regex: escaped, $options: 'i' } },
+      ],
+    };
+
+    let matchedDoctors = await Doctor.find(regexQuery)
       .populate(DOCTOR_POPULATE)
       .sort(sortOptions)
-      .skip(skip)
-      .limit(limit)
       .lean();
 
-    const enrichedDoctors = await attachExpertiseToDoctors(doctors);
+    if (compactTerm.length >= 2 && /^[\p{L}]+$/u.test(compactTerm)) {
+      const regexIds = new Set(matchedDoctors.map((doctor) => String(doctor._id)));
+      const initialsCandidates = await Doctor.find(baseQuery)
+        .select('name nameAr')
+        .lean();
 
-    const total = await Doctor.countDocuments(query);
+      const initialsMatches = initialsCandidates.filter((doctor) =>
+        matchesDoctorCombinedInitials(doctor, term),
+      );
+
+      const missingIds = initialsMatches
+        .map((doctor) => String(doctor._id))
+        .filter((id) => !regexIds.has(id));
+
+      if (missingIds.length) {
+        const extraDoctors = await Doctor.find({
+          _id: { $in: missingIds },
+          ...baseQuery,
+        })
+          .populate(DOCTOR_POPULATE)
+          .lean();
+
+        matchedDoctors = [...matchedDoctors, ...extraDoctors];
+        matchedDoctors.sort((a, b) => {
+          const aVal = String(a[sortBy] ?? '').toLowerCase();
+          const bVal = String(b[sortBy] ?? '').toLowerCase();
+          if (aVal === bVal) return 0;
+          const direction = sortOrder === 'desc' ? -1 : 1;
+          return aVal > bVal ? direction : -direction;
+        });
+      }
+    }
+
+    const total = matchedDoctors.length;
+    const paginatedDoctors = matchedDoctors.slice(skip, skip + limit);
+    const enrichedDoctors = await enrichDoctors(paginatedDoctors);
 
     return {
       doctors: enrichedDoctors,

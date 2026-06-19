@@ -149,7 +149,7 @@ class CatagoryRepository {
           department: { $in: deptIds },
         })
           .select(
-            'doctorId name nameAr title titleAr department subspecialities subspecialitiesAr image isActive availableOnline initials initialsAr'
+            'doctorId name nameAr title titleAr department subspecialities subspecialitiesAr image isActive availableOnline'
           )
           .sort({ name: 1 })
           .lean();
