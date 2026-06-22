@@ -7,19 +7,31 @@ class JobApplicationRepository {
     return await application.save();
   }
 
-  async findRecentApplicationByPhone(jobId, phone) {
+  async findRecentApplicationByPhoneOrEmail(jobId, phone, email) {
     const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    oneYearAgo.setFullYear(
-      oneYearAgo.getFullYear() - 1
-    );
+    const normalizedPhone = String(phone ?? '').trim();
+    const normalizedEmail = String(email ?? '').trim().toLowerCase();
+    const orConditions = [];
+
+    if (normalizedPhone) {
+      orConditions.push({ phone: normalizedPhone });
+    }
+    if (normalizedEmail) {
+      orConditions.push({ email: normalizedEmail });
+    }
+
+    if (!orConditions.length) {
+      return null;
+    }
 
     return await JobApplication.findOne({
       jobId,
-      phone,
       appliedDate: {
-        $gte: oneYearAgo
-      }
+        $gte: oneYearAgo,
+      },
+      $or: orConditions,
     });
   }
 

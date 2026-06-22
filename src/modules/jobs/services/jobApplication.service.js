@@ -45,9 +45,10 @@ class JobApplicationService {
     }
 
     const existingApplication =
-      await jobApplicationRepository.findRecentApplicationByPhone(
+      await jobApplicationRepository.findRecentApplicationByPhoneOrEmail(
         payload.jobId,
-        payload.phone
+        payload.phone,
+        payload.email,
       );
 
     if (existingApplication) {
