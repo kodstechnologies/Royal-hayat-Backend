@@ -5,6 +5,8 @@ import { getS3ObjectBuffer } from "./s3Fetch.js";
 const DEFAULT_RECIPIENTS =
   "hr@royalehayat.com,marketing@royalehayat.com,prajwalanagekar@gmail.com";
 
+const KUWAIT_TIMEZONE = "Asia/Kuwait";
+
 const formatDateTime = (value) => {
   if (!value) return "N/A";
   const date = value instanceof Date ? value : new Date(value);
@@ -15,6 +17,8 @@ const formatDateTime = (value) => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
+    timeZone: KUWAIT_TIMEZONE,
   });
 };
 
@@ -47,7 +51,7 @@ export const jobApplicationNotificationEmailTemplate = (
   { hasResumeAttachment = false } = {},
 ) => {
   const applicationId = escapeHtml(application.applicationId || "—");
-  const submittedAt = formatDateTime(application.appliedDate || application.createdAt);
+  const submittedAt = formatDateTime(application.createdAt || application.appliedDate);
   const resumeUrl = application.resume
     ? `<a href="${escapeHtmlAttr(application.resume)}" style="color: #991b1b; text-decoration: underline;">View resume</a>`
     : "N/A";
