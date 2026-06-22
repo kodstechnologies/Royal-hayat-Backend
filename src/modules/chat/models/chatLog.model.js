@@ -31,7 +31,7 @@ const chatLogSchema = new mongoose.Schema(
     clientIp: { type: String, trim: true },
     sessionId: { type: String, trim: true },
     referenceId: { type: String, trim: true },
-    source: { type: String, enum: ['ai', 'guided_topic'], trim: true },
+    source: { type: String, enum: ['ai', 'guided_topic', 'whatsapp'], trim: true },
     topicId: { type: String, trim: true },
     modelsAttempted: [{ type: String, trim: true }],
     isViewed: { type: Boolean, default: false },

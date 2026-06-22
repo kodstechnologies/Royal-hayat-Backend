@@ -330,7 +330,10 @@ class DashboardRepository {
         isActive: true,
       }),
       Event.countDocuments(UNVIEWED_FILTER),
-      ChatLog.countDocuments({ isViewed: { $ne: true } }),
+      ChatLog.countDocuments({
+        isViewed: { $ne: true },
+        source: { $in: ['guided_topic', 'whatsapp'] },
+      }),
     ]);
 
     return {

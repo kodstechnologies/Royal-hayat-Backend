@@ -263,6 +263,22 @@ class JobRepository {
     );
   }
 
+  async decrementApplicationsCount(
+    id
+  ) {
+    return await Job.findOneAndUpdate(
+      { _id: id, applicationsCount: { $gt: 0 } },
+      {
+        $inc: {
+          applicationsCount: -1,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+  }
+
   async getLocations() {
     const locations =
       await Job.distinct(

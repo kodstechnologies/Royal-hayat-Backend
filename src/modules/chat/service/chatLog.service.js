@@ -4,6 +4,8 @@ import ChatLog, { buildChatReferenceId } from '../models/chatLog.model.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 
+const WHATSAPP_CHAT_SOURCES = ['guided_topic', 'whatsapp'];
+
 const MAX_STORED_CHARS = Number(process.env.CHAT_LOG_MAX_CHARS || 8000);
 
 function isLoggingEnabled() {
@@ -118,8 +120,10 @@ function buildChatLogFilter(query = {}) {
   const topicId = String(query.topicId ?? '').trim();
   if (topicId) filter.topicId = topicId;
 
-  if (query.source === 'ai' || query.source === 'guided_topic') {
+  if (query.source === 'guided_topic' || query.source === 'whatsapp') {
     filter.source = query.source;
+  } else {
+    filter.source = { $in: WHATSAPP_CHAT_SOURCES };
   }
 
   if (query.lang === 'en' || query.lang === 'ar') {
@@ -147,7 +151,10 @@ function buildChatLogFilter(query = {}) {
 }
 
 export async function countUnviewedChatLogs() {
-  return ChatLog.countDocuments({ isViewed: { $ne: true } });
+  return ChatLog.countDocuments({
+    isViewed: { $ne: true },
+    source: { $in: WHATSAPP_CHAT_SOURCES },
+  });
 }
 
 export async function fetchAllChatLogs(query = {}) {
@@ -157,7 +164,10 @@ export async function fetchAllChatLogs(query = {}) {
   const [rows, total, unviewedCount] = await Promise.all([
     ChatLog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
     ChatLog.countDocuments(filter),
-    countUnviewedChatLogs(),
+    ChatLog.countDocuments({
+      ...filter,
+      isViewed: { $ne: true },
+    }),
   ]);
 
   return {
@@ -178,7 +188,9 @@ export async function fetchChatLogsBySessionId(sessionId) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'sessionId is required');
   }
 
-  const rows = await ChatLog.find({ sessionId: id }).sort({ createdAt: 1 }).lean();
+  const rows = await ChatLog.find({ sessionId: id, source: { $in: WHATSAPP_CHAT_SOURCES } })
+    .sort({ createdAt: 1 })
+    .lean();
   if (!rows.length) {
     throw new ApiError(httpStatus.NOT_FOUND, 'No chat logs found for this session');
   }
@@ -201,12 +213,21 @@ export async function fetchChatLogsByReferenceId(referenceId) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'referenceId is required');
   }
 
-  const rows = await ChatLog.find({ referenceId: normalized }).sort({ createdAt: 1 }).lean();
+  const rows = await ChatLog.find({
+    referenceId: normalized,
+    source: { $in: WHATSAPP_CHAT_SOURCES },
+  })
+    .sort({ createdAt: 1 })
+    .lean();
   if (!rows.length) {
     throw new ApiError(httpStatus.NOT_FOUND, 'No chat logs found for this reference');
   }
 
   return rows;
+}
+
+function isWhatsAppChatLog(row) {
+  return WHATSAPP_CHAT_SOURCES.includes(row?.source);
 }
 
 export async function fetchChatLogById(id) {
@@ -220,7 +241,7 @@ export async function fetchChatLogById(id) {
     { new: true, runValidators: true },
   ).lean();
 
-  if (!row) {
+  if (!row || !isWhatsAppChatLog(row)) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Chat log not found');
   }
 

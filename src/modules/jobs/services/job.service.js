@@ -214,6 +214,14 @@ class JobService {
       id
     );
   }
+
+  async decrementApplicationsCount(
+    id
+  ) {
+    return await jobRepository.decrementApplicationsCount(
+      id
+    );
+  }
 }
 
 export default new JobService();

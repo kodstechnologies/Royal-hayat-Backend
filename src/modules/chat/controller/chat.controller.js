@@ -102,24 +102,9 @@ export const getChatLogById = asyncHandler(async (req, res) => {
 
 export const postChat = asyncHandler(async (req, res) => {
   const value = validateChatBody(req.body);
-  const startedAt = Date.now();
-  const meta = requestMeta(req, value);
 
   try {
-    const { reply, model, modelsAttempted } = await generateChatReply(value);
-
-    logChatExchange({
-      messages: value.messages,
-      lang: value.lang,
-      assistantReply: reply,
-      model,
-      success: true,
-      stream: false,
-      latencyMs: Date.now() - startedAt,
-      modelsAttempted,
-      source: 'ai',
-      ...meta,
-    });
+    const { reply } = await generateChatReply(value);
 
     res.status(httpStatus.OK).json({
       success: true,
@@ -127,19 +112,6 @@ export const postChat = asyncHandler(async (req, res) => {
       data: { reply },
     });
   } catch (err) {
-    const code =
-      err instanceof ApiError && err.meta?.code ? String(err.meta.code) : 'GENERIC';
-    logChatExchange({
-      messages: value.messages,
-      lang: value.lang,
-      success: false,
-      errorCode: code,
-      stream: false,
-      latencyMs: Date.now() - startedAt,
-      modelsAttempted: err instanceof ApiError ? err.meta?.modelsAttempted : undefined,
-      source: 'ai',
-      ...meta,
-    });
     throw err;
   }
 });
@@ -156,7 +128,7 @@ export const postChatLog = asyncHandler(async (req, res) => {
     success: true,
     stream: false,
     latencyMs: 0,
-    source: 'guided_topic',
+    source: 'whatsapp',
     topicId: value.topicId?.trim() || undefined,
     ...meta,
   });
@@ -189,23 +161,10 @@ export const postChatStream = asyncHandler(async (req, res) => {
   writeSse(res, { type: 'start' });
 
   try {
-    const { reply, model, modelsAttempted } = await streamChatReply(value, (text) => {
+    const { reply } = await streamChatReply(value, (text) => {
       writeSse(res, { type: 'chunk', text });
     });
     writeSse(res, { type: 'done', reply });
-
-    logChatExchange({
-      messages: value.messages,
-      lang: value.lang,
-      assistantReply: reply,
-      model,
-      success: true,
-      stream: true,
-      latencyMs: Date.now() - startedAt,
-      modelsAttempted,
-      source: 'ai',
-      ...meta,
-    });
   } catch (err) {
     const code =
       err instanceof ApiError && err.meta?.code ? String(err.meta.code) : 'GENERIC';
@@ -213,18 +172,6 @@ export const postChatStream = asyncHandler(async (req, res) => {
       err instanceof ApiError
         ? err.message
         : 'The assistant could not respond. Please try again or call +965 2536 0000.';
-
-    logChatExchange({
-      messages: value.messages,
-      lang: value.lang,
-      success: false,
-      errorCode: code,
-      stream: true,
-      latencyMs: Date.now() - startedAt,
-      modelsAttempted: err instanceof ApiError ? err.meta?.modelsAttempted : undefined,
-      source: 'ai',
-      ...meta,
-    });
 
     console.error(
       `[chat][stream] failed code=${code} status=${err?.statusCode || '-'} msg=${message}`,

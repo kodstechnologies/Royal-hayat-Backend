@@ -108,12 +108,16 @@ class JobApplicationService {
   }
 
   async deleteJobApplication(id) {
-    const existingApplication = await jobApplicationRepository.exists(id);
-    if (!existingApplication) {
+    const deletedApplication = await jobApplicationRepository.deleteById(id);
+    if (!deletedApplication) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job application not found');
     }
 
-    return await jobApplicationRepository.deleteById(id);
+    if (deletedApplication.jobId) {
+      await jobService.decrementApplicationsCount(deletedApplication.jobId);
+    }
+
+    return deletedApplication;
   }
 
   async getApplicationsByJobId(jobId, filters = {}) {
