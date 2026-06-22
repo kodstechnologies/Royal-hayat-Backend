@@ -3,7 +3,7 @@ import { getMailFromAddress } from "./mailFrom.js";
 import { formatSlotTimesForDisplay } from "../modules/appintmentRequest/utils/appointmentSlotTimes.js";
 
 const DEFAULT_RECIPIENTS =
-  "callcenter@royalehayat.com,marketing@royalehayat.com,prajwalanagekar@gmail.com";
+  "prajwalanagekar@gmail.com";
 
 const parseEmails = (value) =>
   String(value || "")
@@ -135,7 +135,7 @@ export const appointmentBookingNotificationEmailTemplate = (booking) => {
 
 export const sendAppointmentBookingNotificationEmail = async (booking) => {
   const recipients = parseEmails(
-    process.env.APPOINTMENT_REQUEST_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS,
+    process.env.APPOINTMENT_BOOKING_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS,
   );
 
   if (recipients.length === 0) {

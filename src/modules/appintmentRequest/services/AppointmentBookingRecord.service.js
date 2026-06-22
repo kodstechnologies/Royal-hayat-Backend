@@ -4,6 +4,7 @@ import appointmentBookingRecordRepository from '../repository/AppointmentBooking
 import appointmentRequestRepository from '../repository/AppointmentRequest.repository.js';
 import { buildAppointmentListFilter, APPOINTMENT_REQUEST_TYPES } from '../utils/appointmentListFilters.js';
 import { applySlotTimesToPayload } from '../utils/appointmentSlotTimes.js';
+import { sendAppointmentBookingNotificationEmail } from '../../../utils/appointmentBookingNotificationMail.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 
@@ -167,6 +168,17 @@ class AppointmentBookingRecordService {
     validateCreate(payload);
 
     const record = await appointmentBookingRecordRepository.create(payload);
+
+    try {
+      const booking =
+        typeof record?.toObject === 'function' ? record.toObject() : record;
+      await sendAppointmentBookingNotificationEmail(booking);
+    } catch (mailError) {
+      console.error(
+        'Appointment booking notification email failed:',
+        mailError?.message || mailError,
+      );
+    }
 
     return record;
   }
