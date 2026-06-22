@@ -108,6 +108,7 @@ export const RUNTIME_PDF_MAP = {
     f("Royale_Hayat_Dental_Pricelist_3_Oct_2022.pdf"),
   "RoyaleHayatDentalPricelist.pdf": f("RoyaleHayatDentalPricelist.pdf"),
   "SPA_MENU_AR.pdf": f("SPA_MENU_AR.pdf"),
+  "SPA_MENU_EN.pdf": f("SPA_MENU_EN.pdf"),
   "The-Cafe-Menu-2022.pdf": f("The-Cafe-Menu-2022.pdf"),
   "world_patient_safety_day_invitation.pdf": f("world_patient_safety_day_invitation.pdf"),
 
