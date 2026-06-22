@@ -33,6 +33,8 @@ export const createAchievementValidator = Joi.object({
 
   visibilityStatus: Joi.string().valid("show", "hide").default("show"),
 
+  date: Joi.date().optional().allow(null, ""),
+
   image: Joi.any().optional(),
   imageKey: Joi.string().optional(),
 }).or("employeeId", "employeeID");
@@ -56,6 +58,8 @@ export const updateAchievementValidator = Joi.object({
   arabicachievements: Joi.string().trim().optional().allow(""),
 
   visibilityStatus: Joi.string().valid("show", "hide").optional(),
+
+  date: Joi.date().optional().allow(null, ""),
 
   image: Joi.any().optional(),
   imageKey: Joi.string().optional(),

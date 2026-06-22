@@ -56,6 +56,10 @@ const achievementSchema = new mongoose.Schema(
       trim: true,
     },
 
+    date: {
+      type: Date,
+    },
+
     visibilityStatus: {
       type: String,
       enum: ["show", "hide"],
@@ -71,6 +75,7 @@ achievementSchema.index({ visibilityStatus: 1, createdAt: -1 });
 achievementSchema.index({ employeeId: 1 });
 achievementSchema.index({ employeeID: 1 });
 achievementSchema.index({ createdAt: -1 });
+achievementSchema.index({ date: -1 });
 
 achievementSchema.index({
   employeeName: "text",

@@ -4,6 +4,7 @@ import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
 import { putObject } from '../../../utils/putObject.js';
 import { sendJobApplicationNotificationEmail } from '../../../utils/jobApplicationNotificationMail.js';
+import { sendJobApplicationConfirmationEmail } from '../../../utils/emailForJobApplicant.js';
 
 class JobApplicationService {
   async createJobApplication(applicationData, resumeFile) {
@@ -67,9 +68,11 @@ class JobApplicationService {
       payload.jobId
     );
 
+    const applicationRecord = application.toObject?.() ?? application;
+
     try {
       await sendJobApplicationNotificationEmail(
-        application.toObject?.() ?? application,
+        applicationRecord,
         job,
         resumeFile,
       );
@@ -80,6 +83,20 @@ class JobApplicationService {
     } catch (mailError) {
       console.error(
         'Job application notification email failed:',
+        mailError?.message || mailError,
+        mailError?.stack || '',
+      );
+    }
+
+    try {
+      await sendJobApplicationConfirmationEmail(applicationRecord, job);
+      console.info(
+        'Job application confirmation email sent to applicant:',
+        application.applicationId,
+      );
+    } catch (mailError) {
+      console.error(
+        'Job application confirmation email failed:',
         mailError?.message || mailError,
         mailError?.stack || '',
       );

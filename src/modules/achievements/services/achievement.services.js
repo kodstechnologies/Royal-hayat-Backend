@@ -29,6 +29,10 @@ const normalizeAchievementFields = (fields = {}) => {
   delete normalized.arabictitle;
   delete normalized.arabicachievements;
 
+  if (normalized.date === "" || normalized.date === null) {
+    delete normalized.date;
+  }
+
   return normalized;
 };
 
