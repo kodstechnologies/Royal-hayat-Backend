@@ -6,6 +6,7 @@ import {
     updateDocumentRepo,
     deleteDocumentRepo,
     getDocumentByPublicPathRepo,
+    getDocumentByPublicPathAnyStatusRepo,
 } from "../repository/document.repository.js";
 
 import { getFileUrl } from "../../../utils/s3Fetch.js";
@@ -71,7 +72,12 @@ export const createDocumentService = async (body, file) => {
     }
 
     const publicPath = resolvePublicPath(body, file);
-    await assertUniquePublicPath(publicPath);
+    const existingDocument = await getDocumentByPublicPathAnyStatusRepo(publicPath);
+
+    if (existingDocument) {
+        const updated = await updateDocumentService(String(existingDocument._id), body, file);
+        return { ...updated, replacedExisting: true };
+    }
 
     const uploadedFile = await uploadDocumentToS3(file, publicPath);
 

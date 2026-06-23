@@ -35,3 +35,13 @@ export const getDocumentByPublicPathRepo = async (publicPath) => {
         .sort({ updatedAt: -1, contentVersion: -1 })
         .lean();
 };
+
+export const getDocumentByPublicPathAnyStatusRepo = async (publicPath) => {
+    const candidates = buildPublicPathLookupCandidates(publicPath);
+
+    return await Documents.findOne({
+        publicPath: { $in: candidates },
+    })
+        .sort({ updatedAt: -1, contentVersion: -1 })
+        .lean();
+};
