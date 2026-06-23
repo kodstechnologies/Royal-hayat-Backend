@@ -100,6 +100,7 @@ class DoctorService {
         limit,
         sortBy,
         sortOrder,
+        department,
       });
       doctors = searchResult.doctors;
       total = searchResult.total;
