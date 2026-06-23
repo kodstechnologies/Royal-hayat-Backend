@@ -17,11 +17,20 @@ const documentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    publicPath: {
+        type: String,
+        trim: true,
+        index: true,
+    },
+    contentVersion: {
+        type: Number,
+        default: 1,
+    },
     status: {
         type:String,
         default:"active"
     }
-})
+}, { timestamps: true })
 
 const Documents = mongoose.model('Documents', documentSchema);
 export default Documents;

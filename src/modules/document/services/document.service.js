@@ -4,12 +4,65 @@ import {
     getAllDocumentsRepo,
     getDocumentByIdRepo,
     updateDocumentRepo,
-    deleteDocumentRepo
+    deleteDocumentRepo,
+    getDocumentByPublicPathRepo,
 } from "../repository/document.repository.js";
 
-import { uploadToS3 } from "../../../utils/s3Upload.js";
 import { getFileUrl } from "../../../utils/s3Fetch.js";
+import {
+    buildDocumentPublicPath,
+    buildDocumentS3Key,
+    copyS3ObjectToKey,
+    getDocumentPublicPath,
+    normalizeDocumentPublicPath,
+    uploadDocumentToS3,
+} from "../../../utils/documentStorage.js";
 import toPlainObject from "../../../utils/toPlainObject.js";
+
+const formatDocumentResponse = async (doc) => {
+    const plain = toPlainObject(doc);
+
+    if (plain.publicPath) {
+        const publicPath = getDocumentPublicPath(plain.publicPath);
+        return {
+            ...plain,
+            publicPath,
+            storageKey: plain.file,
+            file: publicPath,
+            fileUrl: publicPath,
+        };
+    }
+
+    const signedUrl = await getFileUrl(plain.file);
+    return {
+        ...plain,
+        file: signedUrl,
+        fileUrl: signedUrl,
+    };
+};
+
+const assertUniquePublicPath = async (publicPath, excludeId) => {
+    const existingDocument = await getDocumentByPublicPathRepo(publicPath);
+    if (existingDocument && String(existingDocument._id) !== String(excludeId ?? "")) {
+        throw new Error(`A document already exists at ${publicPath}`);
+    }
+};
+
+const resolvePublicPath = (body, file, existingPublicPath) => {
+    if (body.publicPath !== undefined && body.publicPath !== null && String(body.publicPath).trim()) {
+        return normalizeDocumentPublicPath(body.publicPath, file?.originalname);
+    }
+
+    if (existingPublicPath) {
+        return getDocumentPublicPath(existingPublicPath);
+    }
+
+    if (file) {
+        return buildDocumentPublicPath(file.originalname);
+    }
+
+    return null;
+};
 
 export const createDocumentService = async (body, file) => {
 
@@ -17,36 +70,30 @@ export const createDocumentService = async (body, file) => {
         throw new Error("File is required");
     }
 
-    const uploadedFile = await uploadToS3(file);
+    const publicPath = resolvePublicPath(body, file);
+    await assertUniquePublicPath(publicPath);
+
+    const uploadedFile = await uploadDocumentToS3(file, publicPath);
 
     const payload = {
         title: body.title,
         catagory: body.catagory,
         description: body.description,
         file: uploadedFile.key,
+        publicPath,
+        contentVersion: Date.now(),
         status: body.status || "active"
     };
 
-    return await createDocumentRepo(payload);
+    const document = await createDocumentRepo(payload);
+    return formatDocumentResponse(document);
 };
 
 export const getAllDocumentsService = async () => {
 
     const documents = await getAllDocumentsRepo();
 
-    const updatedDocuments = await Promise.all(
-        documents.map(async (doc) => {
-
-            const signedUrl = await getFileUrl(doc.file);
-
-            return {
-                ...toPlainObject(doc),
-                file: signedUrl
-            };
-        })
-    );
-
-    return updatedDocuments;
+    return Promise.all(documents.map((doc) => formatDocumentResponse(doc)));
 };
 
 export const getDocumentByIdService = async (id) => {
@@ -57,12 +104,7 @@ export const getDocumentByIdService = async (id) => {
         throw new Error("Document not found");
     }
 
-    const signedUrl = await getFileUrl(document.file);
-
-    return {
-        ...toPlainObject(document),
-        file: signedUrl
-    };
+    return formatDocumentResponse(document);
 };
 
 export const updateDocumentService = async (id, body, file) => {
@@ -73,22 +115,51 @@ export const updateDocumentService = async (id, body, file) => {
         throw new Error("Document not found");
     }
 
+    const updatedPublicPath = resolvePublicPath(
+        body,
+        file,
+        existingDocument.publicPath,
+    );
+
+    if (!updatedPublicPath) {
+        throw new Error("Public path is required");
+    }
+
+    await assertUniquePublicPath(updatedPublicPath, id);
+
     let updatedFile = existingDocument.file;
+    const targetS3Key = buildDocumentS3Key(updatedPublicPath);
+    let fileReplaced = false;
 
     if (file) {
-        const uploadedFile = await uploadToS3(file);
+        if (!file.buffer?.length) {
+            throw new Error("Uploaded file is empty");
+        }
+
+        const uploadedFile = await uploadDocumentToS3(file, updatedPublicPath);
         updatedFile = uploadedFile.key;
+        fileReplaced = true;
+    } else if (
+        targetS3Key !== String(existingDocument.file || "").trim().replace(/^\/+/, "") &&
+        existingDocument.file
+    ) {
+        await copyS3ObjectToKey(existingDocument.file, targetS3Key);
+        updatedFile = targetS3Key;
     }
 
     const payload = {
-        title: body.title || existingDocument.title,
-        catagory: body.catagory || existingDocument.catagory,
-        description: body.description || existingDocument.description,
-        status: body.status || existingDocument.status,
-        file: updatedFile
+        title: body.title ?? existingDocument.title,
+        catagory: body.catagory ?? existingDocument.catagory,
+        description: body.description ?? existingDocument.description,
+        status: body.status ?? existingDocument.status,
+        file: updatedFile,
+        publicPath: updatedPublicPath,
+        contentVersion: Date.now(),
     };
 
-    return await updateDocumentRepo(id, payload);
+    const document = await updateDocumentRepo(id, payload);
+    const formatted = await formatDocumentResponse(document);
+    return { ...formatted, fileReplaced };
 };
 
 export const deleteDocumentService = async (id) => {
@@ -100,4 +171,27 @@ export const deleteDocumentService = async (id) => {
     }
 
     return await deleteDocumentRepo(id);
+};
+
+export const getDocumentByPublicPathService = async (publicPath) => {
+    return getDocumentByPublicPathRepo(publicPath);
+};
+
+export const getDocumentPublicMetaService = async (publicPath) => {
+    const document = await getDocumentByPublicPathRepo(publicPath);
+    if (!document) {
+        return null;
+    }
+
+    const normalizedPath = getDocumentPublicPath(document.publicPath || publicPath);
+    const contentVersion =
+        document.contentVersion ||
+        (document.updatedAt ? new Date(document.updatedAt).getTime() : null) ||
+        String(document._id);
+
+    return {
+        publicPath: normalizedPath,
+        contentVersion,
+        updatedAt: document.updatedAt ?? null,
+    };
 };

@@ -1,6 +1,10 @@
 
 import Joi from "joi";
 
+const publicPathSchema = Joi.string().trim().optional().messages({
+    "string.empty": "Public path cannot be empty",
+});
+
 export const createDocumentValidator = Joi.object({
     title: Joi.string().trim().required(),
 
@@ -9,6 +13,8 @@ export const createDocumentValidator = Joi.object({
         .required(),
 
     description: Joi.string().trim().required(),
+
+    publicPath: publicPathSchema,
 
     status: Joi.string()
         .valid("active", "inactive")
@@ -23,6 +29,8 @@ export const updateDocumentValidator = Joi.object({
         .optional(),
 
     description: Joi.string().trim().optional(),
+
+    publicPath: publicPathSchema,
 
     status: Joi.string()
         .valid("active", "inactive")

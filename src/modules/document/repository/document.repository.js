@@ -1,5 +1,5 @@
-
 import Documents from "../model/document.model.js";
+import { buildPublicPathLookupCandidates } from "../../../utils/documentStorage.js";
 
 export const createDocumentRepo = async (payload) => {
     return await Documents.create(payload);
@@ -23,4 +23,15 @@ export const updateDocumentRepo = async (id, payload) => {
 
 export const deleteDocumentRepo = async (id) => {
     return await Documents.findByIdAndDelete(id);
+};
+
+export const getDocumentByPublicPathRepo = async (publicPath) => {
+    const candidates = buildPublicPathLookupCandidates(publicPath);
+
+    return await Documents.findOne({
+        publicPath: { $in: candidates },
+        status: "active",
+    })
+        .sort({ updatedAt: -1, contentVersion: -1 })
+        .lean();
 };

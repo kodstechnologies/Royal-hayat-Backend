@@ -4,7 +4,8 @@ import {
     getAllDocumentsService,
     getDocumentByIdService,
     updateDocumentService,
-    deleteDocumentService
+    deleteDocumentService,
+    getDocumentPublicMetaService,
 } from "../services/document.service.js";
 
 import {
@@ -107,7 +108,11 @@ export const updateDocument = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Document updated successfully",
-            data: document
+            data: document,
+            meta: {
+                fileUploaded: Boolean(req.file),
+                fileReplaced: Boolean(document?.fileReplaced),
+            },
         });
 
     } catch (error) {
@@ -115,6 +120,36 @@ export const updateDocument = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: error.message
+        });
+    }
+};
+
+export const resolvePublicDocumentMeta = async (req, res) => {
+    try {
+        const publicPath = String(req.query.path || "").trim();
+        if (!publicPath) {
+            return res.status(400).json({
+                success: false,
+                message: "path query parameter is required",
+            });
+        }
+
+        const meta = await getDocumentPublicMetaService(publicPath);
+        if (!meta) {
+            return res.status(404).json({
+                success: false,
+                message: "Document not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: meta,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
         });
     }
 };

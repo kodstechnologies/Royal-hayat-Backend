@@ -7,6 +7,7 @@ import { formatMongooseValidationError } from './utils/mongooseValidationMessage
 import routes from './routes/index.js';
 import runtimePdfPublicRoutes from './modules/runtimePdfViewer/routes/runtimePdfPublicRoutes.js';
 import wpContentPdfPublicRoutes from './modules/runtimePdfViewer/routes/wpContentPdfPublicRoutes.js';
+import { servePublicDocument } from './modules/runtimePdfViewer/controllers/runtimePdfViewer.controller.js';
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use((req, res, next) => {
 
 app.use('/Runtime/uploads', runtimePdfPublicRoutes);
 app.use('/wp-content/uploads', wpContentPdfPublicRoutes);
+app.use(servePublicDocument);
 app.use('/', routes);
 
 app.get('/health', (req, res) => {

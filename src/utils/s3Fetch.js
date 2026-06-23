@@ -17,9 +17,9 @@ const extractKey = (keyOrUrl) => {
             const url = new URL(keyOrUrl);
             return decodeURIComponent(url.pathname.replace(/^\/+/, ""));
         }
-        return keyOrUrl.trim();
+        return keyOrUrl.trim().replace(/^\/+/, "");
     } catch {
-        return keyOrUrl.trim();
+        return keyOrUrl.trim().replace(/^\/+/, "");
     }
 };
 

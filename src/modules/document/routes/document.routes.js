@@ -1,12 +1,13 @@
 
 import express from "express";
-import multer from "multer";
+import { upload } from "../../../utils/multer.js";
 import {
   createDocument,
   getAllDocuments,
   getDocumentById,
   updateDocument,
   deleteDocument,
+  resolvePublicDocumentMeta,
 } from "../controller/document.controller.js";
 import { verifyJWT } from "../../../middlewares/authMiddleware.js";
 import checkPermission from "../../../middlewares/checkPermission.js";
@@ -14,8 +15,7 @@ import { PERMISSIONS } from "../../../constants/permission.js";
 
 const router = express.Router();
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+router.get("/public/resolve", resolvePublicDocumentMeta);
 
 router.post(
   "/create",
@@ -39,13 +39,15 @@ router.get(
   getDocumentById,
 );
 
-router.put(
-  "/update/:id",
+const updateDocumentHandlers = [
   verifyJWT,
   checkPermission([PERMISSIONS.DOCUMENT_UPDATE, PERMISSIONS.DOCUMENT_VIEW]),
   upload.single("file"),
   updateDocument,
-);
+];
+
+router.put("/update/:id", ...updateDocumentHandlers);
+router.post("/update/:id", ...updateDocumentHandlers);
 
 router.delete(
   "/delete/:id",
