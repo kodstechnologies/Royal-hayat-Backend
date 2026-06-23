@@ -25,6 +25,15 @@ export const deleteDocumentRepo = async (id) => {
     return await Documents.findByIdAndDelete(id);
 };
 
+export const deleteAliasDocumentDuplicatesRepo = async (publicPath, keepId) => {
+    const candidates = buildPublicPathLookupCandidates(publicPath);
+
+    return await Documents.deleteMany({
+        publicPath: { $in: candidates },
+        _id: { $ne: keepId },
+    });
+};
+
 export const getDocumentByPublicPathRepo = async (publicPath) => {
     const candidates = buildPublicPathLookupCandidates(publicPath);
 

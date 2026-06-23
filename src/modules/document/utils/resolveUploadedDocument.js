@@ -1,6 +1,9 @@
 import path from "path";
 import { getS3ObjectBuffer } from "../../../utils/s3Fetch.js";
-import { getDocumentPublicPath } from "../../../utils/documentStorage.js";
+import {
+  buildDocumentStorageKeyCandidates,
+  getDocumentPublicPath,
+} from "../../../utils/documentStorage.js";
 import { getDocumentByPublicPathService } from "../../document/services/document.service.js";
 
 export async function resolveUploadedDocumentByPublicPath(publicPath) {
@@ -10,8 +13,14 @@ export async function resolveUploadedDocumentByPublicPath(publicPath) {
   const document = await getDocumentByPublicPathService(normalizedPath);
   if (!document?.file) return null;
 
-  const storageKey = String(document.file).trim().replace(/^\/+/, "");
-  const s3File = await getS3ObjectBuffer(storageKey);
+  const storageKeys = buildDocumentStorageKeyCandidates(document.file);
+  let s3File = null;
+
+  for (const storageKey of storageKeys) {
+    s3File = await getS3ObjectBuffer(storageKey);
+    if (s3File?.buffer?.length) break;
+  }
+
   if (!s3File?.buffer?.length) return null;
 
   const version = document.contentVersion || document.updatedAt || document._id;
