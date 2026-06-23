@@ -31,8 +31,6 @@ const SHARPER_USER = getRequiredEnv('SHARPER_USER');
 const SHARPER_PASS = getRequiredEnv('SHARPER_PASS');
 const SHARPER_CALLBACK_URL = getRequiredEnv('SHARPER_CALLBACK_URL');
 
-const MEDICAL_REPORTS_BASE_URL = getRequiredEnv('MEDICAL_REPORTS_CALLBACK_URL');
-
 const basicAuth = `Basic ${Buffer.from(`${SHARPER_USER}:${SHARPER_PASS}`).toString('base64')}`;
 
 const parseResponseJson = async (resp) => {
@@ -332,88 +330,6 @@ const getIdentityData = async (civilId) => {
   };
 };
 
-const hasVerifiedOperationForCivilId = (civilId) => {
-  for (const entry of operationStore.values()) {
-    if (entry?.civilId === civilId && entry?.verified === true) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const getMedicalReports = async (civilId) => {
-  if (!hasVerifiedOperationForCivilId(civilId)) {
-    identityLog('reports', `service: BLOCKED unverified civilId=${civilId}`);
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'Identity verification is required before accessing medical reports'
-    );
-  }
-
-  const afyatiPayload = {
-    idn: civilId,
-    externalauth: 'KuwaitMobileID',
-  };
-
-  const url = new URL(MEDICAL_REPORTS_BASE_URL);
-  url.searchParams.set('idn', afyatiPayload.idn);
-  url.searchParams.set('externalauth', afyatiPayload.externalauth);
-
-  identityLog('reports', `Afyati callback URL: ${url.toString()}`);
-  identityLogJson('reports', 'Afyati callback payload', afyatiPayload);
-  identityLogJson('reports', 'request sent (to afyati)', {
-    method: 'GET',
-    url: url.toString(),
-    payload: afyatiPayload,
-  });
-
-  let response;
-  try {
-    response = await fetch(url, { method: 'GET', redirect: 'follow' });
-  } catch (err) {
-    identityLogJson('reports', 'request FAILED (network/TLS error from afyati)', {
-      url: url.toString(),
-      error: err?.message || String(err),
-      cause: err?.cause?.code || err?.cause?.message || null
-    });
-    throw new ApiError(httpStatus.BAD_GATEWAY, 'Medical reports service is unreachable');
-  }
-
-  const contentType = response.headers.get('content-type') || '';
-
-  let data = null;
-  if (contentType.includes('application/json')) {
-    data = await response.json().catch(() => null);
-  } else {
-    data = await response.text().catch(() => null);
-  }
-
-  const bodyPreview = typeof data === 'string' ? data.slice(0, 500) : data;
-  identityLogJson('reports', 'response received (from afyati)', {
-    status: response.status,
-    ok: response.ok,
-    finalUrl: response.url,
-    redirected: response.redirected,
-    contentType,
-    bodyLength: typeof data === 'string' ? data.length : null,
-    bodyPreview
-  });
-
-  if (!response.ok) {
-    throw new ApiError(
-      response.status || httpStatus.BAD_GATEWAY,
-      'Failed to fetch medical reports',
-      typeof data === 'object' ? data : null
-    );
-  }
-
-  return {
-    civilId,
-    contentType,
-    data
-  };
-};
-
 const handleIdentityCallback = async (callbackBody) => {
   identityLog('callback', 'service: handleIdentityCallback entered');
   identityLogJson('callback', 'received from Sharper (raw body)', callbackBody);
@@ -478,6 +394,5 @@ export default {
   startIdentityVerification,
   getIdentityStatus,
   getIdentityData,
-  getMedicalReports,
   handleIdentityCallback
 };
