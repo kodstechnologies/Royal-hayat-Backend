@@ -6,6 +6,8 @@ import {
     updateDocumentRepo,
     deleteDocumentRepo,
     getDocumentByPublicPathRepo,
+    getDocumentByPublicPathAnyStatusRepo,
+    deleteAliasDocumentDuplicatesRepo,
 } from "../repository/document.repository.js";
 
 import { getFileUrl } from "../../../utils/s3Fetch.js";
@@ -42,9 +44,11 @@ const formatDocumentResponse = async (doc) => {
 };
 
 const assertUniquePublicPath = async (publicPath, excludeId) => {
-    const existingDocument = await getDocumentByPublicPathRepo(publicPath);
+    await deleteAliasDocumentDuplicatesRepo(publicPath, excludeId);
+
+    const existingDocument = await getDocumentByPublicPathAnyStatusRepo(publicPath);
     if (existingDocument && String(existingDocument._id) !== String(excludeId ?? "")) {
-        throw new Error(`A document already exists at ${publicPath}`);
+        throw new Error(`A document already exists at ${getDocumentPublicPath(publicPath)}`);
     }
 };
 
@@ -71,7 +75,13 @@ export const createDocumentService = async (body, file) => {
     }
 
     const publicPath = resolvePublicPath(body, file);
-    await assertUniquePublicPath(publicPath);
+    const existingDocument = await getDocumentByPublicPathAnyStatusRepo(publicPath);
+
+    if (existingDocument) {
+        await deleteAliasDocumentDuplicatesRepo(publicPath, existingDocument._id);
+        const updated = await updateDocumentService(String(existingDocument._id), body, file);
+        return { ...updated, replacedExisting: true };
+    }
 
     const uploadedFile = await uploadDocumentToS3(file, publicPath);
 
@@ -82,6 +92,7 @@ export const createDocumentService = async (body, file) => {
         file: uploadedFile.key,
         publicPath,
         contentVersion: Date.now(),
+        qrEnabled: true,
         status: body.status || "active"
     };
 

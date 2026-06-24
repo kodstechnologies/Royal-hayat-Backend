@@ -25,12 +25,31 @@ export const deleteDocumentRepo = async (id) => {
     return await Documents.findByIdAndDelete(id);
 };
 
+export const deleteAliasDocumentDuplicatesRepo = async (publicPath, keepId) => {
+    const candidates = buildPublicPathLookupCandidates(publicPath);
+
+    return await Documents.deleteMany({
+        publicPath: { $in: candidates },
+        _id: { $ne: keepId },
+    });
+};
+
 export const getDocumentByPublicPathRepo = async (publicPath) => {
     const candidates = buildPublicPathLookupCandidates(publicPath);
 
     return await Documents.findOne({
         publicPath: { $in: candidates },
         status: "active",
+    })
+        .sort({ updatedAt: -1, contentVersion: -1 })
+        .lean();
+};
+
+export const getDocumentByPublicPathAnyStatusRepo = async (publicPath) => {
+    const candidates = buildPublicPathLookupCandidates(publicPath);
+
+    return await Documents.findOne({
+        publicPath: { $in: candidates },
     })
         .sort({ updatedAt: -1, contentVersion: -1 })
         .lean();

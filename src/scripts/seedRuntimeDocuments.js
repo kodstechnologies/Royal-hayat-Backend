@@ -18,6 +18,7 @@ import { listRuntimePdfs } from "../modules/runtimePdfViewer/config/runtimePdfMa
 import {
   getDocumentPublicPath,
   uploadLocalFileToS3,
+  buildPublicPathLookupCandidates,
 } from "../utils/documentStorage.js";
 import runtimePdfLabels from "./data/runtimePdfLabels.json" with { type: "json" };
 
@@ -118,7 +119,10 @@ const resolveTitle = ({ publicPath, localFilePath, manifestEntry, labelIndex }) 
 };
 
 const findExistingDocument = async ({ publicPath, manifestEntry }) => {
-  const byPath = await Documents.findOne({ publicPath }).lean();
+  const candidates = buildPublicPathLookupCandidates(publicPath);
+  const byPath = await Documents.findOne({ publicPath: { $in: candidates } })
+    .sort({ updatedAt: -1, contentVersion: -1 })
+    .lean();
   if (byPath) return byPath;
 
   if (manifestEntry?.id) {
@@ -139,13 +143,22 @@ const collectSeedEntries = () => {
 
     if (!localFilePath) continue;
 
-    if (!unique.has(publicPath)) {
-      unique.set(publicPath, {
-        publicPath,
-        localFilePath,
-        mount: entry.mount,
-        relativePath: entry.publicPath,
-      });
+    const aliasKey = path.resolve(localFilePath).toLowerCase();
+    const candidate = {
+      publicPath,
+      localFilePath,
+      mount: entry.mount,
+      relativePath: entry.publicPath,
+    };
+
+    const existing = unique.get(aliasKey);
+    if (!existing) {
+      unique.set(aliasKey, candidate);
+      continue;
+    }
+
+    if (publicPath.includes(" ") && !existing.publicPath.includes(" ")) {
+      unique.set(aliasKey, candidate);
     }
   }
 

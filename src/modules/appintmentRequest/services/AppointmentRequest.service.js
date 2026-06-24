@@ -1,7 +1,6 @@
 import httpStatus from 'http-status';
 import ApiError from '../../../utils/ApiError.js';
 import appointmentRequestRepository from '../repository/AppointmentRequest.repository.js';
-import appointmentBookingRecordService from './AppointmentBookingRecord.service.js';
 import {
   buildAppointmentListFilter,
   normalizeRequestType,
@@ -206,33 +205,6 @@ const validateCreate = (payload) => {
   }
 };
 
-const mapRequestToBookingPayload = (request) => ({
-  fullname: request.fullname,
-  phone: request.phone,
-  age: request.age,
-  gender: request.gender,
-  additionalNotes: request.additionalNotes,
-  dob: request.dob,
-  patient_id: request.patient_id,
-  urn: request.urn,
-  national_id: request.national_id,
-  mobile_number: request.mobile_number,
-  email: request.email,
-  address: request.address,
-  englishName: request.englishName,
-  arabicName: request.arabicName,
-  operationId: request.operationId,
-  paciRequestId: request.paciRequestId,
-  date: request.date,
-  slot_from_time: request.slot_from_time,
-  slot_to_time: request.slot_to_time,
-  nationality: request.nationality,
-  passportNumber: request.passportNumber,
-  symptoms: request.symptoms,
-  doctor: request.doctor,
-  department: request.department,
-});
-
 const resolveStatusNote = (body = {}) => {
   if (body.note === undefined || body.note === null) {
     return undefined;
@@ -338,12 +310,6 @@ class AppointmentRequestService {
     const current = await appointmentRequestRepository.findById(id);
     if (!current) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Appointment request not found');
-    }
-
-    if (current.status !== 'accepted') {
-      await appointmentBookingRecordService.createAppointmentBookingRecord(
-        mapRequestToBookingPayload(current),
-      );
     }
 
     const updatePayload = { status: 'accepted' };

@@ -102,7 +102,13 @@ class DoctorRepository {
   }
 
   async search(searchQuery, options = {}) {
-    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = options;
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      department,
+    } = options;
     const term = String(searchQuery || '').trim();
     const escaped = escapeRegex(term);
     const compactTerm = term.replace(/[\s.]/g, '');
@@ -112,6 +118,10 @@ class DoctorRepository {
 
     const skip = (page - 1) * limit;
     const baseQuery = { isActive: true };
+
+    if (department) {
+      baseQuery.department = department;
+    }
 
     const regexQuery = {
       ...baseQuery,

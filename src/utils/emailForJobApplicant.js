@@ -1,7 +1,28 @@
 import nodemailer from "nodemailer";
-import { getMailFromAddress } from "./mailFrom.js";
+import { getJobApplicantMailFromAddress } from "./mailFrom.js";
 
 const KUWAIT_TIMEZONE = "Asia/Kuwait";
+
+const createJobApplicantTransporter = () => {
+  const host = process.env.JOB_APPLICANT_SMTP_HOST?.trim();
+  const user = process.env.JOB_APPLICANT_SMTP_USER?.trim();
+  const pass = process.env.JOB_APPLICANT_SMTP_PASS?.trim();
+  const port = Number(process.env.JOB_APPLICANT_SMTP_PORT || 587);
+  const secure = process.env.JOB_APPLICANT_SMTP_SECURE === "true";
+
+  if (!host || !user || !pass) {
+    throw new Error(
+      "JOB_APPLICANT_SMTP_HOST, JOB_APPLICANT_SMTP_USER, or JOB_APPLICANT_SMTP_PASS missing",
+    );
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+  });
+};
 
 const formatDateTime = (value) => {
   if (!value) return "N/A";
@@ -111,10 +132,6 @@ export const jobApplicationApplicantEmailTemplate = (application, job) => {
 };
 
 export const sendJobApplicationConfirmationEmail = async (application, job) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    throw new Error("SMTP_USER or SMTP_PASS missing");
-  }
-
   const applicantEmail = String(application?.email || "")
     .trim()
     .toLowerCase();
@@ -123,19 +140,19 @@ export const sendJobApplicationConfirmationEmail = async (application, job) => {
     throw new Error("Applicant email is required");
   }
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-
+  const from = getJobApplicantMailFromAddress();
+  const transporter = createJobApplicantTransporter();
+  try {
+    await transporter.verify();
+    console.log("SMTP connection successful");
+  } catch (err) {
+    console.error("SMTP verification failed:", err);
+  }
   const applicationId = application.applicationId || "Application";
   const jobTitle = job?.title || "Position";
 
   await transporter.sendMail({
-    from: getMailFromAddress(),
+    from,
     to: applicantEmail,
     subject: `Application Received — ${applicationId} (${jobTitle})`,
     html: jobApplicationApplicantEmailTemplate(application, job),

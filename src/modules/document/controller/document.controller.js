@@ -31,10 +31,15 @@ export const createDocument = async (req, res) => {
             req.file
         );
 
-        return res.status(201).json({
+        const replacedExisting = Boolean(document?.replacedExisting);
+
+        return res.status(replacedExisting ? 200 : 201).json({
             success: true,
-            message: "Document created successfully",
-            data: document
+            message: replacedExisting
+                ? "A document already existed at this path — it was updated with your new file"
+                : "Document created successfully",
+            data: document,
+            meta: { replacedExisting },
         });
 
     } catch (error) {

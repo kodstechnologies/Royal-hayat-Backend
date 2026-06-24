@@ -184,6 +184,27 @@ export function isPublicDocumentPath(pathname) {
   return PUBLIC_DOCUMENT_FILE_RE.test(cleanPath);
 }
 
+const legacySpacedBasename = (basename) => {
+  if (!basename || basename.includes(" ")) return null;
+
+  const ext = path.posix.extname(basename);
+  const stem = ext ? basename.slice(0, -ext.length) : basename;
+  const parts = stem.split("_");
+  if (parts.length < 3) return null;
+
+  let splitAt = parts.length;
+  for (let i = 0; i < parts.length; i += 1) {
+    if (/\d/.test(parts[i])) {
+      splitAt = i;
+      break;
+    }
+  }
+
+  if (splitAt < 2) return null;
+
+  return `${parts.slice(0, splitAt).join(" ")}_${parts.slice(splitAt).join("_")}${ext}`;
+};
+
 /** Build lookup candidates for the same logical public path. */
 export function buildPublicPathLookupCandidates(publicPath) {
   const normalized = getDocumentPublicPath(publicPath);
@@ -195,17 +216,81 @@ export function buildPublicPathLookupCandidates(publicPath) {
     // ignore decode errors
   }
 
-  const encodedSegments = normalized
-    .split("/")
-    .map((segment, index) => {
-      if (index === 0 && !segment) return "";
-      if (!segment) return segment;
-      return encodeURIComponent(decodeURIComponent(segment));
-    })
-    .join("/");
-  candidates.add(encodedSegments);
+  try {
+    candidates.add(decodeURIComponent(String(publicPath || "").trim()));
+  } catch {
+    // ignore decode errors
+  }
+
+  const addPathVariant = (value) => {
+    const clean = String(value || "").trim().replace(/\/+/g, "/");
+    if (!clean) return;
+    candidates.add(clean.startsWith("/") ? clean : `/${clean}`);
+
+    const encodedSegments = clean
+      .split("/")
+      .map((segment, index) => {
+        if (index === 0 && !segment) return "";
+        if (!segment) return segment;
+        return encodeURIComponent(decodeURIComponent(segment));
+      })
+      .join("/");
+    candidates.add(encodedSegments);
+  };
+
+  const addFilenameVariants = (pathname) => {
+    const cleanPath = getDocumentPublicPath(pathname);
+    const segments = cleanPath.split("/").filter(Boolean);
+    if (!segments.length) return;
+
+    const basename = segments[segments.length - 1];
+    const dirSegments = segments.slice(0, -1);
+    const basenameVariants = new Set([
+      basename,
+      basename.replace(/ /g, "_"),
+    ]);
+
+    const legacySpaced = legacySpacedBasename(basename);
+    if (legacySpaced) {
+      basenameVariants.add(legacySpaced);
+      basenameVariants.add(legacySpaced.replace(/ /g, "_"));
+    }
+
+    for (const variant of basenameVariants) {
+      addPathVariant(`/${[...dirSegments, variant].join("/")}`);
+    }
+  };
+
+  addPathVariant(normalized);
+  addFilenameVariants(normalized);
 
   return [...candidates]
     .map((candidate) => candidate.replace(/\/+/g, "/"))
     .filter(Boolean);
+}
+
+/** Build likely S3 key variants for the same logical document file. */
+export function buildDocumentStorageKeyCandidates(keyOrPath) {
+  const cleanKey = String(keyOrPath || "").trim().replace(/^\/+/, "");
+  if (!cleanKey) return [];
+
+  const candidates = new Set([cleanKey]);
+  const basename = path.posix.basename(cleanKey);
+  const dir = cleanKey.slice(0, Math.max(0, cleanKey.length - basename.length));
+
+  const basenameVariants = new Set([
+    basename,
+    basename.replace(/ /g, "_"),
+  ]);
+  const legacySpaced = legacySpacedBasename(basename);
+  if (legacySpaced) {
+    basenameVariants.add(legacySpaced);
+    basenameVariants.add(legacySpaced.replace(/ /g, "_"));
+  }
+
+  for (const variant of basenameVariants) {
+    candidates.add(`${dir}${variant}`.replace(/\/+/g, "/"));
+  }
+
+  return [...candidates].filter(Boolean);
 }
