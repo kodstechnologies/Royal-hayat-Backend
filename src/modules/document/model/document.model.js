@@ -26,6 +26,10 @@ const documentSchema = new mongoose.Schema({
         type: Number,
         default: 1,
     },
+    qrEnabled: {
+        type: Boolean,
+        default: false,
+    },
     status: {
         type:String,
         default:"active"

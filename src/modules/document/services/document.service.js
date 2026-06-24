@@ -92,6 +92,7 @@ export const createDocumentService = async (body, file) => {
         file: uploadedFile.key,
         publicPath,
         contentVersion: Date.now(),
+        qrEnabled: true,
         status: body.status || "active"
     };
 
