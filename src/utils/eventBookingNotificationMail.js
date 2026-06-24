@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import { getMailFromAddress } from "./mailFrom.js";
 
 const DEFAULT_RECIPIENTS =
-  "events@royalehayat.com,rola.boufalgha@royalehayat.com,rosemary.creer@royalehayat.com,marketing@royalehayat.com,prajwalanagekar@gmail.com";
+  "events@royalehayat.com,rola.boufalgha@royalehayat.com,rosemary.creer@royalehayat.com,marketing@royalehayat.com";
 
 const parseEmails = (value) =>
   String(value || "")

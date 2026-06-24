@@ -3,7 +3,7 @@ import { getMailFromAddress } from "./mailFrom.js";
 import { formatSlotTimesForDisplay } from "../modules/appintmentRequest/utils/appointmentSlotTimes.js";
 
 const DEFAULT_RECIPIENTS =
-  "callcenter@royalehayat.com,marketing@royalehayat.com,prajwalanagekar@gmail.com";
+  "callcenter@royalehayat.com,marketing@royalehayat.com";
 
 const formatDateTime = (value) => {
   if (!value) return "N/A";

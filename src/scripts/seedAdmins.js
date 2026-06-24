@@ -5,10 +5,7 @@ const ADMINS = [
     email: 'royalehayat.dev@gmail.com',
     password: 'admin@123',
   },
-  {
-    email: 'prajwalanagekar@gmail.com',
-    password: 'prajwala@123',
-  },
+
 ];
 
 const seedAdmins = async () => {

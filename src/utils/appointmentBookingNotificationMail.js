@@ -3,7 +3,7 @@ import { getMailFromAddress } from "./mailFrom.js";
 import { formatSlotTimesForDisplay } from "../modules/appintmentRequest/utils/appointmentSlotTimes.js";
 
 const DEFAULT_RECIPIENTS =
-  "prajwalanagekar@gmail.com";
+  "vrajesh.vr@royalehayat.com";
 
 const parseEmails = (value) =>
   String(value || "")

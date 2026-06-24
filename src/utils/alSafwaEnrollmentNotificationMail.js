@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import { getMailFromAddress } from "./mailFrom.js";
 
-const DEFAULT_TO = "justine.talampas@royalehayat.com,shehab.mahdy@royalehayat.com,rima.chendeb@royalehayat.com,prajwalanagekar@gmail.com";
+const DEFAULT_TO = "justine.talampas@royalehayat.com,shehab.mahdy@royalehayat.com,rima.chendeb@royalehayat.com";
 const DEFAULT_CC = "marketing@royalehayat.com";
 
 const parseEmails = (value) =>
