@@ -27,11 +27,16 @@ const getRequiredEnv = (key) => {
 
 
 const SHARPER_BASE_URL = getRequiredEnv('SHARPER_BASE_URL');
+const SHARPER_API_KEY = getRequiredEnv('SHARPER_API_KEY');
 const SHARPER_USER = getRequiredEnv('SHARPER_USER');
 const SHARPER_PASS = getRequiredEnv('SHARPER_PASS');
 const SHARPER_CALLBACK_URL = getRequiredEnv('SHARPER_CALLBACK_URL');
 
-const basicAuth = `Basic ${Buffer.from(`${SHARPER_USER}:${SHARPER_PASS}`).toString('base64')}`;
+const sharperHeaders = (extra = {}) => ({
+  'API-KEY': SHARPER_API_KEY,
+  Authorization: `Basic ${Buffer.from(`${SHARPER_USER}:${SHARPER_PASS}`).toString('base64')}`,
+  ...extra,
+});
 
 const parseResponseJson = async (resp) => {
   return resp.json().catch(() => null);
@@ -51,9 +56,7 @@ const isDataNotAvailableError = (statusCode, responseBody) => {
 const fetchIdentityDataRaw = async (civilId, options = { allowMissing: false }) => {
   const dataResp = await fetch(`${SHARPER_BASE_URL}data/${encodeURIComponent(civilId)}`, {
     method: 'GET',
-    headers: {
-      Authorization: basicAuth
-    }
+    headers: sharperHeaders(),
   });
   console.log('dataResp', dataResp);
   const dataBody = await parseResponseJson(dataResp);
@@ -197,10 +200,7 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
 
   const response = await fetch(`${SHARPER_BASE_URL}authenticate/start/push-notification`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: basicAuth
-    },
+    headers: sharperHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload)
   });
 
@@ -268,9 +268,7 @@ const getIdentityStatus = async (operationId) => {
 
   const statusResp = await fetch(`${SHARPER_BASE_URL}status/${encodeURIComponent(operationId)}`, {
     method: 'GET',
-    headers: {
-      Authorization: basicAuth
-    }
+    headers: sharperHeaders(),
   });
 
   if (statusResp.status === 204) {
