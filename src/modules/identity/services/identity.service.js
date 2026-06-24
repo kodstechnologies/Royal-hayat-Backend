@@ -27,13 +27,16 @@ const getRequiredEnv = (key) => {
 
 
 const SHARPER_BASE_URL = getRequiredEnv('SHARPER_BASE_URL');
+const SHARPER_API_KEY = getRequiredEnv('SHARPER_API_KEY');
 const SHARPER_USER = getRequiredEnv('SHARPER_USER');
 const SHARPER_PASS = getRequiredEnv('SHARPER_PASS');
 const SHARPER_CALLBACK_URL = getRequiredEnv('SHARPER_CALLBACK_URL');
 
-const MEDICAL_REPORTS_BASE_URL = getRequiredEnv('MEDICAL_REPORTS_CALLBACK_URL');
-
-const basicAuth = `Basic ${Buffer.from(`${SHARPER_USER}:${SHARPER_PASS}`).toString('base64')}`;
+const sharperHeaders = (extra = {}) => ({
+  'API-KEY': SHARPER_API_KEY,
+  Authorization: `Basic ${Buffer.from(`${SHARPER_USER}:${SHARPER_PASS}`).toString('base64')}`,
+  ...extra,
+});
 
 const parseResponseJson = async (resp) => {
   return resp.json().catch(() => null);
@@ -53,9 +56,7 @@ const isDataNotAvailableError = (statusCode, responseBody) => {
 const fetchIdentityDataRaw = async (civilId, options = { allowMissing: false }) => {
   const dataResp = await fetch(`${SHARPER_BASE_URL}data/${encodeURIComponent(civilId)}`, {
     method: 'GET',
-    headers: {
-      Authorization: basicAuth
-    }
+    headers: sharperHeaders(),
   });
   console.log('dataResp', dataResp);
   const dataBody = await parseResponseJson(dataResp);
@@ -199,10 +200,7 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
 
   const response = await fetch(`${SHARPER_BASE_URL}authenticate/start/push-notification`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: basicAuth
-    },
+    headers: sharperHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload)
   });
 
@@ -270,9 +268,7 @@ const getIdentityStatus = async (operationId) => {
 
   const statusResp = await fetch(`${SHARPER_BASE_URL}status/${encodeURIComponent(operationId)}`, {
     method: 'GET',
-    headers: {
-      Authorization: basicAuth
-    }
+    headers: sharperHeaders(),
   });
 
   if (statusResp.status === 204) {
@@ -329,88 +325,6 @@ const getIdentityData = async (civilId) => {
   return {
     civilId,
     raw: dataBody
-  };
-};
-
-const hasVerifiedOperationForCivilId = (civilId) => {
-  for (const entry of operationStore.values()) {
-    if (entry?.civilId === civilId && entry?.verified === true) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const getMedicalReports = async (civilId) => {
-  if (!hasVerifiedOperationForCivilId(civilId)) {
-    identityLog('reports', `service: BLOCKED unverified civilId=${civilId}`);
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'Identity verification is required before accessing medical reports'
-    );
-  }
-
-  const afyatiPayload = {
-    idn: civilId,
-    externalauth: 'KuwaitMobileID',
-  };
-
-  const url = new URL(MEDICAL_REPORTS_BASE_URL);
-  url.searchParams.set('idn', afyatiPayload.idn);
-  url.searchParams.set('externalauth', afyatiPayload.externalauth);
-
-  identityLog('reports', `Afyati callback URL: ${url.toString()}`);
-  identityLogJson('reports', 'Afyati callback payload', afyatiPayload);
-  identityLogJson('reports', 'request sent (to afyati)', {
-    method: 'GET',
-    url: url.toString(),
-    payload: afyatiPayload,
-  });
-
-  let response;
-  try {
-    response = await fetch(url, { method: 'GET', redirect: 'follow' });
-  } catch (err) {
-    identityLogJson('reports', 'request FAILED (network/TLS error from afyati)', {
-      url: url.toString(),
-      error: err?.message || String(err),
-      cause: err?.cause?.code || err?.cause?.message || null
-    });
-    throw new ApiError(httpStatus.BAD_GATEWAY, 'Medical reports service is unreachable');
-  }
-
-  const contentType = response.headers.get('content-type') || '';
-
-  let data = null;
-  if (contentType.includes('application/json')) {
-    data = await response.json().catch(() => null);
-  } else {
-    data = await response.text().catch(() => null);
-  }
-
-  const bodyPreview = typeof data === 'string' ? data.slice(0, 500) : data;
-  identityLogJson('reports', 'response received (from afyati)', {
-    status: response.status,
-    ok: response.ok,
-    finalUrl: response.url,
-    redirected: response.redirected,
-    contentType,
-    bodyLength: typeof data === 'string' ? data.length : null,
-    bodyPreview
-  });
-
-  if (!response.ok) {
-    throw new ApiError(
-      response.status || httpStatus.BAD_GATEWAY,
-      'Failed to fetch medical reports',
-      typeof data === 'object' ? data : null
-    );
-  }
-
-  return {
-    civilId,
-    contentType,
-    data
   };
 };
 
@@ -478,6 +392,5 @@ export default {
   startIdentityVerification,
   getIdentityStatus,
   getIdentityData,
-  getMedicalReports,
   handleIdentityCallback
 };
