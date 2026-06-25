@@ -23,6 +23,7 @@ import {
   sendOtpSchema,
   verifyOtpSchema,
   resetPasswordSchema,
+  createSubadminSchema,
   updateUserSchema,
   updateUserStatusSchema,
 } from '../validations/auth.validation.js';
@@ -57,6 +58,7 @@ router.post(
   '/subadmin',
   verifyJWT,
   checkPermission([PERMISSIONS.USER_CREATE, PERMISSIONS.USER_VIEW]),
+  validate(createSubadminSchema),
   createSubadmin,
 );
 

@@ -76,13 +76,19 @@ const sendOtpEmail = async (email, otp) => {
     `;
 
     const transporter = getMailTransporter();
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: getMailFromAddress(),
       to: email,
       subject: 'Royal Hayat Login OTP',
       text: `Your OTP for login is ${otp}. It will expire in ${OTP_EXPIRY_MINUTES} minutes.`,
       html,
     });
+
+    if (info.rejected?.length) {
+      throw new ApiError(500, `Failed to send OTP email to ${email}`);
+    }
+
+    console.log(`[auth] OTP email sent to ${email}`);
   } catch (error) {
     if (error?.code === 'EAUTH') {
       throw new ApiError(500, 'SMTP authentication failed. Check Gmail App Password.');
@@ -108,9 +114,16 @@ const authService = {
   },
 
   validateUserCredentials: async ({ email, password }) => {
-    console.log("validateUserCredentials", email, password);
-    const user = await authRepository.findByEmail(email);
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const user = await authRepository.findByEmail(normalizedEmail);
     if (!user) throw new ApiError(404, 'User not found');
+
+    if (user.isActive === false) {
+      throw new ApiError(
+        403,
+        'Your account is inactive. Contact your administrator.',
+      );
+    }
 
     const isValid = await user.isPasswordCorrect(password);
     if (!isValid) throw new ApiError(401, 'Invalid credentials');
@@ -119,8 +132,16 @@ const authService = {
   },
 
   sendOtp: async ({ email }) => {
-    const user = await authRepository.findByEmail(email);
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const user = await authRepository.findByEmail(normalizedEmail);
     if (!user) throw new ApiError(404, 'User not found');
+
+    if (user.isActive === false) {
+      throw new ApiError(
+        403,
+        'Your account is inactive. Contact your administrator.',
+      );
+    }
 
     const otpCode = createOtp();
     const otpExpiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);

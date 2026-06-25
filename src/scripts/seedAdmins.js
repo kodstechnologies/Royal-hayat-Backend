@@ -34,14 +34,24 @@ const seedAdmins = async () => {
         continue;
       }
 
-      existing.role = 'admin';
-      existing.isActive = true;
+      let updated = false;
 
-      existing.password = admin.password;
+      if (existing.role !== 'admin') {
+        existing.role = 'admin';
+        updated = true;
+      }
 
-      await existing.save();
+      if (existing.isActive !== true) {
+        existing.isActive = true;
+        updated = true;
+      }
 
-      console.log(`✅ Updated admin: ${normalizedEmail}`);
+      if (updated) {
+        await existing.save();
+        console.log(`✅ Updated admin: ${normalizedEmail}`);
+      } else {
+        console.log(`ℹ️ Admin already exists: ${normalizedEmail}`);
+      }
     }
 
     console.log('✅ Admin seeding completed');

@@ -2,7 +2,8 @@ import User from '../models/user.model.js';
 import Otp from '../models/otp.model.js';
 
 const authRepository = {
-  findByEmail: (email) => User.findOne({ email }),
+  findByEmail: (email) =>
+    User.findOne({ email: String(email || '').trim().toLowerCase() }),
 
   findById: (id) => User.findById(id),
 

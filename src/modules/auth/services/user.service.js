@@ -81,6 +81,11 @@ const userService = {
   createSubadmin: async ({ name, email, password, role, permissions }) => {
     const normalizedRole = assertManagedRole(role);
     const normalizedEmail = normalizeEmail(email);
+    const normalizedPassword = String(password || '').trim();
+
+    if (normalizedPassword.length < 6) {
+      throw new ApiError(400, 'Password must be at least 6 characters');
+    }
 
     const existingUser = await authRepository.findByEmail(normalizedEmail);
     if (existingUser) {
@@ -90,9 +95,10 @@ const userService = {
     const subadmin = await authRepository.create({
       name: String(name).trim(),
       email: normalizedEmail,
-      password,
+      password: normalizedPassword,
       role: normalizedRole,
       permissions: Array.isArray(permissions) ? permissions : [],
+      isActive: true,
     });
 
     return authRepository.findSafeById(subadmin._id);
