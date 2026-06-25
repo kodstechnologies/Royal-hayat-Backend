@@ -108,9 +108,25 @@ const authService = {
 
   login: async ({ email, password }) => {
     const user = await authService.validateUserCredentials({ email, password });
-    await authService.sendOtp({ email: user.email });
 
-    return { email: user.email };
+    const registeredUser = await authRepository.findById(user._id);
+    if (!registeredUser?.email) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    const recipientEmail = String(registeredUser.email).trim().toLowerCase();
+    const otpCode = createOtp();
+    const otpExpiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+
+    await authRepository.upsertLoginOtp(
+      registeredUser._id,
+      recipientEmail,
+      otpCode,
+      otpExpiresAt,
+    );
+    await sendOtpEmail(recipientEmail, otpCode);
+
+    return { email: recipientEmail };
   },
 
   validateUserCredentials: async ({ email, password }) => {
