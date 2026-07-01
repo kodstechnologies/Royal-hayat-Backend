@@ -131,10 +131,45 @@ function mergeLegacyQualificationsFields(formData) {
   delete formData.qualificationsAr;
 }
 
+function coerceObjectIdArrayField(formData, field) {
+  if (formData[field] === undefined) return;
+
+  const raw = formData[field];
+
+  if (Array.isArray(raw)) {
+    formData[field] = raw
+      .map((value) => String(value).trim())
+      .filter(Boolean);
+    return;
+  }
+
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      formData[field] = [];
+      return;
+    }
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        formData[field] = Array.isArray(parsed)
+          ? parsed.map((value) => String(value).trim()).filter(Boolean)
+          : [];
+      } catch {
+        formData[field] = [];
+      }
+      return;
+    }
+    formData[field] = [trimmed];
+  }
+}
+
 function coerceDoctorFormArrays(formData) {
   for (const field of ARRAY_FIELDS) {
     coerceStringArrayField(formData, field);
   }
+
+  coerceObjectIdArrayField(formData, 'department');
 
   const qualificationsRaw = formData.qualifications;
   coerceQualificationsField(formData);

@@ -267,7 +267,7 @@ const mapDoctorPayload = async (entry, departmentId, doctorId) => {
     doctorId,
     name,
     nameAr: nameAr || name,
-    department: departmentId,
+    department: [departmentId],
     subspecialities,
     subspecialitiesAr,
     qualifications: await buildQualificationsFromEntry(entry),

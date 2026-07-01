@@ -352,12 +352,18 @@ class DashboardRepository {
   }
 
   async getDoctorsCountByDepartment() {
-    const [departments, doctorCounts, unassignedDoctors] = await Promise.all([
+    const [departments, doctorCounts, unassignedDoctors, totalDoctors] = await Promise.all([
       Department.find({ isActive: true })
         .select("name arabicName departmentId")
         .sort({ order: 1, name: 1 }),
       Doctor.aggregate([
-        { $match: { isActive: true, department: { $ne: null } } },
+        {
+          $match: {
+            isActive: true,
+            department: { $exists: true, $ne: [] },
+          },
+        },
+        { $unwind: "$department" },
         {
           $group: {
             _id: "$department",
@@ -367,19 +373,18 @@ class DashboardRepository {
       ]),
       Doctor.countDocuments({
         isActive: true,
-        $or: [{ department: null }, { department: { $exists: false } }],
+        $or: [
+          { department: { $exists: false } },
+          { department: null },
+          { department: { $size: 0 } },
+        ],
       }),
+      Doctor.countDocuments({ isActive: true }),
     ]);
 
     const countByDepartment = new Map(
       doctorCounts.map((entry) => [String(entry._id), entry.doctors])
     );
-
-    const assignedTotal = doctorCounts.reduce(
-      (sum, entry) => sum + entry.doctors,
-      0
-    );
-    const totalDoctors = assignedTotal + unassignedDoctors;
 
     const breakdown = departments.map((department) => {
       const doctors = countByDepartment.get(String(department._id)) ?? 0;

@@ -3,7 +3,10 @@ import Department from '../../departments/models/department.model.js';
 import Subspeciality from '../../subspeciality/model/subspeciality.model.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
-import { resolveExpertiseRefs } from '../utils/expertise.util.js';
+import {
+  filterValidObjectIds,
+  resolveExpertiseRefs,
+} from '../utils/expertise.util.js';
 import { resolveQualificationsRefs } from '../utils/qualifications.util.js';
 
 const OID = /^[0-9a-fA-F]{24}$/i;
@@ -17,16 +20,25 @@ function normalizeStringArray(value) {
   ];
 }
 
-async function assertDepartmentExists(departmentId) {
-  const exists = await Department.exists({ _id: departmentId });
-  if (!exists) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Department not found');
+async function assertDepartmentsExist(departments) {
+  const departmentIds = filterValidObjectIds(departments);
+
+  if (departmentIds.length === 0) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'At least one department is required');
   }
+
+  const count = await Department.countDocuments({ _id: { $in: departmentIds } });
+
+  if (count !== departmentIds.length) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'One or more departments not found');
+  }
+
+  return departmentIds;
 }
 
 async function resolveDepartmentId(departmentParam) {
   if (OID.test(departmentParam)) {
-    await assertDepartmentExists(departmentParam);
+    await assertDepartmentsExist([departmentParam]);
     return departmentParam;
   }
 
@@ -45,10 +57,11 @@ async function resolveDepartmentId(departmentParam) {
 
 class DoctorService {
   async createDoctor(doctorData) {
-    await assertDepartmentExists(doctorData.department);
+    const departmentIds = await assertDepartmentsExist(doctorData.department);
 
     const payload = {
       ...doctorData,
+      department: departmentIds,
       subspecialities: normalizeStringArray(
         doctorData.subspecialities,
       ),
@@ -200,11 +213,11 @@ class DoctorService {
       throw new ApiError(httpStatus.NOT_FOUND, 'Doctor not found');
     }
 
-    if (updateData.department) {
-      await assertDepartmentExists(updateData.department);
-    }
-
     const patch = { ...updateData };
+
+    if (updateData.department !== undefined) {
+      patch.department = await assertDepartmentsExist(updateData.department);
+    }
 
     if (patch.image === undefined || patch.image === '') {
       delete patch.image;

@@ -28,11 +28,21 @@ const expertiseArrayOptional = Joi.array().items(expertiseItemSchema).optional()
 const qualificationsArray = Joi.array().items(expertiseItemSchema).optional().default([]);
 const qualificationsArrayOptional = Joi.array().items(expertiseItemSchema).optional();
 
+const departmentArray = Joi.array()
+  .items(objectIdString)
+  .min(1)
+  .required();
+
+const departmentArrayOptional = Joi.array()
+  .items(objectIdString)
+  .min(1)
+  .optional();
+
 const createDoctorSchema = Joi.object({
   doctorId: Joi.string().trim().required(),
   name: Joi.string().trim().required(),
   nameAr: Joi.string().trim().required(),
-  department: objectIdString.required(),
+  department: departmentArray,
   subspecialities: stringArray,
   subspecialitiesAr: stringArray,
   title: Joi.string().trim().allow('').optional(),
@@ -50,7 +60,7 @@ const updateDoctorSchema = Joi.object({
   doctorId: Joi.string().trim().optional(),
   name: Joi.string().trim().optional(),
   nameAr: Joi.string().trim().optional(),
-  department: objectIdString.optional(),
+  department: departmentArrayOptional,
   subspecialities: stringArrayOptional,
   subspecialitiesAr: stringArrayOptional,
   title: Joi.string().trim().allow('').optional(),

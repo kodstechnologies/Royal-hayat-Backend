@@ -157,15 +157,21 @@ class CatagoryRepository {
     const doctorsByDept = new Map();
 
     for (const doc of doctors) {
-      if (!doc.department) continue;
+      const departmentIds = Array.isArray(doc.department)
+        ? doc.department
+        : doc.department
+          ? [doc.department]
+          : [];
 
-      const key = String(doc.department);
+      for (const departmentId of departmentIds) {
+        const key = String(departmentId);
 
-      if (!doctorsByDept.has(key)) {
-        doctorsByDept.set(key, []);
+        if (!doctorsByDept.has(key)) {
+          doctorsByDept.set(key, []);
+        }
+
+        doctorsByDept.get(key).push(doc);
       }
-
-      doctorsByDept.get(key).push(doc);
     }
 
     const deptsByCat = new Map();

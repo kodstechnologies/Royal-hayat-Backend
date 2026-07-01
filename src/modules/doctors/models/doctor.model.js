@@ -22,10 +22,10 @@ const doctorSchema = new mongoose.Schema({
     trim: true
   },
 
-  department: {
+  department: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department',
-  },
+  }],
   subspecialities: [{
     type: String,
     trim: true
@@ -100,6 +100,9 @@ doctorSchema.pre('save', function saveDoctorRefs(next) {
   }
   if (Array.isArray(this.qualifications)) {
     this.qualifications = filterValidObjectIds(this.qualifications);
+  }
+  if (Array.isArray(this.department)) {
+    this.department = filterValidObjectIds(this.department);
   }
   next();
 });
