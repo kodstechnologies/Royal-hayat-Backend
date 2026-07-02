@@ -46,6 +46,27 @@ const trimQuery = (value) => {
 const escapeRegex = (value) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+const buildBilingualFieldMatch = (field, primary, alternate) => {
+  const primaryTrim = trimQuery(primary);
+  const alternateTrim = trimQuery(alternate);
+  if (!primaryTrim && !alternateTrim) return null;
+
+  const clauses = [];
+  if (primaryTrim) {
+    clauses.push({ [field]: new RegExp(escapeRegex(primaryTrim), 'i') });
+  }
+  if (
+    alternateTrim &&
+    alternateTrim.toLowerCase() !== primaryTrim.toLowerCase()
+  ) {
+    clauses.push({ [field]: new RegExp(escapeRegex(alternateTrim), 'i') });
+  }
+
+  if (clauses.length === 0) return null;
+  if (clauses.length === 1) return clauses[0];
+  return { $or: clauses };
+};
+
 const normalizeStatus = (raw) => {
   const status = trimQuery(raw).toLowerCase() || DEFAULT_STATUS_QUERY;
 
@@ -63,6 +84,89 @@ const normalizeStatus = (raw) => {
   return status;
 };
 
+const PARSED_APPOINTMENT_DATE_EXPR = {
+  $let: {
+    vars: { raw: { $ifNull: ['$date', ''] } },
+    in: {
+      $switch: {
+        branches: [
+          {
+            case: {
+              $regexMatch: {
+                input: '$$raw',
+                regex: /^\d{4}-\d{2}-\d{2}/,
+              },
+            },
+            then: {
+              $dateFromString: {
+                dateString: { $substrCP: ['$$raw', 0, 10] },
+                format: '%Y-%m-%d',
+                onError: null,
+                onNull: null,
+              },
+            },
+          },
+          {
+            case: {
+              $regexMatch: {
+                input: '$$raw',
+                regex: /^\d{1,2}\/\d{1,2}\/\d{4}$/,
+              },
+            },
+            then: {
+              $dateFromString: {
+                dateString: '$$raw',
+                format: '%d/%m/%Y',
+                onError: null,
+                onNull: null,
+              },
+            },
+          },
+        ],
+        default: null,
+      },
+    },
+  },
+};
+
+const buildAppointmentDateRangeExpr = (fromDate, toDate) => {
+  const bounds = [{ $ne: [PARSED_APPOINTMENT_DATE_EXPR, null] }];
+
+  if (fromDate) {
+    bounds.push({
+      $gte: [
+        PARSED_APPOINTMENT_DATE_EXPR,
+        {
+          $dateFromString: {
+            dateString: fromDate,
+            format: '%Y-%m-%d',
+            onError: null,
+            onNull: null,
+          },
+        },
+      ],
+    });
+  }
+
+  if (toDate) {
+    bounds.push({
+      $lte: [
+        PARSED_APPOINTMENT_DATE_EXPR,
+        {
+          $dateFromString: {
+            dateString: toDate,
+            format: '%Y-%m-%d',
+            onError: null,
+            onNull: null,
+          },
+        },
+      ],
+    });
+  }
+
+  return bounds.length === 1 ? bounds[0] : { $and: bounds };
+};
+
 export const buildAppointmentListFilter = (
   query = {},
   { includeStatus = false, includeRequestType = false } = {},
@@ -74,26 +178,52 @@ export const buildAppointmentListFilter = (
   const fromTime = trimQuery(query.fromTime ?? query.timeFrom);
   const toTime = trimQuery(query.toTime ?? query.timeTo);
   const department = trimQuery(query.department);
+  const departmentAr = trimQuery(
+    query.departmentAr ?? query.departmentArabic,
+  );
   const doctor = trimQuery(query.doctor ?? query.doctors);
+  const doctorAr = trimQuery(query.doctorAr ?? query.doctorArabic);
+  const search = trimQuery(query.search ?? query.patientName ?? query.name);
+
+  const andConditions = [];
+
+  if (search) {
+    const pattern = new RegExp(escapeRegex(search), 'i');
+    andConditions.push({
+      $or: [
+        { fullname: pattern },
+        { englishName: pattern },
+        { arabicName: pattern },
+      ],
+    });
+  }
+
+  const departmentMatch = buildBilingualFieldMatch(
+    'department',
+    department,
+    departmentAr,
+  );
+  if (departmentMatch) andConditions.push(departmentMatch);
+
+  const doctorMatch = buildBilingualFieldMatch('doctor', doctor, doctorAr);
+  if (doctorMatch) andConditions.push(doctorMatch);
 
   if (fromDate || toDate) {
-    filter.date = {};
-    if (fromDate) filter.date.$gte = fromDate;
-    if (toDate) filter.date.$lte = toDate;
+    andConditions.push({
+      $expr: buildAppointmentDateRangeExpr(fromDate, toDate),
+    });
+  }
+
+  if (andConditions.length === 1) {
+    Object.assign(filter, andConditions[0]);
+  } else if (andConditions.length > 1) {
+    filter.$and = andConditions;
   }
 
   if (fromTime || toTime) {
     filter.slot_from_time = {};
     if (fromTime) filter.slot_from_time.$gte = fromTime;
     if (toTime) filter.slot_from_time.$lte = toTime;
-  }
-
-  if (department) {
-    filter.department = new RegExp(escapeRegex(department), 'i');
-  }
-
-  if (doctor) {
-    filter.doctor = new RegExp(escapeRegex(doctor), 'i');
   }
 
   if (includeStatus) {
