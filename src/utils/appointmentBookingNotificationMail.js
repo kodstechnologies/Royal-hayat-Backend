@@ -5,6 +5,8 @@ import { formatSlotTimesForDisplay } from "../modules/appintmentRequest/utils/ap
 const DEFAULT_RECIPIENTS =
   "vrajesh.vr@royalehayat.com";
 
+const KUWAIT_TIMEZONE = "Asia/Kuwait";
+
 const parseEmails = (value) =>
   String(value || "")
     .split(/[;,]/)
@@ -21,6 +23,8 @@ const formatDateTime = (value) => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
+    timeZone: KUWAIT_TIMEZONE,
   });
 };
 

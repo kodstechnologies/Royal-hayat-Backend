@@ -4,6 +4,8 @@ import { getMailFromAddress } from "./mailFrom.js";
 const DEFAULT_RECIPIENTS =
   "events@royalehayat.com,rola.boufalgha@royalehayat.com,rosemary.creer@royalehayat.com,marketing@royalehayat.com";
 
+const KUWAIT_TIMEZONE = "Asia/Kuwait";
+
 const parseEmails = (value) =>
   String(value || "")
     .split(/[;,]/)
@@ -28,6 +30,7 @@ const formatDate = (value) => {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: KUWAIT_TIMEZONE,
   });
 };
 
@@ -41,6 +44,8 @@ const formatDateTime = (value) => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
+    timeZone: KUWAIT_TIMEZONE,
   });
 };
 

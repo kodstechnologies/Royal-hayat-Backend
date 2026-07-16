@@ -4,6 +4,8 @@ import { getMailFromAddress } from "./mailFrom.js";
 const DEFAULT_RECIPIENTS =
   "info@royalehayat.com,marketing@royalehayat.com";
 
+const KUWAIT_TIMEZONE = "Asia/Kuwait";
+
 const formatDateTime = (value) => {
   if (!value) return "N/A";
   const date = value instanceof Date ? value : new Date(value);
@@ -14,6 +16,8 @@ const formatDateTime = (value) => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
+    timeZone: KUWAIT_TIMEZONE,
   });
 };
 

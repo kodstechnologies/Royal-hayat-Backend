@@ -4,6 +4,8 @@ import { getMailFromAddress } from "./mailFrom.js";
 const DEFAULT_TO = "justine.talampas@royalehayat.com,shehab.mahdy@royalehayat.com,rima.chendeb@royalehayat.com";
 const DEFAULT_CC = "marketing@royalehayat.com";
 
+const KUWAIT_TIMEZONE = "Asia/Kuwait";
+
 const parseEmails = (value) =>
   String(value || "")
     .split(/[;,]/)
@@ -28,6 +30,22 @@ const formatDate = (value) => {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: KUWAIT_TIMEZONE,
+  });
+};
+
+const formatDateTime = (value) => {
+  if (!value) return "N/A";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "N/A";
+  return date.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: KUWAIT_TIMEZONE,
   });
 };
 
@@ -67,6 +85,7 @@ const template = (enrollment) => `
             ${renderRow("Email", escapeHtml(enrollment.email))}
             ${renderRow("Mobile", escapeHtml(enrollment.mobile))}
             ${renderRow("Gender", humanize(escapeHtml(enrollment.gender)))}
+            ${renderRow("Submitted At", formatDateTime(enrollment.createdAt))}
             ${renderRow("Date of Birth", formatDate(enrollment.dateOfBirth))}
             ${renderRow("Preferred Appointment Date", formatDate(enrollment.preferredAppointmentDate))}
             ${renderRow("Medical Checkup", humanize(escapeHtml(enrollment.previousMedicalCheckup)))}
