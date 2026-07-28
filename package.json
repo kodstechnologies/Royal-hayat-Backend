@@ -17,6 +17,7 @@
     "seed:leadership": "node src/scripts/seedLeadership.js",
     "seed:relink-refs": "node src/scripts/relinkDepartmentRefs.js",
     "migrate:doctor-departments": "node src/scripts/migrateDoctorDepartmentsToArray.js",
+    "migrate:achievement-type-month": "node src/scripts/backfillAchievementTypeMonth.js",
     "download:runtime-pdfs": "node src/scripts/downloadRuntimePdfs.js",
     "validate:runtime-pdfs": "node src/scripts/validateRuntimePdfMap.js",
     "seed:runtime-documents": "node src/scripts/seedRuntimeDocuments.js"

@@ -46,6 +46,13 @@ const achievementSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    achievementType: {
+      type: String,
+      required: true,
+      enum: ["month", "quarter"],
+      default: "month",
+      trim: true,
+    },
     arabicAchievements: {
       type: String,
       trim: true,

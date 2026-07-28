@@ -28,6 +28,15 @@ export const createAchievementValidator = Joi.object({
     "string.empty": "Achievement description is required",
     "any.required": "Achievement description is required",
   }),
+  achievementType: Joi.string()
+    .trim()
+    .valid("month", "quarter")
+    .required()
+    .messages({
+      "any.only": 'Achievement type must be either "month" or "quarter"',
+      "any.required": "Achievement type is required",
+      "string.empty": "Achievement type is required",
+    }),
   arabicAchievements: Joi.string().trim().optional().allow(""),
   arabicachievements: Joi.string().trim().optional().allow(""),
 
@@ -54,6 +63,7 @@ export const updateAchievementValidator = Joi.object({
   arabictitle: Joi.string().trim().optional().allow(""),
 
   achievements: Joi.string().trim().optional(),
+  achievementType: Joi.string().trim().valid("month", "quarter").optional(),
   arabicAchievements: Joi.string().trim().optional().allow(""),
   arabicachievements: Joi.string().trim().optional().allow(""),
 
