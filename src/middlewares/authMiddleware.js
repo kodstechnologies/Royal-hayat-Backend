@@ -45,3 +45,28 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+export const optionalVerifyJWT = asyncHandler(async (req, res, next) => {
+  const token =
+    req.cookies?.accessToken ||
+    req.headers['authorization']?.replace('Bearer ', '');
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(decoded._id)
+      .select('name email role permissions isActive')
+      .lean();
+
+    if (user) {
+      req.user = user;
+    }
+  } catch {
+    // Public routes may be called with an expired/invalid token; ignore and continue.
+  }
+
+  next();
+});

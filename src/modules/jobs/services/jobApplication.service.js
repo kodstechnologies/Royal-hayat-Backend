@@ -1,4 +1,5 @@
 import jobApplicationRepository from '../repositories/jobApplication.repository.js';
+import jobRepository from '../repositories/job.repository.js';
 import jobService from './job.service.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
@@ -34,16 +35,9 @@ class JobApplicationService {
         : {})
     };
 
-    const job = await jobService.getJobById(
+    const job = await jobService.requireActiveJobForApplication(
       payload.jobId
     );
-
-    if (!job) {
-      throw new ApiError(
-        httpStatus.NOT_FOUND,
-        'Job not found'
-      );
-    }
 
     const existingApplication =
       await jobApplicationRepository.findRecentApplicationByPhoneOrEmail(
@@ -139,7 +133,9 @@ class JobApplicationService {
   }
 
   async getApplicationsByJobId(jobId, filters = {}) {
-    const job = await jobService.getJobById(jobId);
+    await jobRepository.deactivateExpiredJobs();
+
+    const job = await jobRepository.findById(jobId);
     if (!job) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Job not found');
     }

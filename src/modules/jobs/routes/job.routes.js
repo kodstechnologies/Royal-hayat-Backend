@@ -10,7 +10,7 @@ import {
 } from '../controllers/job.controller.js';
 import { createJobApplication } from '../controllers/jobApplication.controller.js';
 import upload from '../../../utils/multer.js';
-import { verifyJWT } from '../../../middlewares/authMiddleware.js';
+import { verifyJWT, optionalVerifyJWT } from '../../../middlewares/authMiddleware.js';
 import checkPermission from '../../../middlewares/checkPermission.js';
 import { PERMISSIONS } from '../../../constants/permission.js';
 
@@ -20,7 +20,7 @@ router.get('/', getAllJobs);
 router.get('/locations', getLocations);
 router.get('/types', getTypes);
 router.post('/apply', upload.single('resume'), createJobApplication);
-router.get('/:id', getJobById);
+router.get('/:id', optionalVerifyJWT, getJobById);
 
 router.post(
   '/',

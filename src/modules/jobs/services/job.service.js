@@ -85,7 +85,7 @@ class JobService {
     );
   }
 
-  async getJobById(id) {
+  async getJobById(id, { includeInactive = false } = {}) {
     await jobRepository.deactivateExpiredJobs();
 
     const job =
@@ -98,6 +98,10 @@ class JobService {
       );
     }
 
+    if (!job.isActive && !includeInactive) {
+      return { available: false };
+    }
+
     const unviewedByJobId =
       await jobApplicationRepository.countUnviewedByJobIds([job._id]);
 
@@ -105,7 +109,30 @@ class JobService {
     jobData.unviewedApplicationsCount =
       unviewedByJobId.get(String(job._id)) ?? 0;
 
-    return jobData;
+    return { available: true, job: jobData };
+  }
+
+  async requireActiveJobForApplication(id) {
+    await jobRepository.deactivateExpiredJobs();
+
+    const job =
+      await jobRepository.findById(id);
+
+    if (!job) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        'Job not found'
+      );
+    }
+
+    if (!job.isActive) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'This job post is currently unavailable'
+      );
+    }
+
+    return job.toObject();
   }
 
   async updateJob(

@@ -8,6 +8,15 @@ import {
 } from '../validators/job.validator.js';
 import ApiError from '../../../utils/ApiError.js';
 import httpStatus from 'http-status';
+import { PERMISSIONS } from '../../../constants/permission.js';
+
+const canViewInactiveJobs = (user) => {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+
+  const permissions = Array.isArray(user.permissions) ? user.permissions : [];
+  return permissions.includes(PERMISSIONS.JOB_VIEW);
+};
 
 const ARRAY_FIELDS = [
   'responsibilities',
@@ -88,12 +97,25 @@ const getJobById = asyncHandler(async (req, res) => {
     throw new ApiError(httpStatus.BAD_REQUEST, error.details.map(d => d.message).join(", "));
   }
 
-  const job = await jobService.getJobById(value.id);
+  const includeInactive =
+    req.query.includeInactive === 'true' && canViewInactiveJobs(req.user);
+
+  const result = await jobService.getJobById(value.id, { includeInactive });
+
+  if (!result.available) {
+    return res.status(200).json({
+      success: true,
+      message: 'This job post is currently unavailable',
+      data: null,
+      available: false,
+    });
+  }
 
   res.status(200).json({
     success: true,
     message: 'Job fetched successfully',
-    data: job
+    data: result.job,
+    available: true,
   });
 });
 
