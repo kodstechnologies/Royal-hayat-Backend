@@ -16,6 +16,7 @@ import {
   isMockCivilId,
   isMockCivilIdForStart,
 } from '../data/identity.mock.js';
+import { createApiLog } from '../../externalApiLogs/services/externalApiLog.service.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -54,12 +55,31 @@ const isDataNotAvailableError = (statusCode, responseBody) => {
 };
 
 const fetchIdentityDataRaw = async (civilId, options = { allowMissing: false }) => {
-  const dataResp = await fetch(`${SHARPER_BASE_URL}data/${encodeURIComponent(civilId)}`, {
+  const startTime = Date.now();
+  const endpoint = `data/${encodeURIComponent(civilId)}`;
+  
+  const dataResp = await fetch(`${SHARPER_BASE_URL}${endpoint}`, {
     method: 'GET',
     headers: sharperHeaders(),
   });
   console.log('dataResp', dataResp);
   const dataBody = await parseResponseJson(dataResp);
+  const responseTime = Date.now() - startTime;
+  
+  // Log the API call
+  createApiLog({
+    service: 'identity',
+    endpoint: endpoint,
+    method: 'GET',
+    civilId: civilId,
+    requestData: { civilId },
+    responseData: dataBody,
+    statusCode: dataResp.status,
+    success: dataResp.ok,
+    errorMessage: !dataResp.ok ? (dataBody?.detail || dataBody?.message || 'Failed to fetch identity data') : undefined,
+    responseTime: responseTime,
+  }).catch(err => console.error('[fetchIdentityDataRaw] Failed to log API call:', err));
+  
   if (!dataResp.ok) {
     if (options.allowMissing && isDataNotAvailableError(dataResp.status, dataBody)) {
       return null;
@@ -188,6 +208,8 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
     };
   }
 
+  const startTime = Date.now();
+  const endpoint = 'authenticate/start/push-notification';
   const payload = {
     civilId,
     callbackUrl: callbackUrl || SHARPER_CALLBACK_URL,
@@ -198,15 +220,31 @@ const startIdentityVerification = async ({ civilId, callbackUrl, serviceName, re
   identityLog('start', `service: calling Sharper push-notification civilId=${civilId}`);
   identityLogJson('start', 'service: Sharper request payload', payload);
 
-  const response = await fetch(`${SHARPER_BASE_URL}authenticate/start/push-notification`, {
+  const response = await fetch(`${SHARPER_BASE_URL}${endpoint}`, {
     method: 'POST',
     headers: sharperHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload)
   });
 
   const responseBody = await parseResponseJson(response);
+  const responseTime = Date.now() - startTime;
+  
   identityLog('start', `service: Sharper HTTP status=${response.status}`);
   identityLogJson('start', 'service: Sharper response body', responseBody);
+
+  // Log the API call
+  createApiLog({
+    service: 'identity',
+    endpoint: endpoint,
+    method: 'POST',
+    civilId: civilId,
+    requestData: payload,
+    responseData: responseBody,
+    statusCode: response.status,
+    success: response.ok,
+    errorMessage: !response.ok ? (responseBody?.detail || responseBody?.message || 'Failed to start identity verification') : undefined,
+    responseTime: responseTime,
+  }).catch(err => console.error('[startIdentityVerification] Failed to log API call:', err));
 
   if (!response.ok) {
     identityLog('start', 'service: Sharper start FAILED');

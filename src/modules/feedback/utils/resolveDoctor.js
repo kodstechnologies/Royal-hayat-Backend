@@ -100,7 +100,7 @@ export const resolveDoctorByName = async (doctorName) => {
     })
         .select("_id doctorId name nameAr")
         .limit(2);
-
+console.log(doctors);
     if (!doctors.length) {
         throw new ApiError(
             httpStatus.NOT_FOUND,

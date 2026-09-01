@@ -17,12 +17,14 @@ import {
 
 router.post("/create", createDoctorFeedback);
 router.post("/create/by-name", createDoctorFeedbackByName);
+router.post("/create/by-id", createDoctorFeedback); // Alias for doctor ID-based creation
 
 router.get("/all", getAllDoctorFeedbacks);
 
 router.get("/counts", getFeedbackCountsForAll);
 
 router.get("/by-name", getDoctorFeedbackByName);
+router.get("/by-id/:doctorId", getDoctorFeedbackById); // New route for fetching by doctor ID
 
 router.patch("/view/:feedbackId", markDoctorFeedbackViewed);
 

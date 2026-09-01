@@ -12,6 +12,7 @@ import {
   shouldSimulateHisPatientNotFound,
 } from '../../identity/data/identity.mock.js';
 import { royalHayatLog, royalHayatLogJson } from '../utils/royalhayat.logger.js';
+import { createApiLog } from '../../externalApiLogs/services/externalApiLog.service.js';
 
 const getRequiredEnv = (key) => {
   const value = process.env[key];
@@ -84,6 +85,7 @@ const getAuthToken = async () => {
 };
 
 const makeAuthenticatedRequest = async (endpoint, options = {}) => {
+  const startTime = Date.now();
   const token = await getAuthToken();
   const url = `${ROYAL_HAYAT_BASE_URL}${endpoint}`;
 
@@ -102,9 +104,46 @@ const makeAuthenticatedRequest = async (endpoint, options = {}) => {
 
   const response = await fetch(url, requestOptions);
   const responseBody = await parseResponseJson(response);
+  const responseTime = Date.now() - startTime;
 
   console.log(`[RoyalHayat] Response Status: ${response.status}`);
   console.log(`[RoyalHayat] Response Body:`, JSON.stringify(responseBody, null, 2));
+
+  // Extract civilId or patientId from request body or endpoint for logging
+  let civilId = null;
+  let patientId = null;
+  
+  if (options.body) {
+    try {
+      const bodyData = JSON.parse(options.body);
+      patientId = bodyData.patient_id || null;
+    } catch (e) {}
+  }
+  
+  // Try to extract from URL parameters
+  if (endpoint.includes('nationalid=')) {
+    const match = endpoint.match(/nationalid=([^&]+)/);
+    if (match) civilId = decodeURIComponent(match[1]);
+  }
+  if (endpoint.includes('urn=')) {
+    const match = endpoint.match(/urn=([^&]+)/);
+    if (match) patientId = decodeURIComponent(match[1]);
+  }
+
+  // Log the API call
+  createApiLog({
+    service: 'royalhayat',
+    endpoint: endpoint,
+    method: options.method || 'GET',
+    civilId: civilId,
+    patientId: patientId,
+    requestData: options.body ? JSON.parse(options.body) : {},
+    responseData: responseBody,
+    statusCode: response.status,
+    success: response.ok,
+    errorMessage: !response.ok ? (responseBody?.status || responseBody?.message || 'Royal Hayat API request failed') : undefined,
+    responseTime: responseTime,
+  }).catch(err => console.error('[makeAuthenticatedRequest] Failed to log API call:', err));
 
   if (!response.ok) {
     throw new ApiError(

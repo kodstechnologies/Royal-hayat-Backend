@@ -31,6 +31,7 @@ import internationalPatientEnquiryRoutes from "../modules/international-patient/
 import eventRoutes from "../modules/event/routes/event.route.js"
 import fileManagerRoutes from "../modules/fileManager/routes/fileManager.routes.js"
 import runtimePdfViewerRoutes from "../modules/runtimePdfViewer/routes/runtimePdfViewerRoutes.js"
+import externalApiLogRoutes from "../modules/externalApiLogs/routes/externalApiLog.routes.js"
 const router = Router();
 
 router.use('/api/v1/auth', authRoutes);
@@ -63,5 +64,6 @@ router.use("/api/v1/international-patient-enquiries", internationalPatientEnquir
 router.use("/api/v1/events", eventRoutes)
 router.use("/api/v1/file-manager", fileManagerRoutes)
 router.use("/api/v1/runtime-pdf-viewer", runtimePdfViewerRoutes)
+router.use("/api/v1/external-api-logs", externalApiLogRoutes)
 
 export default router;
