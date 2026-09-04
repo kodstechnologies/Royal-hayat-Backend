@@ -11,6 +11,7 @@ import { applySlotTimesToPayload } from '../utils/appointmentSlotTimes.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 const VALID_STATUS = ['received', 'accepted', 'cancelled'];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const assertValidObjectId = (id, label = 'appointment request id') => {
   if (!OID.test(id)) {
@@ -96,7 +97,11 @@ const sanitizePayload = (body = {}) => {
 
   const email = body.email ?? patientData.email;
   if (email !== undefined) {
-    payload.email = String(email).trim();
+    const normalizedEmail = String(email).trim();
+    if (normalizedEmail && !EMAIL_PATTERN.test(normalizedEmail)) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid email');
+    }
+    payload.email = normalizedEmail;
   }
 
   const address = body.address ?? patientData.address;

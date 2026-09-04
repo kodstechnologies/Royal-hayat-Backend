@@ -1,0 +1,512 @@
+[
+  {
+    "departmentId": "R011DIT",
+    "departmentName": "Nutricare",
+    "doctorId": "E2395",
+    "doctorName": "Farah Hachem"
+  },
+  {
+    "departmentId": "R011DIT",
+    "departmentName": "Nutricare",
+    "doctorId": "6015",
+    "doctorName": "Fatme Khreis"
+  },
+  {
+    "departmentId": "R011DIT",
+    "departmentName": "Nutricare",
+    "doctorId": "E2728",
+    "doctorName": "Heba Ben Salamah"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E1759",
+    "doctorName": "Dr. Abubakr Elmardi"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E2961",
+    "doctorName": "Dr. Eman Alsayegh"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E1859",
+    "doctorName": "Dr. Essam Sakr"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E2736",
+    "doctorName": "Dr. Fariba Vadoudi"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E1897",
+    "doctorName": "Dr. Fatima Sultan"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E3329",
+    "doctorName": "Dr. Hafsah Hussain"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E0404",
+    "doctorName": "Dr. Khalida Al Mujaibel"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E1796",
+    "doctorName": "Dr. Lobna Ibrahim Bassiouni"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E1223",
+    "doctorName": "Dr. Mona Abou Taam"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "PT081",
+    "doctorName": "Dr. Nada Al Ibrahim"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "PT082",
+    "doctorName": "Dr. Nourah Al Ibrahim"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E3193",
+    "doctorName": "Dr. Salma Ibrahim"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E2084",
+    "doctorName": "Dr. Samar Nagaty"
+  },
+  {
+    "departmentId": "R002OBG",
+    "departmentName": "Obstetrics & Gynecology",
+    "doctorId": "E1535",
+    "doctorName": "Dr. Zeinab Sholkany M. Saad"
+  },
+  {
+    "departmentId": "R002IVF",
+    "departmentName": "Reproductive Medicine & IVF",
+    "doctorId": "PT023",
+    "doctorName": "Dr. Elisavet Angelaki"
+  },
+  {
+    "departmentId": "R002IVF",
+    "departmentName": "Reproductive Medicine & IVF",
+    "doctorId": "PT022",
+    "doctorName": "Dr. Naser Al-Azemi"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "PT036",
+    "doctorName": "Dr. Ahmad Abdulrahman Al Mulla"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "PT042",
+    "doctorName": "Dr. Ahmad Al Mosawi"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "E0723",
+    "doctorName": "Dr. Ehab Atteya"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "PT069",
+    "doctorName": "Dr. Fahed Abdulaziz Aljaser"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "E3407",
+    "doctorName": "Dr. Haifa Osman ElHassan"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "PT071",
+    "doctorName": "Dr. Mohammad Ebrahim"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "PT047",
+    "doctorName": "Dr. Omar Alkandari"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "E1890",
+    "doctorName": "Dr. Rajendra C. Mishra"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "E1095",
+    "doctorName": "Dr. Roland Waked"
+  },
+  {
+    "departmentId": "R002PED",
+    "departmentName": "Pediatrics",
+    "doctorId": "PT038",
+    "doctorName": "Dr. Wasmi Al Fadhli"
+  },
+  {
+    "departmentId": "R01NEO",
+    "departmentName": "Neonatal",
+    "doctorId": "E3208",
+    "doctorName": "Dr. Deepak Vasudev"
+  },
+  {
+    "departmentId": "R01NEO",
+    "departmentName": "Neonatal",
+    "doctorId": "E3267",
+    "doctorName": "Dr. Eyhab Bader"
+  },
+  {
+    "departmentId": "R01NEO",
+    "departmentName": "Neonatal",
+    "doctorId": "PT080",
+    "doctorName": "Dr. Mazen Alessa"
+  },
+  {
+    "departmentId": "R01NEO",
+    "departmentName": "Neonatal",
+    "doctorId": "E2768",
+    "doctorName": "Dr. Mohamad Hassoun"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "E3195",
+    "doctorName": "Dr. Abdulaziz Ramadhan"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "PT043",
+    "doctorName": "Dr. Ahmed Al Qallaf"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "PT060",
+    "doctorName": "Dr. Ali Ibrahim Aldei"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "PT053",
+    "doctorName": "Dr. Alia Ali Ibrahim"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "PT064",
+    "doctorName": "Dr. Dherar M. Alroudhan"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "PT076",
+    "doctorName": "Dr. Mohammad Alkandari"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "PT070",
+    "doctorName": "Dr. Mohammad Alturki"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "dr-raed-al-swait",
+    "doctorName": "Dr. Raed Al Swait"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "E2607",
+    "doctorName": "Dr. Said Ahmed Ooda"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "E3305",
+    "doctorName": "Dr. Sameh Emara"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "PT066",
+    "doctorName": "Dr. Wadha Abdulaziz Al-jaser"
+  },
+  {
+    "departmentId": "R01ERC",
+    "departmentName": "Internal Medicine",
+    "doctorId": "PT084",
+    "doctorName": "Dr. Yassmin Othman"
+  },
+  {
+    "departmentId": "GI 1",
+    "departmentName": "General & Laparoscopic Surgery",
+    "doctorId": "E2196",
+    "doctorName": "Dr. Ahmed Al Mulla"
+  },
+  {
+    "departmentId": "GI 1",
+    "departmentName": "General & Laparoscopic Surgery",
+    "doctorId": "PT061",
+    "doctorName": "Dr. Humoud Alrasheedi"
+  },
+  {
+    "departmentId": "GI 1",
+    "departmentName": "General & Laparoscopic Surgery",
+    "doctorId": "E1224",
+    "doctorName": "Dr. Hussein Faour"
+  },
+  {
+    "departmentId": "GI 1",
+    "departmentName": "General & Laparoscopic Surgery",
+    "doctorId": "E2237",
+    "doctorName": "Dr. Noha Alsaleh"
+  },
+  {
+    "departmentId": "GI 1",
+    "departmentName": "General & Laparoscopic Surgery",
+    "doctorId": "PT054",
+    "doctorName": "Dr. Sulaiman Almazeedi"
+  },
+  {
+    "departmentId": "R060COS",
+    "departmentName": "Plastic Surgery & Cosmetology",
+    "doctorId": "E3195",
+    "doctorName": "Dr. Brook Assefa Ayele"
+  },
+  {
+    "departmentId": "R060COS",
+    "departmentName": "Plastic Surgery & Cosmetology",
+    "doctorId": "PT085",
+    "doctorName": "Dr. Fatemah Faras"
+  },
+  {
+    "departmentId": "R060COS",
+    "departmentName": "Plastic Surgery & Cosmetology",
+    "doctorId": "CE050",
+    "doctorName": "Dr. Gie Vandehult"
+  },
+  {
+    "departmentId": "R060COS",
+    "departmentName": "Plastic Surgery & Cosmetology",
+    "doctorId": "PT079",
+    "doctorName": "Dr. Husain Alqattan"
+  },
+  {
+    "departmentId": "R060COS",
+    "departmentName": "Plastic Surgery & Cosmetology",
+    "doctorId": "CE055",
+    "doctorName": "Dr. Mohammad Razzak"
+  },
+  {
+    "departmentId": "R060COS",
+    "departmentName": "Plastic Surgery & Cosmetology",
+    "doctorId": "PT062",
+    "doctorName": "Dr. Sarah Al Youha"
+  },
+  {
+    "departmentId": "R01DER",
+    "departmentName": "Dermatology",
+    "doctorId": "CE121",
+    "doctorName": "Dr. Musheera M. Ali"
+  },
+  {
+    "departmentId": "R01DER",
+    "departmentName": "Dermatology",
+    "doctorId": "CE118",
+    "doctorName": "Dr. Suraj V. Davis"
+  },
+  {
+    "departmentId": "R01ENT",
+    "departmentName": "ENT (Ear, Nose & Throat)",
+    "doctorId": "PT072",
+    "doctorName": "Dr. Abdullah Albader"
+  },
+  {
+    "departmentId": "R01ENT",
+    "departmentName": "ENT (Ear, Nose & Throat)",
+    "doctorId": "E3195",
+    "doctorName": "Dr. Brook Assefa Ayele"
+  },
+  {
+    "departmentId": "R01ENT",
+    "departmentName": "ENT (Ear, Nose & Throat)",
+    "doctorId": "PT085",
+    "doctorName": "Dr. Fatemah Faras"
+  },
+  {
+    "departmentId": "R01ENT",
+    "departmentName": "ENT (Ear, Nose & Throat)",
+    "doctorId": "PT050",
+    "doctorName": "Dr. Hamoud Abdullah Alarouj"
+  },
+  {
+    "departmentId": "R01ENT",
+    "departmentName": "ENT (Ear, Nose & Throat)",
+    "doctorId": "E1949",
+    "doctorName": "Dr. Hanafi Abdelsalam"
+  },
+  {
+    "departmentId": "R01ENT",
+    "departmentName": "ENT (Ear, Nose & Throat)",
+    "doctorId": "PT078",
+    "doctorName": "Dr. Maha Al-gilani"
+  },
+  {
+    "departmentId": "R01FMC",
+    "departmentName": "Family Medicine",
+    "doctorId": "E2562",
+    "doctorName": "Dr. Anny Qaisser"
+  },
+  {
+    "departmentId": "R01FMC",
+    "departmentName": "Family Medicine",
+    "doctorId": "E2561",
+    "doctorName": "Dr. Rabee Harb"
+  },
+  {
+    "departmentId": "R002DEN",
+    "departmentName": "Dental Clinic",
+    "doctorId": "PT059",
+    "doctorName": "Dr. Anood Yousef Aljasser Alrajahi"
+  },
+  {
+    "departmentId": "R002DEN",
+    "departmentName": "Dental Clinic",
+    "doctorId": "PT086",
+    "doctorName": "Dr. Ebrahim Abdulkarim"
+  },
+  {
+    "departmentId": "R002DEN",
+    "departmentName": "Dental Clinic",
+    "doctorId": "E1602",
+    "doctorName": "Dr. Khaled N. Al Awadhi"
+  },
+  {
+    "departmentId": "R002DEN",
+    "departmentName": "Dental Clinic",
+    "doctorId": "PT074",
+    "doctorName": "Dr. Nourah Adnan Saad Alrubaian"
+  },
+  {
+    "departmentId": "R002DEN",
+    "departmentName": "Dental Clinic",
+    "doctorId": "E2254",
+    "doctorName": "Dr. Rajesh R. Patil"
+  },
+  {
+    "departmentId": "R002DEN",
+    "departmentName": "Dental Clinic",
+    "doctorId": "PT083",
+    "doctorName": "Dr. Salman Ben Nakhi"
+  },
+  {
+    "departmentId": "R002DEN",
+    "departmentName": "Dental Clinic",
+    "doctorId": "E2645",
+    "doctorName": "Dr. Sanketa Patil"
+  },
+  {
+    "departmentId": "R002PAI",
+    "departmentName": "Pain Management",
+    "doctorId": "E1076",
+    "doctorName": "Dr. Hamid Ghaderi"
+  },
+  {
+    "departmentId": "R002ANA",
+    "departmentName": "Anesthesia",
+    "doctorId": "E1076",
+    "doctorName": "Dr. Hamid Ghaderi"
+  },
+  {
+    "departmentId": "R002ANA",
+    "departmentName": "Anesthesia",
+    "doctorId": "E1461",
+    "doctorName": "Dr. Yasser Haggag"
+  },
+  {
+    "departmentId": "R002ANA",
+    "departmentName": "Anesthesia",
+    "doctorId": "E0366",
+    "doctorName": "Prof. Dr. Omar El Khateeb"
+  },
+  {
+    "departmentId": "R010DIE",
+    "departmentName": "Center for Diagnostic Imaging",
+    "doctorId": "PT033",
+    "doctorName": "Dr. Adel Al-Ali, M.D."
+  },
+  {
+    "departmentId": "R010DIE",
+    "departmentName": "Center for Diagnostic Imaging",
+    "doctorId": "PT011",
+    "doctorName": "Dr. Osama Al Saeed"
+  },
+  {
+    "departmentId": "R010DIE",
+    "departmentName": "Center for Diagnostic Imaging",
+    "doctorId": "E2616",
+    "doctorName": "Dr. Yomna Abdelaal Husseiny"
+  },
+  {
+    "departmentId": "R07LABH",
+    "departmentName": "Laboratory Services",
+    "doctorId": "dr-alaa-abdullah",
+    "doctorName": "Dr. Alaa Abdullah"
+  },
+  {
+    "departmentId": "R07LABH",
+    "departmentName": "Laboratory Services",
+    "doctorId": "PT044",
+    "doctorName": "Dr. Najat Rouhaldeen"
+  },
+  {
+    "departmentId": "R07LABH",
+    "departmentName": "Laboratory Services",
+    "doctorId": "dr-salah-al-wuhaib",
+    "doctorName": "Dr. Salah Al-Wuhaib"
+  },
+  {
+    "departmentId": "RHH-17",
+    "departmentName": "Clinical Pharmacy",
+    "doctorId": "dr-mustafa-alfiki",
+    "doctorName": "Mustafa Alfiki"
+  },
+  {
+    "departmentId": "RHH-20",
+    "departmentName": "Royale Hayat Pharmacy",
+    "doctorId": "dr-mirvat-sameer-ghanem",
+    "doctorName": "Mirvat Sameer Ghanem"
+  }
+]

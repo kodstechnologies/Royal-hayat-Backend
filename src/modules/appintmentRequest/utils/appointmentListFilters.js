@@ -194,6 +194,8 @@ export const buildAppointmentListFilter = (
         { fullname: pattern },
         { englishName: pattern },
         { arabicName: pattern },
+        { email: pattern },
+        { phone: pattern },
       ],
     });
   }

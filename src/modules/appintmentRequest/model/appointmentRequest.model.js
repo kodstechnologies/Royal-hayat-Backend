@@ -14,6 +14,11 @@ const appointmentRequestSchema = new mongoose.Schema(
       trim: true,
     },
 
+    email: {
+      type: String,
+      trim: true,
+    },
+
     age: {
       type: Number,
     },
@@ -42,10 +47,6 @@ const appointmentRequestSchema = new mongoose.Schema(
     },
     mobile_number: {
       type: String,
-    },
-    email: {
-      type: String,
-      trim: true,
     },
     address: {
       type: String,
@@ -106,6 +107,7 @@ const appointmentRequestSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+  
     requestType:{
       type:String,
       enum:[

@@ -1,0 +1,86 @@
+Clinic code,clinic name,doctor code,doctor name
+R011DIT,Nutricare,E2395,Farah Hachem
+R011DIT,Nutricare,6015,Fatme Khreis
+R011DIT,Nutricare,E2728,Heba Ben Salamah
+R002OBG,Obstetrics & Gynecology,E1759,Dr. Abubakr Elmardi
+R002OBG,Obstetrics & Gynecology,E2961,Dr. Eman Alsayegh
+R002OBG,Obstetrics & Gynecology,E1859,Dr. Essam Sakr
+R002OBG,Obstetrics & Gynecology,E2736,Dr. Fariba Vadoudi
+R002OBG,Obstetrics & Gynecology,E1897,Dr. Fatima Sultan
+R002OBG,Obstetrics & Gynecology,E3329,Dr. Hafsah Hussain
+R002OBG,Obstetrics & Gynecology,E0404,Dr. Khalida Al Mujaibel
+R002OBG,Obstetrics & Gynecology,E1796,Dr. Lobna Ibrahim Bassiouni
+R002OBG,Obstetrics & Gynecology,E1223,Dr. Mona Abou Taam
+R002OBG,Obstetrics & Gynecology,PT081,Dr. Nada Al Ibrahim
+R002OBG,Obstetrics & Gynecology,PT082,Dr. Nourah Al Ibrahim
+R002OBG,Obstetrics & Gynecology,E3193,Dr. Salma Ibrahim
+R002OBG,Obstetrics & Gynecology,E2084,Dr. Samar Nagaty
+R002OBG,Obstetrics & Gynecology,E1535,Dr. Zeinab Sholkany M. Saad
+R002IVF,Reproductive Medicine & IVF,PT023,Dr. Elisavet Angelaki
+R002IVF,Reproductive Medicine & IVF,PT022,Dr. Naser Al-Azemi
+R002PED,Pediatrics,PT036,Dr. Ahmad Abdulrahman Al Mulla
+R002PED,Pediatrics,PT042,Dr. Ahmad Al Mosawi
+R002PED,Pediatrics,E0723,Dr. Ehab Atteya
+R002PED,Pediatrics,PT069,Dr. Fahed Abdulaziz Aljaser
+R002PED,Pediatrics,E3407,Dr. Haifa Osman ElHassan
+R002PED,Pediatrics,PT071,Dr. Mohammad Ebrahim
+R002PED,Pediatrics,PT047,Dr. Omar Alkandari
+R002PED,Pediatrics,E1890,Dr. Rajendra C. Mishra
+R002PED,Pediatrics,E1095,Dr. Roland Waked
+R002PED,Pediatrics,PT038,Dr. Wasmi Al Fadhli
+R01NEO,Neonatal,E3208,Dr. Deepak Vasudev
+R01NEO,Neonatal,E3267,Dr. Eyhab Bader
+R01NEO,Neonatal,PT080,Dr. Mazen Alessa
+R01NEO,Neonatal,E2768,Dr. Mohamad Hassoun
+R01ERC,Internal Medicine,E3195,Dr. Abdulaziz Ramadhan
+R01ERC,Internal Medicine,PT043,Dr. Ahmed Al Qallaf
+R01ERC,Internal Medicine,PT060,Dr. Ali Ibrahim Aldei
+R01ERC,Internal Medicine,PT053,Dr. Alia Ali Ibrahim
+R01ERC,Internal Medicine,PT064,Dr. Dherar M. Alroudhan
+R01ERC,Internal Medicine,PT076,Dr. Mohammad Alkandari
+R01ERC,Internal Medicine,PT070,Dr. Mohammad Alturki
+R01ERC,Internal Medicine,dr-raed-al-swait,Dr. Raed Al Swait
+R01ERC,Internal Medicine,E2607,Dr. Said Ahmed Ooda
+R01ERC,Internal Medicine,E3305,Dr. Sameh Emara
+R01ERC,Internal Medicine,PT066,Dr. Wadha Abdulaziz Al-jaser
+R01ERC,Internal Medicine,PT084,Dr. Yassmin Othman
+GI 1,General & Laparoscopic Surgery,E2196,Dr. Ahmed Al Mulla
+GI 1,General & Laparoscopic Surgery,PT061,Dr. Humoud Alrasheedi
+GI 1,General & Laparoscopic Surgery,E1224,Dr. Hussein Faour
+GI 1,General & Laparoscopic Surgery,E2237,Dr. Noha Alsaleh
+GI 1,General & Laparoscopic Surgery,PT054,Dr. Sulaiman Almazeedi
+R060COS,Plastic Surgery & Cosmetology,E3195,Dr. Brook Assefa Ayele
+R060COS,Plastic Surgery & Cosmetology,PT085,Dr. Fatemah Faras
+R060COS,Plastic Surgery & Cosmetology,CE050,Dr. Gie Vandehult
+R060COS,Plastic Surgery & Cosmetology,PT079,Dr. Husain Alqattan
+R060COS,Plastic Surgery & Cosmetology,CE055,Dr. Mohammad Razzak
+R060COS,Plastic Surgery & Cosmetology,PT062,Dr. Sarah Al Youha
+R01DER,Dermatology,CE121,Dr. Musheera M. Ali
+R01DER,Dermatology,CE118,Dr. Suraj V. Davis
+R01ENT,"ENT (Ear, Nose & Throat)",PT072,Dr. Abdullah Albader
+R01ENT,"ENT (Ear, Nose & Throat)",E3195,Dr. Brook Assefa Ayele
+R01ENT,"ENT (Ear, Nose & Throat)",PT085,Dr. Fatemah Faras
+R01ENT,"ENT (Ear, Nose & Throat)",PT050,Dr. Hamoud Abdullah Alarouj
+R01ENT,"ENT (Ear, Nose & Throat)",E1949,Dr. Hanafi Abdelsalam
+R01ENT,"ENT (Ear, Nose & Throat)",PT078,Dr. Maha Al-gilani
+R01FMC,Family Medicine,E2562,Dr. Anny Qaisser
+R01FMC,Family Medicine,E2561,Dr. Rabee Harb
+R002DEN,Dental Clinic,PT059,Dr. Anood Yousef Aljasser Alrajahi
+R002DEN,Dental Clinic,PT086,Dr. Ebrahim Abdulkarim
+R002DEN,Dental Clinic,E1602,Dr. Khaled N. Al Awadhi
+R002DEN,Dental Clinic,PT074,Dr. Nourah Adnan Saad Alrubaian
+R002DEN,Dental Clinic,E2254,Dr. Rajesh R. Patil
+R002DEN,Dental Clinic,PT083,Dr. Salman Ben Nakhi
+R002DEN,Dental Clinic,E2645,Dr. Sanketa Patil
+R002PAI,Pain Management,E1076,Dr. Hamid Ghaderi
+R002ANA,Anesthesia,E1076,Dr. Hamid Ghaderi
+R002ANA,Anesthesia,E1461,Dr. Yasser Haggag
+R002ANA,Anesthesia,E0366,Prof. Dr. Omar El Khateeb
+R010DIE,Center for Diagnostic Imaging,PT033,"Dr. Adel Al-Ali, M.D."
+R010DIE,Center for Diagnostic Imaging,PT011,Dr. Osama Al Saeed
+R010DIE,Center for Diagnostic Imaging,E2616,Dr. Yomna Abdelaal Husseiny
+R07LABH,Laboratory Services,dr-alaa-abdullah,Dr. Alaa Abdullah
+R07LABH,Laboratory Services,PT044,Dr. Najat Rouhaldeen
+R07LABH,Laboratory Services,dr-salah-al-wuhaib,Dr. Salah Al-Wuhaib
+RHH-17,Clinical Pharmacy,dr-mustafa-alfiki,Mustafa Alfiki
+RHH-20,Royale Hayat Pharmacy,dr-mirvat-sameer-ghanem,Mirvat Sameer Ghanem
