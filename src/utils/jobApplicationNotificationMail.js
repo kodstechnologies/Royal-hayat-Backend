@@ -3,7 +3,7 @@ import { getMailFromAddress } from "./mailFrom.js";
 import { getS3ObjectBuffer } from "./s3Fetch.js";
 
 const DEFAULT_RECIPIENTS =
-  "hr@royalehayat.com,marketing@royalehayat.com";
+  "hr@royalehayat.com";
 
 const KUWAIT_TIMEZONE = "Asia/Kuwait";
 
