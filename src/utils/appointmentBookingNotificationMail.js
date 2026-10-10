@@ -3,7 +3,7 @@ import { getMailFromAddress } from "./mailFrom.js";
 import { formatSlotTimesForDisplay } from "../modules/appintmentRequest/utils/appointmentSlotTimes.js";
 
 const DEFAULT_RECIPIENTS =
-  "vrajesh.vr@royalehayat.com";
+  "";
 
 const KUWAIT_TIMEZONE = "Asia/Kuwait";
 
@@ -139,7 +139,7 @@ export const appointmentBookingNotificationEmailTemplate = (booking) => {
 
 export const sendAppointmentBookingNotificationEmail = async (booking) => {
   const recipients = parseEmails(
-    process.env.APPOINTMENT_BOOKING_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS,
+    DEFAULT_RECIPIENTS,
   );
 
   if (recipients.length === 0) {
