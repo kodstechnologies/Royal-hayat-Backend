@@ -4,7 +4,10 @@ import appointmentBookingRecordRepository from '../repository/AppointmentBooking
 import appointmentRequestRepository from '../repository/AppointmentRequest.repository.js';
 import { buildAppointmentListFilter, APPOINTMENT_REQUEST_TYPES } from '../utils/appointmentListFilters.js';
 import { applySlotTimesToPayload } from '../utils/appointmentSlotTimes.js';
-import { sendAppointmentBookingNotificationEmail } from '../../../utils/appointmentBookingNotificationMail.js';
+import {
+  sendAppointmentBookingNotificationEmail,
+  sendAppointmentBookingNotificationEmailWithDepartment,
+} from '../../../utils/appointmentBookingNotificationMail.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
 
@@ -172,7 +175,20 @@ class AppointmentBookingRecordService {
     try {
       const booking =
         typeof record?.toObject === 'function' ? record.toObject() : record;
-      await sendAppointmentBookingNotificationEmail(booking);
+
+      const department = booking.department || '';
+      const departmentEnvVar = `${department.toUpperCase().replace(/\s+/g, '_')}_NOTIFICATION_EMAILS`;
+      const departmentRecipients = process.env[departmentEnvVar];
+
+      if (department && departmentRecipients) {
+        await sendAppointmentBookingNotificationEmailWithDepartment(
+          booking,
+          department,
+          departmentRecipients,
+        );
+      } else {
+        await sendAppointmentBookingNotificationEmail(booking);
+      }
     } catch (mailError) {
       console.error(
         'Appointment booking notification email failed:',

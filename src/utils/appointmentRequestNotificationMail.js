@@ -156,3 +156,47 @@ export const sendAppointmentRequestNotificationEmail = async (request) => {
     html: appointmentRequestNotificationEmailTemplate(request),
   });
 };
+
+export const sendAppointmentRequestNotificationEmailWithDepartment = async (
+  request,
+  departmentName,
+  additionalRecipients,
+) => {
+  const defaultRecipients = (
+    process.env.APPOINTMENT_REQUEST_NOTIFICATION_EMAILS || DEFAULT_RECIPIENTS
+  )
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+
+  const departmentRecipients = Array.isArray(additionalRecipients)
+    ? additionalRecipients
+    : String(additionalRecipients || "")
+        .split(",")
+        .map((email) => email.trim())
+        .filter(Boolean);
+
+  const allRecipients = [...new Set([...defaultRecipients, ...departmentRecipients])];
+
+  if (allRecipients.length === 0) {
+    throw new Error("No appointment request notification recipients configured");
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  const patientName = request.fullname || "Patient";
+  const departmentSuffix = departmentName ? ` — ${departmentName}` : "";
+  await transporter.sendMail({
+    from: getMailFromAddress(),
+    to: allRecipients.join(", "),
+    ...(request.email ? { replyTo: request.email } : {}),
+    subject: `New Appointment Request — ${patientName}${departmentSuffix}`,
+    html: appointmentRequestNotificationEmailTemplate(request),
+  });
+};

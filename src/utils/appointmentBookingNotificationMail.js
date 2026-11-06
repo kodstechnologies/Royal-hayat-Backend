@@ -3,7 +3,7 @@ import { getMailFromAddress } from "./mailFrom.js";
 import { formatSlotTimesForDisplay } from "../modules/appintmentRequest/utils/appointmentSlotTimes.js";
 
 const DEFAULT_RECIPIENTS =
-  "";
+  process.env.APPOINTMENT_BOOKING_NOTIFICATION_EMAILS || "";
 
 const KUWAIT_TIMEZONE = "Asia/Kuwait";
 
@@ -143,7 +143,7 @@ export const sendAppointmentBookingNotificationEmail = async (booking) => {
   );
 
   if (recipients.length === 0) {
-    throw new Error("No appointment booking notification recipients configured");
+    return;
   }
 
   const transporter = nodemailer.createTransport({
@@ -160,6 +160,42 @@ export const sendAppointmentBookingNotificationEmail = async (booking) => {
     to: recipients.join(", "),
     ...(booking.email ? { replyTo: booking.email } : {}),
     subject: `New Appointment Booking — ${patientName}`,
+    html: appointmentBookingNotificationEmailTemplate(booking),
+  });
+};
+
+export const sendAppointmentBookingNotificationEmailWithDepartment = async (
+  booking,
+  departmentName,
+  additionalRecipients,
+) => {
+  const defaultRecipients = parseEmails(DEFAULT_RECIPIENTS);
+
+  const departmentRecipients = Array.isArray(additionalRecipients)
+    ? additionalRecipients
+    : parseEmails(additionalRecipients);
+
+  const allRecipients = [...new Set([...defaultRecipients, ...departmentRecipients])];
+
+  if (allRecipients.length === 0) {
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  const patientName = booking.fullname || "Patient";
+  const departmentSuffix = departmentName ? ` — ${departmentName}` : "";
+  await transporter.sendMail({
+    from: getMailFromAddress(),
+    to: allRecipients.join(", "),
+    ...(booking.email ? { replyTo: booking.email } : {}),
+    subject: `New Appointment Booking — ${patientName}${departmentSuffix}`,
     html: appointmentBookingNotificationEmailTemplate(booking),
   });
 };

@@ -6,7 +6,10 @@ import {
   normalizeRequestType,
   VALID_REQUEST_TYPES,
 } from '../utils/appointmentListFilters.js';
-import { sendAppointmentRequestNotificationEmail } from '../../../utils/appointmentRequestNotificationMail.js';
+import {
+  sendAppointmentRequestNotificationEmail,
+  sendAppointmentRequestNotificationEmailWithDepartment,
+} from '../../../utils/appointmentRequestNotificationMail.js';
 import { applySlotTimesToPayload } from '../utils/appointmentSlotTimes.js';
 
 const OID = /^[0-9a-fA-F]{24}$/;
@@ -229,7 +232,19 @@ class AppointmentRequestService {
     });
 
     try {
-      await sendAppointmentRequestNotificationEmail(created);
+      const department = created.department || '';
+      const departmentEnvVar = `${department.toUpperCase().replace(/\s+/g, '_')}_NOTIFICATION_EMAILS`;
+      const departmentRecipients = process.env[departmentEnvVar];
+
+      if (department && departmentRecipients) {
+        await sendAppointmentRequestNotificationEmailWithDepartment(
+          created,
+          department,
+          departmentRecipients,
+        );
+      } else {
+        await sendAppointmentRequestNotificationEmail(created);
+      }
     } catch (mailError) {
       console.error(
         'Appointment request notification email failed:',
